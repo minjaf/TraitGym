@@ -8,7 +8,7 @@ include: "rules/features/gpn_msa.smk"
 rule all:
     input:
         expand(
-            "results/features/{dataset}/{features}.parquet",
+            "results/features/{dataset}/{features}.parquet.uploaded",
             dataset=config["datasets"], features=config["features"],
         ),
         #"results/gwas/filt.annot.matched/test.parquet",

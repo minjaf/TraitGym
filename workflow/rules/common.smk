@@ -263,3 +263,19 @@ rule match:
         V = sort_chrom_pos(V)
         print(V)
         V.to_parquet(output[0], index=False)
+
+
+rule upload_features_to_hf:
+    input:
+        "results/features/{dataset}/{features}.parquet",
+    output:
+        touch("results/features/{dataset}/{features}.parquet.uploaded"),
+    threads:
+        workflow.cores
+    run:
+        from huggingface_hub import HfApi
+        api = HfApi()
+        api.upload_file(
+            path_or_fileobj=input[0], path_in_repo=f"features/{wildcards.features}.parquet",
+            repo_id=wildcards.dataset, repo_type="dataset",
+        )
