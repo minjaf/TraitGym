@@ -1,11 +1,16 @@
 configfile: "config/config.yaml"
 
 include: "rules/common.smk"
-include: "rules/gwas.smk"
+include: "rules/data/gwas.smk"
+include: "rules/features/gpn_msa.smk"
 
 
 rule all:
     input:
-        "results/gwas/filt.annot.matched/test.parquet",
-        "results/eqtl/merged/ge/merged.annot.matched/test.parquet",
-        "results/eqtl/merged/leafcutter/merged.annot.matched/test.parquet",
+        expand(
+            "results/features/{dataset}/{features}.parquet",
+            dataset=config["datasets"], features=config["features"],
+        ),
+        #"results/gwas/filt.annot.matched/test.parquet",
+        #"results/eqtl/merged/ge/merged.annot.matched/test.parquet",
+        #"results/eqtl/merged/leafcutter/merged.annot.matched/test.parquet",

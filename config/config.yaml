@@ -1,2 +1,16 @@
 genome_url: "http://ftp.ensembl.org/pub/release-107/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa.gz"
 annotation_url: "http://ftp.ensembl.org/pub/release-107/gtf/homo_sapiens/Homo_sapiens.GRCh38.107.chr.gtf.gz"
+
+datasets:
+  - "gonzalobenegas/gwas"
+  - "gonzalobenegas/eqtl"
+  - "gonzalobenegas/sqtl"
+
+features:
+  - "GPN-MSA_absLLR"
+  - "GPN-MSA_InnerProducts"
+
+gpn_msa:
+  model_path: "songlab/gpn-msa-sapiens"
+  msa_path: "/accounts/projects/yss/gbenegas/projects/gpn/analysis/human/results/msa/multiz100way/89/all.zarr"
+  window_size: 128
