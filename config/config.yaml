@@ -5,12 +5,14 @@ datasets:
   - "gonzalobenegas/gwas"
   - "gonzalobenegas/eqtl"
   - "gonzalobenegas/sqtl"
+  - "gonzalobenegas/splicing_assay"
 
 features:
-  - "GPN-MSA_absLLR"
-  - "GPN-MSA_InnerProducts"
+#  - "GPN-MSA_absLLR"
+#  - "GPN-MSA_InnerProducts"
 #  - "Enformer_absDelta"
-  - Pangolin
+#  - Pangolin
+  - CADD
 
 feature_sets:
   GPN-MSA:
@@ -34,23 +36,27 @@ dataset_eval_models:
     - GPN-MSA+Enformer.LogisticRegression
     - GPN-MSA_absLLR.Unsupervised
     - Enformer_absDelta.Unsupervised
+    - CADD.Unsupervised
   gonzalobenegas/eqtl:
     - GPN-MSA.LogisticRegression
     - Enformer.LogisticRegression
     - GPN-MSA+Enformer.LogisticRegression
     - GPN-MSA_absLLR.Unsupervised
     - Enformer_absDelta.Unsupervised
+    - CADD.Unsupervised
   gonzalobenegas/sqtl:
     - GPN-MSA.LogisticRegression
     - Enformer.LogisticRegression
     - GPN-MSA+Enformer.LogisticRegression
     - GPN-MSA_absLLR.Unsupervised
     - Enformer_absDelta.Unsupervised
+    - CADD.Unsupervised
   gonzalobenegas/splicing_assay:
     - GPN-MSA.LogisticRegression
     - GPN-MSA+Pangolin.LogisticRegression
     - GPN-MSA_absLLR.Unsupervised
     - Pangolin.Unsupervised
+    - CADD.Unsupervised
 
 baseline_features:
   gonzalobenegas/gwas:
