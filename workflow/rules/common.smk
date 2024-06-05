@@ -302,8 +302,10 @@ def train_predict_logistic_regression(V_train, V_test, features):
     clf = Pipeline([
         ('scaler', RobustScaler()),
         ('linear', LogisticRegressionCV(
-            random_state=42,
+            class_weight="balanced",
             scoring="roc_auc" if balanced else "average_precision",
+            Cs=np.logspace(-10, 10, 21),
+            random_state=42,
             n_jobs=-1,
         ))
     ])
