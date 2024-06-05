@@ -2,15 +2,21 @@ configfile: "config/config.yaml"
 
 include: "rules/common.smk"
 include: "rules/data/gwas.smk"
+include: "rules/features/enformer.smk"
 include: "rules/features/gpn_msa.smk"
+include: "rules/model.smk"
 
 
 rule all:
     input:
+        #expand(
+        #    "results/features/{dataset}/{features}.parquet.uploaded",
+        #    dataset=config["datasets"], features=config["features"],
+        #),
         expand(
-            "results/features/{dataset}/{features}.parquet.uploaded",
-            dataset=config["datasets"], features=config["features"],
-        ),
+            "results/merged_metrics/{dataset}.csv",
+            dataset=["gonzalobenegas/gwas"],
+        )
         #"results/gwas/filt.annot.matched/test.parquet",
         #"results/eqtl/merged/ge/merged.annot.matched/test.parquet",
         #"results/eqtl/merged/leafcutter/merged.annot.matched/test.parquet",

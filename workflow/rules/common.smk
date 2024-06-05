@@ -1,15 +1,23 @@
 import bioframe as bf
+from datasets import load_dataset
 from gpn.data import Genome, load_table
 from liftover import get_lifter
 import numpy as np
 import pandas as pd
 from scipy.spatial.distance import cdist
+from sklearn.linear_model import LogisticRegressionCV
+from sklearn.metrics import average_precision_score, roc_auc_score
 from sklearn.preprocessing import StandardScaler, RobustScaler
+from sklearn.pipeline import Pipeline
 from tqdm import tqdm
 
 
 COORDINATES = ["chrom", "pos", "ref", "alt"]
 NUCLEOTIDES = list("ACGT")
+ODD_EVEN_CHROMS = [
+    [str(i) for i in range(1, 23, 2)] + ['X'],
+    [str(i) for i in range(2, 23, 2)] + ['Y'],
+]
 
 
 def filter_snp(V):
@@ -39,6 +47,14 @@ def sort_chrom_pos(V):
     chrom_order = [str(i) for i in range(1, 23)] + ['X', 'Y']
     V.chrom = pd.Categorical(V.chrom, categories=chrom_order, ordered=True)
     V = V.sort_values(['chrom', 'pos'])
+    V.chrom = V.chrom.astype(str)
+    return V
+
+
+def sort_chrom_pos_ref_alt(V):
+    chrom_order = [str(i) for i in range(1, 23)] + ['X', 'Y']
+    V.chrom = pd.Categorical(V.chrom, categories=chrom_order, ordered=True)
+    V = V.sort_values(['chrom', 'pos', 'ref', 'alt'])
     V.chrom = V.chrom.astype(str)
     return V
 
@@ -279,3 +295,17 @@ rule upload_features_to_hf:
             path_or_fileobj=input[0], path_in_repo=f"features/{wildcards.features}.parquet",
             repo_id=wildcards.dataset, repo_type="dataset",
         )
+
+
+def train_predict_logistic_regression(V_train, V_test, features):
+    balanced = V_train.label.sum() == len(V_train) // 2
+    clf = Pipeline([
+        ('scaler', RobustScaler()),
+        ('linear', LogisticRegressionCV(
+            random_state=42,
+            scoring="roc_auc" if balanced else "average_precision",
+            n_jobs=-1,
+        ))
+    ])
+    clf.fit(V_train[features], V_train.label)
+    return clf.predict_proba(V_test[features])[:, 1]

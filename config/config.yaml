@@ -9,6 +9,28 @@ datasets:
 features:
   - "GPN-MSA_absLLR"
   - "GPN-MSA_InnerProducts"
+  - "Enformer_absDelta"
+
+feature_sets:
+  GPN-MSA:
+    - "GPN-MSA_absLLR"
+    - "GPN-MSA_InnerProducts"
+  Enformer:
+    - "Enformer_absDelta"
+  GPN-MSA+Enformer:
+    - "GPN-MSA_absLLR"
+    - "GPN-MSA_InnerProducts"
+    - "Enformer_absDelta"
+
+dataset_eval_models:
+  gonzalobenegas/gwas:
+    - GPN-MSA.LogisticRegression
+    - Enformer.LogisticRegression
+    - GPN-MSA+Enformer.LogisticRegression
+
+baseline_features:
+  gonzalobenegas/gwas:
+    - Enformer_absDelta
 
 gpn_msa:
   model_path: "songlab/gpn-msa-sapiens"
