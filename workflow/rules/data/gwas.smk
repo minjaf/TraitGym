@@ -62,3 +62,18 @@ rule gwas_filt:
         )
         print(V)
         V.to_parquet(output[0], index=False)
+
+
+rule gwas_intermediate:
+    input:
+        "results/gwas/processed.parquet",
+    output:
+        "results/gwas/intermediate/test.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        V = V[V.method=="SUSIE"]
+        V = V[(~V.LD_HWE) & (~V.LD_SV)]
+        V = V.groupby(COORDINATES).agg({"pip": "max"}).reset_index()
+        V = V[V.pip.between(0.01, 0.9)]
+        print(V)
+        V.to_parquet(output[0], index=False)

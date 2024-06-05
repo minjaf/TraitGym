@@ -8,11 +8,11 @@ datasets:
   - "gonzalobenegas/splicing_assay"
 
 features:
-#  - "GPN-MSA_absLLR"
-#  - "GPN-MSA_InnerProducts"
+  - "GPN-MSA_absLLR"
+  - "GPN-MSA_InnerProducts"
 #  - "Enformer_absDelta"
 #  - Pangolin
-  - CADD
+#  - CADD
 
 feature_sets:
   GPN-MSA:

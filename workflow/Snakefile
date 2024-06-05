@@ -16,11 +16,15 @@ rule all:
         #    dataset=config["datasets"],
         #    features=config["features"],
         #),
+        #expand(
+        #    #"results/merged_metrics/{dataset}.csv",
+        #    "results/plots/{dataset}.pdf",
+        #    dataset=config["datasets"],
+        #)
         expand(
-            #"results/merged_metrics/{dataset}.csv",
-            "results/plots/{dataset}.pdf",
-            dataset=config["datasets"],
-        )
+            "results/features/results/gwas/intermediate/{features}.parquet",
+            features=config["features"],
+        ),
         #"results/gwas/filt.annot.matched/test.parquet",
         #"results/eqtl/merged/ge/merged.annot.matched/test.parquet",
         #"results/eqtl/merged/leafcutter/merged.annot.matched/test.parquet",
