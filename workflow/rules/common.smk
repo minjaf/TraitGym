@@ -2,9 +2,11 @@ import bioframe as bf
 from datasets import load_dataset
 from gpn.data import Genome, load_table
 from liftover import get_lifter
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy.spatial.distance import cdist
+import seaborn as sns
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.metrics import average_precision_score, roc_auc_score
 from sklearn.preprocessing import StandardScaler, RobustScaler
@@ -311,3 +313,22 @@ def train_predict_logistic_regression(V_train, V_test, features):
     ])
     clf.fit(V_train[features], V_train.label)
     return clf.predict_proba(V_test[features])[:, 1]
+
+
+def format_number(num):
+    """
+    Converts a number into a more readable format, using K for thousands, M for millions, etc.
+    Args:
+    - num: The number to format.
+    
+    Returns:
+    - A formatted string representing the number.
+    """
+    if num >= 1e9:
+        return f'{num/1e9:.1f}B'
+    elif num >= 1e6:
+        return f'{num/1e6:.1f}M'
+    elif num >= 1e3:
+        return f'{num/1e3:.1f}K'
+    else:
+        return str(num)

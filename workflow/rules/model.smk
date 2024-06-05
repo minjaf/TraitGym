@@ -98,4 +98,42 @@ rule merge_metrics:
         print(df)
         df.to_csv(output[0], index=False)
 
-        
+
+rule plot_metrics:
+    input:
+        "results/benchmark_set/{dataset}.parquet",
+        "results/merged_metrics/{dataset}.csv",
+    output:
+        "results/plots/{dataset}.pdf",
+    run:
+        V = load_dataset(wildcards.dataset, split="test").to_pandas()
+        V = V.merge(pd.read_parquet(input[0]), on=COORDINATES, how="inner")
+        n_pos, n_neg = V.label.sum(), len(V) - V.label.sum()
+        res = pd.read_csv(input[1])
+        metric = res.columns[-1]
+        if metric == "AUROC":
+            baseline = 0.5
+        elif metric == "AUPRC":
+            baseline = n_pos / (n_pos + n_neg)
+        plt.figure(figsize=(3,3))
+        g = sns.barplot(
+            data=res,
+            y="Model",
+            x=metric,
+            color="C0",
+        )
+        sns.despine()
+        sample_size = f"n={format_number(n_pos)} vs. {format_number(n_neg)}"
+        g.set(xlim=baseline, ylabel="")
+        title = f"{wildcards.dataset.split('/')[-1]}\n{sample_size}"
+        plt.title(title)
+        for bar, model in zip(g.patches, res.Model):
+            text = f'{bar.get_width():.3f}'
+
+            g.text(
+                max(bar.get_width(), baseline),  # X position, here at the end of the bar
+                bar.get_y() + bar.get_height()/2,  # Y position, in the middle of the bar
+                text,  # Text to be displayed, formatted to 3 decimal places
+                va='center'  # Vertical alignment
+            )
+        plt.savefig(output[0], bbox_inches="tight")
