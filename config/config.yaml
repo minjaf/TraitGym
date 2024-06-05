@@ -27,9 +27,19 @@ dataset_eval_models:
     - GPN-MSA.LogisticRegression
     - Enformer.LogisticRegression
     - GPN-MSA+Enformer.LogisticRegression
+    - GPN-MSA_absLLR.Unsupervised
+    - Enformer_absDelta.Unsupervised
+  gonzalobenegas/eqtl:
+    - GPN-MSA.LogisticRegression
+    - Enformer.LogisticRegression
+    - GPN-MSA+Enformer.LogisticRegression
+    - GPN-MSA_absLLR.Unsupervised
+    - Enformer_absDelta.Unsupervised
 
 baseline_features:
   gonzalobenegas/gwas:
+    - Enformer_absDelta
+  gonzalobenegas/eqtl:
     - Enformer_absDelta
 
 gpn_msa:

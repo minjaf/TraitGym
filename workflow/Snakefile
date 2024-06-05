@@ -15,7 +15,7 @@ rule all:
         #),
         expand(
             "results/merged_metrics/{dataset}.csv",
-            dataset=["gonzalobenegas/gwas"],
+            dataset=["gonzalobenegas/gwas", "gonzalobenegas/eqtl"],
         )
         #"results/gwas/filt.annot.matched/test.parquet",
         #"results/eqtl/merged/ge/merged.annot.matched/test.parquet",

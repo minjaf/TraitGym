@@ -52,6 +52,16 @@ rule logistic_regression:
         ).to_parquet(output[0], index=False)
 
 
+# let's just do L2 norm for now
+rule unsupervised_score:
+    output:
+        "results/preds/{dataset}/{features}.Unsupervised.parquet",
+    run:
+        df = pd.read_parquet(f"https://huggingface.co/datasets/{wildcards.dataset}/resolve/main/features/{wildcards.features}.parquet")
+        df["score"] = np.linalg.norm(df, axis=1)
+        df[["score"]].to_parquet(output[0], index=False)
+
+
 rule get_metrics:
     input:
         "results/preds/{dataset}/{model}.parquet",
