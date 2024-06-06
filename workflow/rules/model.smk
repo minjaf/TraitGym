@@ -17,11 +17,11 @@ rule benchmark_set:
         V[COORDINATES].to_parquet(output[0], index=False)
 
 
-rule logistic_regression:
+rule run_classifier:
     input:
         "results/benchmark_set/{dataset}.parquet",
     output:
-        "results/preds/{dataset}/{feature_set}.LogisticRegression.parquet",
+        "results/preds/{dataset}/{feature_set}.{classifier,LogisticRegression|XGBoost}.parquet",
     threads:
         workflow.cores
     run:
@@ -43,7 +43,7 @@ rule logistic_regression:
         for chroms in tqdm(ODD_EVEN_CHROMS):
             mask_train = V.chrom.isin(chroms)
             mask_test = ~mask_train
-            V.loc[mask_test, "score"] = train_predict_logistic_regression(
+            V.loc[mask_test, "score"] = classifier_map[wildcards.classifier](
                 V[mask_train], V[mask_test], all_features
             )
 

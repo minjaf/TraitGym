@@ -315,6 +315,22 @@ def train_predict_logistic_regression(V_train, V_test, features):
     return clf.predict_proba(V_test[features])[:, 1]
 
 
+def train_predict_xgboost(V_train, V_test, features):
+    import xgboost as xgb
+    clf = xgb.XGBClassifier(
+        random_state=42,
+        n_jobs=-1,
+    )
+    clf.fit(V_train[features], V_train.label)
+    return clf.predict_proba(V_test[features])[:, 1]
+
+
+classifier_map = {
+    "LogisticRegression": train_predict_logistic_regression,
+    "XGBoost": train_predict_xgboost,
+}
+
+
 def format_number(num):
     """
     Converts a number into a more readable format, using K for thousands, M for millions, etc.
