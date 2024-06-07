@@ -20,6 +20,9 @@ feature_sets:
     - "GPN-MSA_InnerProducts"
   Enformer:
     - "Enformer_absDelta"
+  CADD+Enformer:
+    - CADD
+    - "Enformer_absDelta"
   GPN-MSA+Enformer:
     - "GPN-MSA_absLLR"
     - "GPN-MSA_InnerProducts"
@@ -37,6 +40,7 @@ dataset_eval_models:
     - GPN-MSA_absLLR.Unsupervised
     - Enformer_absDelta.Unsupervised
     - CADD.Unsupervised
+    - CADD+Enformer.LogisticRegression
   gonzalobenegas/eqtl:
     - GPN-MSA.LogisticRegression
     - Enformer.LogisticRegression
@@ -44,6 +48,7 @@ dataset_eval_models:
     - GPN-MSA_absLLR.Unsupervised
     - Enformer_absDelta.Unsupervised
     - CADD.Unsupervised
+    - CADD+Enformer.LogisticRegression
   gonzalobenegas/sqtl:
     - GPN-MSA.LogisticRegression
     - Enformer.LogisticRegression
@@ -51,6 +56,7 @@ dataset_eval_models:
     - GPN-MSA_absLLR.Unsupervised
     - Enformer_absDelta.Unsupervised
     - CADD.Unsupervised
+    - CADD+Enformer.LogisticRegression
   gonzalobenegas/splicing_assay:
     - GPN-MSA.LogisticRegression
     - GPN-MSA+Pangolin.LogisticRegression
