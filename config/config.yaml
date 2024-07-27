@@ -5,7 +5,7 @@ datasets:
   - "gonzalobenegas/gwas"
   - "gonzalobenegas/eqtl"
   - "gonzalobenegas/sqtl"
-  - "gonzalobenegas/splicing_assay"
+  #- "gonzalobenegas/splicing_assay"
 
 features:
   - "GPN-MSA_absLLR"
@@ -37,26 +37,26 @@ dataset_eval_models:
     - GPN-MSA.LogisticRegression
     - Enformer.LogisticRegression
     - GPN-MSA+Enformer.LogisticRegression
-    - GPN-MSA_absLLR.Unsupervised
-    - Enformer_absDelta.Unsupervised
-    - CADD.Unsupervised
-    - CADD+Enformer.LogisticRegression
+    #- GPN-MSA_absLLR.Unsupervised
+    #- Enformer_absDelta.Unsupervised
+    #- CADD.Unsupervised
+    #- CADD+Enformer.LogisticRegression
   gonzalobenegas/eqtl:
     - GPN-MSA.LogisticRegression
     - Enformer.LogisticRegression
     - GPN-MSA+Enformer.LogisticRegression
-    - GPN-MSA_absLLR.Unsupervised
-    - Enformer_absDelta.Unsupervised
-    - CADD.Unsupervised
-    - CADD+Enformer.LogisticRegression
+    #- GPN-MSA_absLLR.Unsupervised
+    #- Enformer_absDelta.Unsupervised
+    #- CADD.Unsupervised
+    #- CADD+Enformer.LogisticRegression
   gonzalobenegas/sqtl:
     - GPN-MSA.LogisticRegression
     - Enformer.LogisticRegression
     - GPN-MSA+Enformer.LogisticRegression
-    - GPN-MSA_absLLR.Unsupervised
-    - Enformer_absDelta.Unsupervised
-    - CADD.Unsupervised
-    - CADD+Enformer.LogisticRegression
+    #- GPN-MSA_absLLR.Unsupervised
+    #- Enformer_absDelta.Unsupervised
+    #- CADD.Unsupervised
+    #- CADD+Enformer.LogisticRegression
   gonzalobenegas/splicing_assay:
     - GPN-MSA.LogisticRegression
     - GPN-MSA+Pangolin.LogisticRegression

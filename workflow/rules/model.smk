@@ -38,10 +38,10 @@ rule run_classifier:
         V = V_full.merge(V_subset, on=COORDINATES, how="inner")
         print(V)
 
-        #for chrom in tqdm(V.chrom.unique()):
-        #    mask_train = V.chrom != chrom
-        for chroms in tqdm(ODD_EVEN_CHROMS):
-            mask_train = V.chrom.isin(chroms)
+        for chrom in tqdm(V.chrom.unique()):
+            mask_train = V.chrom != chrom
+        #for chroms in tqdm(ODD_EVEN_CHROMS):
+        #    mask_train = V.chrom.isin(chroms)
             mask_test = ~mask_train
             V.loc[mask_test, "score"] = classifier_map[wildcards.classifier](
                 V[mask_train], V[mask_test], all_features
@@ -115,7 +115,7 @@ rule plot_metrics:
             baseline = 0.5
         elif metric == "AUPRC":
             baseline = n_pos / (n_pos + n_neg)
-        plt.figure(figsize=(3,3))
+        plt.figure(figsize=(2,2))
         g = sns.barplot(
             data=res,
             y="Model",
