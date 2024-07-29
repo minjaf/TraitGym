@@ -18,7 +18,6 @@ rule all:
         #    features=config["features"],
         #),
         expand(
-            #"results/merged_metrics/{dataset}.csv",
             "results/plots/{dataset}.pdf",
             dataset=config["datasets"],
         )

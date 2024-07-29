@@ -5,6 +5,7 @@ datasets:
   - "gonzalobenegas/gwas"
   - "gonzalobenegas/eqtl"
   - "gonzalobenegas/sqtl"
+  - "gonzalobenegas/dsqtl"
   #- "gonzalobenegas/splicing_assay"
 
 features:
@@ -57,6 +58,10 @@ dataset_eval_models:
     #- Enformer_absDelta.Unsupervised
     #- CADD.Unsupervised
     #- CADD+Enformer.LogisticRegression
+  gonzalobenegas/dsqtl:
+    - GPN-MSA.LogisticRegression
+    #- Enformer.LogisticRegression
+    #- GPN-MSA+Enformer.LogisticRegression
   gonzalobenegas/splicing_assay:
     - GPN-MSA.LogisticRegression
     - GPN-MSA+Pangolin.LogisticRegression
@@ -72,6 +77,7 @@ baseline_features:
   gonzalobenegas/sqtl:
     - Enformer_absDelta
   gonzalobenegas/splicing_assay: []
+  gonzalobenegas/dsqtl: []
 
 gpn_msa:
   model_path: "songlab/gpn-msa-sapiens"
