@@ -60,8 +60,8 @@ dataset_eval_models:
     #- CADD+Enformer.LogisticRegression
   gonzalobenegas/dsqtl:
     - GPN-MSA.LogisticRegression
-    #- Enformer.LogisticRegression
-    #- GPN-MSA+Enformer.LogisticRegression
+    - Enformer.LogisticRegression
+    - GPN-MSA+Enformer.LogisticRegression
   gonzalobenegas/splicing_assay:
     - GPN-MSA.LogisticRegression
     - GPN-MSA+Pangolin.LogisticRegression
@@ -77,7 +77,8 @@ baseline_features:
   gonzalobenegas/sqtl:
     - Enformer_absDelta
   gonzalobenegas/splicing_assay: []
-  gonzalobenegas/dsqtl: []
+  gonzalobenegas/dsqtl:
+    - Enformer_absDelta
 
 gpn_msa:
   model_path: "songlab/gpn-msa-sapiens"
