@@ -1,6 +1,6 @@
 import bioframe as bf
 from datasets import load_dataset
-from gpn.data import Genome, load_table
+from gpn.data import Genome, load_table, load_dataset_from_file_or_dir
 from liftover import get_lifter
 import matplotlib.pyplot as plt
 import numpy as np
