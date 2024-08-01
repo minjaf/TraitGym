@@ -12,6 +12,7 @@ from sklearn.metrics import average_precision_score, roc_auc_score
 from sklearn.preprocessing import StandardScaler, RobustScaler
 from sklearn.pipeline import Pipeline
 from tqdm import tqdm
+import yaml
 
 
 COORDINATES = ["chrom", "pos", "ref", "alt"]
