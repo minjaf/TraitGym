@@ -20,7 +20,7 @@ sat_mut_mpra_elements = [
 
 rule sat_mut_mpra_download:
     output:
-        temp("results/sat_mut_mpra/{element}/variants.vcf.gz"),
+        temp("results/sat_mut_mpra/{element}.vcf.gz"),
     wildcard_constraints:
         element="|".join(sat_mut_mpra_elements),
     shell:
@@ -29,42 +29,31 @@ rule sat_mut_mpra_download:
 
 rule sat_mut_mpra_process:
     input:
-        "results/sat_mut_mpra/{element}/variants.vcf.gz",
+        "results/sat_mut_mpra/{element}.vcf.gz",
     output:
-        "results/sat_mut_mpra/{element}/test.parquet",
+        temp("results/sat_mut_mpra/{element}.parquet"),
     wildcard_constraints:
         element="|".join(sat_mut_mpra_elements),
     run:
         V = pd.read_csv(
             input[0], sep="\t", dtype={"chrom": "str"}, comment="#", header=None,
-            names=["chrom", "pos", "id", "ref", "alt", "qual", "filter", "INFO"],
-            usecols=["chrom", "pos", "ref", "alt", "INFO"],
+            names=["chrom", "pos", "id", "ref", "alt", "qual", "FILTER", "INFO"],
+            usecols=["chrom", "pos", "ref", "alt", "FILTER", "INFO"],
         )
-        V["effect_size"] = V.INFO.str.extract(r"EF=([^;]+)").astype(float)
-        V["p_value"] = V.INFO.str.extract(r"PV=([^;]+)").astype(float)
-        V["barcodes"] = V.INFO.str.extract(r"BC=([^;]+)").astype(int)
-        V.drop(columns=["INFO"], inplace=True)
-        V = V.query("barcodes >= 10")
+        V = V[V.FILTER=="SIGN"]
+        V["label"] = V.INFO.str.extract(r"EF=([^;]+)").astype(float)
+        V["element"] = wildcards.element
+        V.drop(columns=["FILTER", "INFO"], inplace=True)
         V = V[V.ref.isin(NUCLEOTIDES) & V.alt.isin(NUCLEOTIDES)]
-        V["label"] = V.effect_size.abs()
         V.to_parquet(output[0], index=False)
 
 
-rule sat_mut_mpra_readme:
+rule sat_mut_mpra_merge:
     input:
-        expand("results/sat_mut_mpra/{element}/test.parquet", element=sat_mut_mpra_elements),
+        expand("results/sat_mut_mpra/{element}.parquet", element=sat_mut_mpra_elements),
     output:
-        "results/sat_mut_mpra/README.md",
+        "results/sat_mut_mpra/merged/test.parquet",
     run:
-        configs = []
-        for e in sat_mut_mpra_elements:
-            configs.append(dict(
-                config_name=e,
-                data_files=[dict(split="test", path=f"{e}/test.parquet")],
-            ))
-        metadata = dict(configs=configs)
-
-        with open(output[0], "w") as readme:
-            readme.write("---\n")
-            readme.write(yaml.dump(metadata))
-            readme.write("---\n")
+        V = pd.concat([pd.read_parquet(i) for i in input], ignore_index=True)
+        V = sort_chrom_pos(V)
+        V.to_parquet(output[0], index=False)
