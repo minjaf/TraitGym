@@ -2,9 +2,9 @@ genome_url: "http://ftp.ensembl.org/pub/release-107/fasta/homo_sapiens/dna/Homo_
 annotation_url: "http://ftp.ensembl.org/pub/release-107/gtf/homo_sapiens/Homo_sapiens.GRCh38.107.chr.gtf.gz"
 
 datasets:
-  - "gonzalobenegas/gwas"
-  - "gonzalobenegas/eqtl"
-  - "gonzalobenegas/sqtl"
+#  - "gonzalobenegas/gwas"
+#  - "gonzalobenegas/eqtl"
+#  - "gonzalobenegas/sqtl"
   - "gonzalobenegas/dsqtl"
   #- "gonzalobenegas/splicing_assay"
 
@@ -59,9 +59,9 @@ dataset_eval_models:
     #- CADD.Unsupervised
     #- CADD+Enformer.LogisticRegression
   gonzalobenegas/dsqtl:
-    - GPN-MSA.LogisticRegression
-    - Enformer.LogisticRegression
-    - GPN-MSA+Enformer.LogisticRegression
+    - GPN-MSA.LogisticRegression.odd_even
+    #- Enformer.LogisticRegression.odd_even
+    #- GPN-MSA+Enformer.LogisticRegression.odd_even
   gonzalobenegas/splicing_assay:
     - GPN-MSA.LogisticRegression
     - GPN-MSA+Pangolin.LogisticRegression
@@ -77,8 +77,8 @@ baseline_features:
   gonzalobenegas/sqtl:
     - Enformer_absDelta
   gonzalobenegas/splicing_assay: []
-  gonzalobenegas/dsqtl:
-    - Enformer_absDelta
+  gonzalobenegas/dsqtl: []
+    #- Enformer_absDelta
 
 gpn_msa:
   model_path: "songlab/gpn-msa-sapiens"

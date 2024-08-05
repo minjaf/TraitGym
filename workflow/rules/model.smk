@@ -21,7 +21,7 @@ rule run_classifier:
     input:
         "results/benchmark_set/{dataset}.parquet",
     output:
-        "results/preds/{dataset}/{feature_set}.{classifier,LogisticRegression|XGBoost}.parquet",
+        "results/preds/{dataset}/{feature_set}.{classifier,LogisticRegression|XGBoost}.{split_mode,chrom|odd_even}.parquet",
     threads:
         workflow.cores
     run:
@@ -38,10 +38,18 @@ rule run_classifier:
         V = V_full.merge(V_subset, on=COORDINATES, how="inner")
         print(V)
 
-        for chrom in tqdm(V.chrom.unique()):
-            mask_train = V.chrom != chrom
-        #for chroms in tqdm(ODD_EVEN_CHROMS):
-        #    mask_train = V.chrom.isin(chroms)
+        mask_train_list = []
+
+        if wildcards.split_mode == "chrom":
+            for chrom in V.chrom.unique():
+                mask_train = V.chrom != chrom
+                mask_train_list.append(mask_train)
+        elif wildcards.split_mode == "odd_even":
+            for chroms in ODD_EVEN_CHROMS:
+                mask_train = V.chrom.isin(chroms)
+                mask_train_list.append(mask_train)
+
+        for mask_train in tqdm(mask_train_list):
             mask_test = ~mask_train
             V.loc[mask_test, "score"] = classifier_map[wildcards.classifier](
                 V[mask_train], V[mask_test], all_features
