@@ -6,6 +6,7 @@ include: "rules/data/splicing_assay.smk"
 include: "rules/data/caqtl.smk"
 include: "rules/data/dsqtl.smk"
 include: "rules/data/sat_mut_mpra.smk"
+include: "rules/data/siraj.smk"
 include: "rules/features/cadd.smk"
 include: "rules/features/enformer.smk"
 include: "rules/features/gpn_msa.smk"
@@ -14,15 +15,15 @@ include: "rules/model.smk"
 
 rule all:
     input:
-        #expand(
-        #    "results/features/{dataset}/{features}.parquet.uploaded",
-        #    dataset=config["datasets"],
-        #    features=config["features"],
-        #),
         expand(
-            "results/plots/{dataset}.pdf",
+            "results/features/{dataset}/{features}.parquet.uploaded",
             dataset=config["datasets"],
-        )
+            features=config["features"],
+        ),
+        #expand(
+        #    "results/plots/{dataset}.pdf",
+        #    dataset=config["datasets"],
+        #)
         #expand(
         #    "results/features/results/gwas/intermediate/{features}.parquet",
         #    features=config["features"],

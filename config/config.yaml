@@ -5,8 +5,10 @@ datasets:
 #  - "gonzalobenegas/gwas"
 #  - "gonzalobenegas/eqtl"
 #  - "gonzalobenegas/sqtl"
-  - "gonzalobenegas/dsqtl"
+  #- "gonzalobenegas/dsqtl"
   #- "gonzalobenegas/splicing_assay"
+  - "gonzalobenegas/siraj_gwas_pip90"
+  - "gonzalobenegas/siraj_eqtl_pip90"
 
 features:
   - "GPN-MSA_absLLR"
