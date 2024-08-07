@@ -8,7 +8,7 @@ datasets:
   #- "gonzalobenegas/dsqtl"
   #- "gonzalobenegas/splicing_assay"
   - "gonzalobenegas/siraj_gwas_pip90"
-  - "gonzalobenegas/siraj_eqtl_pip90"
+#  - "gonzalobenegas/siraj_eqtl_pip90"
 
 features:
   - "GPN-MSA_absLLR"
@@ -64,6 +64,17 @@ dataset_eval_models:
     - GPN-MSA.LogisticRegression.odd_even
     #- Enformer.LogisticRegression.odd_even
     #- GPN-MSA+Enformer.LogisticRegression.odd_even
+  gonzalobenegas/siraj_gwas_pip90:
+#    - GPN-MSA.LogisticRegression.odd_even
+#    - Enformer.LogisticRegression.odd_even
+#    - GPN-MSA+Enformer.LogisticRegression.odd_even
+    - GPN-MSA.LogisticRegression.chrom
+    - Enformer.LogisticRegression.chrom
+    - GPN-MSA+Enformer.LogisticRegression.chrom
+  gonzalobenegas/siraj_eqtl_pip90:
+    - GPN-MSA.LogisticRegression.odd_even
+    - Enformer.LogisticRegression.odd_even
+    - GPN-MSA+Enformer.LogisticRegression.odd_even
   gonzalobenegas/splicing_assay:
     - GPN-MSA.LogisticRegression
     - GPN-MSA+Pangolin.LogisticRegression
@@ -81,6 +92,10 @@ baseline_features:
   gonzalobenegas/splicing_assay: []
   gonzalobenegas/dsqtl: []
     #- Enformer_absDelta
+  gonzalobenegas/siraj_gwas_pip90:
+    - Enformer_absDelta
+  gonzalobenegas/siraj_eqtl_pip90:
+    - Enformer_absDelta
 
 gpn_msa:
   model_path: "songlab/gpn-msa-sapiens"

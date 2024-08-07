@@ -15,15 +15,15 @@ include: "rules/model.smk"
 
 rule all:
     input:
-        expand(
-            "results/features/{dataset}/{features}.parquet.uploaded",
-            dataset=config["datasets"],
-            features=config["features"],
-        ),
         #expand(
-        #    "results/plots/{dataset}.pdf",
+        #    "results/features/{dataset}/{features}.parquet.uploaded",
         #    dataset=config["datasets"],
-        #)
+        #    features=config["features"],
+        #),
+        expand(
+            "results/plots/{dataset}.pdf",
+            dataset=config["datasets"],
+        )
         #expand(
         #    "results/features/results/gwas/intermediate/{features}.parquet",
         #    features=config["features"],

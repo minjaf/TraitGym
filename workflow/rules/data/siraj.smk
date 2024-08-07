@@ -33,10 +33,5 @@ rule siraj_pip90:
         V = V[V.pos != -1]
         genome = Genome(input[1])
         V = check_ref_alt(V, genome)
-        V = (
-            V.groupby("label")
-            .apply(lambda x: x.sample(n=V.label.value_counts().min(), random_state=42))
-            .reset_index(drop=True)
-        )
         V = sort_chrom_pos(V)
         V.to_parquet(output[0], index=False)
