@@ -7,8 +7,10 @@ datasets:
 #  - "gonzalobenegas/sqtl"
   #- "gonzalobenegas/dsqtl"
   #- "gonzalobenegas/splicing_assay"
-  - "gonzalobenegas/siraj_gwas_pip90"
-#  - "gonzalobenegas/siraj_eqtl_pip90"
+  - "gonzalobenegas/siraj_gwas_highpip"
+  - "gonzalobenegas/siraj_eqtl_highpip"
+  - "gonzalobenegas/siraj_gwas_highpip_emvar"
+  - "gonzalobenegas/siraj_eqtl_highpip_emvar"
 
 features:
   - "GPN-MSA_absLLR"
@@ -64,14 +66,25 @@ dataset_eval_models:
     - GPN-MSA.LogisticRegression.odd_even
     #- Enformer.LogisticRegression.odd_even
     #- GPN-MSA+Enformer.LogisticRegression.odd_even
-  gonzalobenegas/siraj_gwas_pip90:
+  gonzalobenegas/siraj_gwas_highpip:
 #    - GPN-MSA.LogisticRegression.odd_even
 #    - Enformer.LogisticRegression.odd_even
 #    - GPN-MSA+Enformer.LogisticRegression.odd_even
     - GPN-MSA.LogisticRegression.chrom
     - Enformer.LogisticRegression.chrom
     - GPN-MSA+Enformer.LogisticRegression.chrom
-  gonzalobenegas/siraj_eqtl_pip90:
+  gonzalobenegas/siraj_gwas_highpip_emvar:
+    - GPN-MSA.LogisticRegression.odd_even
+    - Enformer.LogisticRegression.odd_even
+    - GPN-MSA+Enformer.LogisticRegression.odd_even
+#    - GPN-MSA.LogisticRegression.chrom
+#    - Enformer.LogisticRegression.chrom
+#    - GPN-MSA+Enformer.LogisticRegression.chrom
+  gonzalobenegas/siraj_eqtl_highpip:
+    - GPN-MSA.LogisticRegression.odd_even
+    - Enformer.LogisticRegression.odd_even
+    - GPN-MSA+Enformer.LogisticRegression.odd_even
+  gonzalobenegas/siraj_eqtl_highpip_emvar:
     - GPN-MSA.LogisticRegression.odd_even
     - Enformer.LogisticRegression.odd_even
     - GPN-MSA+Enformer.LogisticRegression.odd_even
@@ -92,9 +105,13 @@ baseline_features:
   gonzalobenegas/splicing_assay: []
   gonzalobenegas/dsqtl: []
     #- Enformer_absDelta
-  gonzalobenegas/siraj_gwas_pip90:
+  gonzalobenegas/siraj_gwas_highpip:
     - Enformer_absDelta
-  gonzalobenegas/siraj_eqtl_pip90:
+  gonzalobenegas/siraj_eqtl_highpip:
+    - Enformer_absDelta
+  gonzalobenegas/siraj_gwas_highpip_emvar:
+    - Enformer_absDelta
+  gonzalobenegas/siraj_eqtl_highpip_emvar:
     - Enformer_absDelta
 
 gpn_msa:

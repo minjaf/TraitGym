@@ -5,12 +5,12 @@ rule siraj_download_st_other:
         "wget -O {output} https://www.biorxiv.org/content/biorxiv/early/2024/05/06/2024.05.05.592437/DC9/embed/media-9.xlsx?download=true"
 
 
-rule siraj_pip90:
+rule siraj_highpip_emvar:
     input:
         "results/siraj/st_other.xlsx",
         "results/genome.fa.gz",
     output:
-        "results/siraj/{c,gwas|eqtl}_pip90/test.parquet",
+        "results/siraj/{c,gwas|eqtl}_{label,highpip|highpip_emvar}/test.parquet",
     run:
         V = (
             pl.read_excel(
@@ -22,7 +22,9 @@ rule siraj_pip90:
             V = V[V["Variant Type"].str.contains("Complex traits")]
         elif wildcards.c == "eqtl":
             V = V[V["Variant Type"].str.contains("eQTL")]
-        V["label"] = V["Variant Type"].str.contains("test")
+        V["highpip"] = V["Variant Type"].str.contains("test")
+        V["highpip_emvar"] = V.highpip & V.emVar
+        V["label"] = V[wildcards.label]
         V["chrom"] = V.Variant.str.split(":").str[0].str.replace("chr", "")
         V["pos"] = V.Variant.str.split(":").str[1].astype(int)
         V["ref"] = V.Variant.str.split(":").str[2]
