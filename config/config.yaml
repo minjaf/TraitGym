@@ -5,21 +5,24 @@ datasets:
 #  - "gonzalobenegas/gwas"
 #  - "gonzalobenegas/eqtl"
 #  - "gonzalobenegas/sqtl"
-  #- "gonzalobenegas/dsqtl"
-  #- "gonzalobenegas/splicing_assay"
+#  - "gonzalobenegas/splicing_assay"
+  - "gonzalobenegas/dsqtl"
   - "gonzalobenegas/siraj_gwas_highpip"
   - "gonzalobenegas/siraj_eqtl_highpip"
   - "gonzalobenegas/siraj_gwas_highpip_emvar"
   - "gonzalobenegas/siraj_eqtl_highpip_emvar"
 
 features:
-  - "GPN-MSA_absLLR"
-  - "GPN-MSA_InnerProducts"
+#  - "GPN-MSA_absLLR"
+#  - "GPN-MSA_InnerProducts"
+  - GPN_EmbedDists
 #  - "Enformer_absDelta"
 #  - Pangolin
 #  - CADD
 
 feature_sets:
+  GPN:
+    - "GPN_EmbedDists"
   GPN-MSA:
     - "GPN-MSA_absLLR"
     - "GPN-MSA_InnerProducts"
@@ -38,34 +41,35 @@ feature_sets:
     - "Pangolin"
 
 dataset_eval_models:
-  gonzalobenegas/gwas:
-    - GPN-MSA.LogisticRegression
-    - Enformer.LogisticRegression
-    - GPN-MSA+Enformer.LogisticRegression
-    #- GPN-MSA_absLLR.Unsupervised
-    #- Enformer_absDelta.Unsupervised
-    #- CADD.Unsupervised
-    #- CADD+Enformer.LogisticRegression
-  gonzalobenegas/eqtl:
-    - GPN-MSA.LogisticRegression
-    - Enformer.LogisticRegression
-    - GPN-MSA+Enformer.LogisticRegression
-    #- GPN-MSA_absLLR.Unsupervised
-    #- Enformer_absDelta.Unsupervised
-    #- CADD.Unsupervised
-    #- CADD+Enformer.LogisticRegression
-  gonzalobenegas/sqtl:
-    - GPN-MSA.LogisticRegression
-    - Enformer.LogisticRegression
-    - GPN-MSA+Enformer.LogisticRegression
-    #- GPN-MSA_absLLR.Unsupervised
-    #- Enformer_absDelta.Unsupervised
-    #- CADD.Unsupervised
-    #- CADD+Enformer.LogisticRegression
+#  gonzalobenegas/gwas:
+#    - GPN-MSA.LogisticRegression
+#    - Enformer.LogisticRegression
+#    - GPN-MSA+Enformer.LogisticRegression
+#    #- GPN-MSA_absLLR.Unsupervised
+#    #- Enformer_absDelta.Unsupervised
+#    #- CADD.Unsupervised
+#    #- CADD+Enformer.LogisticRegression
+#  gonzalobenegas/eqtl:
+#    - GPN-MSA.LogisticRegression
+#    - Enformer.LogisticRegression
+#    - GPN-MSA+Enformer.LogisticRegression
+#    #- GPN-MSA_absLLR.Unsupervised
+#    #- Enformer_absDelta.Unsupervised
+#    #- CADD.Unsupervised
+#    #- CADD+Enformer.LogisticRegression
+#  gonzalobenegas/sqtl:
+#    - GPN-MSA.LogisticRegression
+#    - Enformer.LogisticRegression
+#    - GPN-MSA+Enformer.LogisticRegression
+#    #- GPN-MSA_absLLR.Unsupervised
+#    #- Enformer_absDelta.Unsupervised
+#    #- CADD.Unsupervised
+#    #- CADD+Enformer.LogisticRegression
   gonzalobenegas/dsqtl:
     - GPN-MSA.LogisticRegression.odd_even
-    #- Enformer.LogisticRegression.odd_even
-    #- GPN-MSA+Enformer.LogisticRegression.odd_even
+    - Enformer.LogisticRegression.odd_even
+    - GPN-MSA+Enformer.LogisticRegression.odd_even
+    - GPN.LogisticRegression.odd_even
   gonzalobenegas/siraj_gwas_highpip:
 #    - GPN-MSA.LogisticRegression.odd_even
 #    - Enformer.LogisticRegression.odd_even
@@ -73,10 +77,12 @@ dataset_eval_models:
     - GPN-MSA.LogisticRegression.chrom
     - Enformer.LogisticRegression.chrom
     - GPN-MSA+Enformer.LogisticRegression.chrom
+    - GPN.LogisticRegression.chrom
   gonzalobenegas/siraj_gwas_highpip_emvar:
     - GPN-MSA.LogisticRegression.odd_even
     - Enformer.LogisticRegression.odd_even
     - GPN-MSA+Enformer.LogisticRegression.odd_even
+    - GPN.LogisticRegression.odd_even
 #    - GPN-MSA.LogisticRegression.chrom
 #    - Enformer.LogisticRegression.chrom
 #    - GPN-MSA+Enformer.LogisticRegression.chrom
@@ -84,16 +90,18 @@ dataset_eval_models:
     - GPN-MSA.LogisticRegression.odd_even
     - Enformer.LogisticRegression.odd_even
     - GPN-MSA+Enformer.LogisticRegression.odd_even
+    - GPN.LogisticRegression.odd_even
   gonzalobenegas/siraj_eqtl_highpip_emvar:
     - GPN-MSA.LogisticRegression.odd_even
     - Enformer.LogisticRegression.odd_even
     - GPN-MSA+Enformer.LogisticRegression.odd_even
-  gonzalobenegas/splicing_assay:
-    - GPN-MSA.LogisticRegression
-    - GPN-MSA+Pangolin.LogisticRegression
-    - GPN-MSA_absLLR.Unsupervised
-    - Pangolin.Unsupervised
-    - CADD.Unsupervised
+    - GPN.LogisticRegression.odd_even
+  #gonzalobenegas/splicing_assay:
+  #  - GPN-MSA.LogisticRegression
+  #  - GPN-MSA+Pangolin.LogisticRegression
+  #  - GPN-MSA_absLLR.Unsupervised
+  #  - Pangolin.Unsupervised
+  #  - CADD.Unsupervised
 
 baseline_features:
   gonzalobenegas/gwas:
@@ -103,8 +111,8 @@ baseline_features:
   gonzalobenegas/sqtl:
     - Enformer_absDelta
   gonzalobenegas/splicing_assay: []
-  gonzalobenegas/dsqtl: []
-    #- Enformer_absDelta
+  gonzalobenegas/dsqtl:
+    - Enformer_absDelta
   gonzalobenegas/siraj_gwas_highpip:
     - Enformer_absDelta
   gonzalobenegas/siraj_eqtl_highpip:
@@ -118,3 +126,7 @@ gpn_msa:
   model_path: "songlab/gpn-msa-sapiens"
   msa_path: "/accounts/projects/yss/gbenegas/projects/gpn/analysis/human/results/msa/multiz100way/89/all.zarr"
   window_size: 128
+
+gpn:
+  model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/512/512/512_17_512/checkpoint-100000
+  window_size: 512
