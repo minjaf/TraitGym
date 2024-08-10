@@ -21,7 +21,7 @@ rule run_classifier:
     input:
         "results/benchmark_set/{dataset}.parquet",
     output:
-        "results/preds/{dataset}/{feature_set}.{classifier,LogisticRegression|XGBoost}.{split_mode,chrom|odd_even}.parquet",
+        "results/preds/{dataset}/{feature_set}.{classifier,LogisticRegression|RandomForest|XGBoost}.{split_mode,chrom|odd_even}.parquet",
     threads:
         workflow.cores
     run:

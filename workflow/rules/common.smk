@@ -8,6 +8,7 @@ import pandas as pd
 import polars as pl
 from scipy.spatial.distance import cdist
 import seaborn as sns
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.metrics import average_precision_score, roc_auc_score
 from sklearn.preprocessing import StandardScaler, RobustScaler
@@ -317,6 +318,18 @@ def train_predict_logistic_regression(V_train, V_test, features):
     return clf.predict_proba(V_test[features])[:, 1]
 
 
+def train_predict_random_forest(V_train, V_test, features):
+    balanced = V_train.label.sum() == len(V_train) // 2
+    clf = RandomForestClassifier(
+        class_weight="balanced",
+        n_estimators=1000,
+        random_state=42,
+        n_jobs=-1,
+    )
+    clf.fit(V_train[features], V_train.label)
+    return clf.predict_proba(V_test[features])[:, 1]
+
+
 def train_predict_xgboost(V_train, V_test, features):
     import xgboost as xgb
     clf = xgb.XGBClassifier(
@@ -329,6 +342,7 @@ def train_predict_xgboost(V_train, V_test, features):
 
 classifier_map = {
     "LogisticRegression": train_predict_logistic_regression,
+    "RandomForest": train_predict_random_forest,
     "XGBoost": train_predict_xgboost,
 }
 
@@ -350,3 +364,65 @@ def format_number(num):
         return f'{num/1e3:.1f}K'
     else:
         return str(num)
+
+
+rule download_s_het:
+    output:
+        "results/s_het.xlsx",
+    shell:
+        "wget -O {output} https://static-content.springer.com/esm/art%3A10.1038%2Fs41588-024-01820-9/MediaObjects/41588_2024_1820_MOESM4_ESM.xlsx"
+
+
+rule process_s_het:
+    input:
+        "results/s_het.xlsx",
+    output:
+        "results/s_het.parquet",
+    run:
+        df = pl.read_excel(input[0], sheet_name="Supplementary Table 1").to_pandas()
+        df = df[["ensg", "post_mean"]].rename(columns={"ensg": "gene_id", "post_mean": "s_het"})
+        df.to_parquet(output[0], index=False)
+
+
+rule tss_s_het:
+    input:
+        "results/tss.parquet",
+        "results/s_het.parquet",
+    output:
+        "results/tss_s_het.parquet",
+    run:
+        tss = pd.read_parquet(input[0])
+        s_het = pd.read_parquet(input[1])
+        tss = tss.merge(s_het, on="gene_id", how="inner")
+        tss.to_parquet(output[0], index=False)
+
+
+rule s_het_features: 
+    input:
+        "results/tss_s_het.parquet",
+    output:
+        "results/features/{dataset}/s_het.parquet",
+    run:
+        V = load_dataset(wildcards.dataset, split="test").to_pandas()
+        tss = pd.read_parquet(input[0])
+        V["start"] = V.pos-1
+        V["end"] = V.pos
+        V = bf.closest(V, tss).rename(columns={"s_het_": "s_het"})
+        V = sort_chrom_pos(V)
+        V[["s_het"]].to_parquet(output[0], index=False)
+
+
+rule delta_times_s_het:
+    input:
+        "results/features/{dataset}/Enformer_absDelta.parquet",
+        "results/features/{dataset}/s_het.parquet",
+    output:
+        "results/features/{dataset}/Enformer_absDelta_s_het.parquet",
+    run:
+        delta = np.linalg.norm(pd.read_parquet(input[0]), axis=1)
+        print(delta)
+        s_het = pd.read_parquet(input[1])
+        print(s_het)
+        s_het.s_het *= delta
+        print(s_het)
+        s_het.to_parquet(output[0], index=False)

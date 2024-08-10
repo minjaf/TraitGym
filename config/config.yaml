@@ -6,19 +6,21 @@ datasets:
 #  - "gonzalobenegas/eqtl"
 #  - "gonzalobenegas/sqtl"
 #  - "gonzalobenegas/splicing_assay"
-  - "gonzalobenegas/dsqtl"
+#  - "gonzalobenegas/dsqtl"
   - "gonzalobenegas/siraj_gwas_highpip"
   - "gonzalobenegas/siraj_eqtl_highpip"
-  - "gonzalobenegas/siraj_gwas_highpip_emvar"
-  - "gonzalobenegas/siraj_eqtl_highpip_emvar"
+#  - "gonzalobenegas/siraj_gwas_highpip_emvar"
+#  - "gonzalobenegas/siraj_eqtl_highpip_emvar"
 
 features:
 #  - "GPN-MSA_absLLR"
 #  - "GPN-MSA_InnerProducts"
-  - GPN_EmbedDists
+#  - GPN_EmbedDists
 #  - "Enformer_absDelta"
 #  - Pangolin
 #  - CADD
+  - "Enformer_absDelta_s_het"
+  - s_het
 
 feature_sets:
   GPN:
@@ -28,6 +30,9 @@ feature_sets:
     - "GPN-MSA_InnerProducts"
   Enformer:
     - "Enformer_absDelta"
+  Enformer+s_het:
+    - "Enformer_absDelta"
+    - "s_het"
   CADD+Enformer:
     - CADD
     - "Enformer_absDelta"
@@ -70,6 +75,7 @@ dataset_eval_models:
     - Enformer.LogisticRegression.odd_even
     - GPN-MSA+Enformer.LogisticRegression.odd_even
     - GPN.LogisticRegression.odd_even
+    - Enformer_absDelta.Unsupervised
   gonzalobenegas/siraj_gwas_highpip:
 #    - GPN-MSA.LogisticRegression.odd_even
 #    - Enformer.LogisticRegression.odd_even
@@ -77,31 +83,39 @@ dataset_eval_models:
     - GPN-MSA.LogisticRegression.chrom
     - Enformer.LogisticRegression.chrom
     - GPN-MSA+Enformer.LogisticRegression.chrom
-    - GPN.LogisticRegression.chrom
-  gonzalobenegas/siraj_gwas_highpip_emvar:
-    - GPN-MSA.LogisticRegression.odd_even
-    - Enformer.LogisticRegression.odd_even
-    - GPN-MSA+Enformer.LogisticRegression.odd_even
-    - GPN.LogisticRegression.odd_even
-#    - GPN-MSA.LogisticRegression.chrom
-#    - Enformer.LogisticRegression.chrom
-#    - GPN-MSA+Enformer.LogisticRegression.chrom
+    #- GPN-MSA+Enformer.RandomForest.chrom
+    #- GPN.LogisticRegression.chrom
+#    - emVar.Unsupervised
+#    - Enformer_absDelta.Unsupervised
+#    - Enformer_absDelta_s_het.Unsupervised
+#    - Enformer+s_het.LogisticRegression.chrom
   gonzalobenegas/siraj_eqtl_highpip:
     - GPN-MSA.LogisticRegression.odd_even
     - Enformer.LogisticRegression.odd_even
     - GPN-MSA+Enformer.LogisticRegression.odd_even
-    - GPN.LogisticRegression.odd_even
-  gonzalobenegas/siraj_eqtl_highpip_emvar:
-    - GPN-MSA.LogisticRegression.odd_even
-    - Enformer.LogisticRegression.odd_even
-    - GPN-MSA+Enformer.LogisticRegression.odd_even
-    - GPN.LogisticRegression.odd_even
-  #gonzalobenegas/splicing_assay:
-  #  - GPN-MSA.LogisticRegression
-  #  - GPN-MSA+Pangolin.LogisticRegression
-  #  - GPN-MSA_absLLR.Unsupervised
-  #  - Pangolin.Unsupervised
-  #  - CADD.Unsupervised
+    #- GPN-MSA+Enformer.RandomForest.odd_even
+    #- GPN.LogisticRegression.odd_even
+    #- emVar.Unsupervised
+    #- Enformer_absDelta.Unsupervised
+  #gonzalobenegas/siraj_gwas_highpip_emvar:
+  #  - GPN-MSA.LogisticRegression.odd_even
+  #  - Enformer.LogisticRegression.odd_even
+  #  - GPN-MSA+Enformer.LogisticRegression.odd_even
+  #  - GPN.LogisticRegression.odd_even
+# #   - GPN-MSA.LogisticRegression.chrom
+# #   - Enformer.LogisticRegression.chrom
+# #   - GPN-MSA+Enformer.LogisticRegression.chrom
+  #gonzalobenegas/siraj_eqtl_highpip_emvar:
+  #  - GPN-MSA.LogisticRegression.odd_even
+  #  - Enformer.LogisticRegression.odd_even
+  #  - GPN-MSA+Enformer.LogisticRegression.odd_even
+  #  - GPN.LogisticRegression.odd_even
+  ##gonzalobenegas/splicing_assay:
+  ##  - GPN-MSA.LogisticRegression
+  ##  - GPN-MSA+Pangolin.LogisticRegression
+  ##  - GPN-MSA_absLLR.Unsupervised
+  ##  - Pangolin.Unsupervised
+  ##  - CADD.Unsupervised
 
 baseline_features:
   gonzalobenegas/gwas:

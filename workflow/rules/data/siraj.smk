@@ -11,6 +11,7 @@ rule siraj_highpip_emvar:
         "results/genome.fa.gz",
     output:
         "results/siraj/{c,gwas|eqtl}_{label,highpip|highpip_emvar}/test.parquet",
+        "results/siraj/{c,gwas|eqtl}_{label,highpip|highpip_emvar}_features/emVar.parquet",
     run:
         V = (
             pl.read_excel(
@@ -29,11 +30,11 @@ rule siraj_highpip_emvar:
         V["pos"] = V.Variant.str.split(":").str[1].astype(int)
         V["ref"] = V.Variant.str.split(":").str[2]
         V["alt"] = V.Variant.str.split(":").str[3]
-        V = V[["chrom", "pos", "ref", "alt", "label"]]
         V = V[(V.ref.isin(NUCLEOTIDES)) & (V.alt.isin(NUCLEOTIDES))]
         V = lift_hg19_to_hg38(V)
         V = V[V.pos != -1]
         genome = Genome(input[1])
         V = check_ref_alt(V, genome)
         V = sort_chrom_pos(V)
-        V.to_parquet(output[0], index=False)
+        V[["chrom", "pos", "ref", "alt", "label"]].to_parquet(output[0], index=False)
+        V[["emVar"]].to_parquet(output[1], index=False)
