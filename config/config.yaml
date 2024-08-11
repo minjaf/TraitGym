@@ -13,64 +13,28 @@ datasets:
 #  - "gonzalobenegas/siraj_eqtl_highpip_emvar"
 
 features:
-#  - "GPN-MSA_absLLR"
-#  - "GPN-MSA_InnerProducts"
+#  - GPN-MSA_absLLR
+#  - GPN-MSA_InnerProducts
 #  - GPN_EmbedDists
-#  - "Enformer_absDelta"
-#  - Pangolin
-#  - CADD
-#  - "Enformer_absDelta_s_het"
-#  - s_het
   - Enformer_L2
+  - Borzoi_L2
 
 feature_sets:
   GPN:
-    - "GPN_EmbedDists"
+    - GPN_EmbedDists
   GPN-MSA:
-    - "GPN-MSA_absLLR"
-    - "GPN-MSA_InnerProducts"
+    - GPN-MSA_absLLR
+    - GPN-MSA_InnerProducts
   Enformer:
-    - "Enformer_absDelta"
-  Enformer+s_het:
-    - "Enformer_absDelta"
-    - "s_het"
-  CADD+Enformer:
-    - CADD
-    - "Enformer_absDelta"
-  GPN-MSA+Enformer:
-    - "GPN-MSA_absLLR"
-    - "GPN-MSA_InnerProducts"
-    - "Enformer_absDelta"
-  GPN-MSA+Pangolin:
-    - "GPN-MSA_absLLR"
-    - "GPN-MSA_InnerProducts"
-    - "Pangolin"
+    - Enformer_L2
+  Borzoi:
+    - Borzoi_L2
+  GPN-MSA+Borzoi:
+    - GPN-MSA_absLLR
+    - GPN-MSA_InnerProducts
+    - Borzoi_L2
 
 dataset_eval_models:
-#  gonzalobenegas/gwas:
-#    - GPN-MSA.LogisticRegression
-#    - Enformer.LogisticRegression
-#    - GPN-MSA+Enformer.LogisticRegression
-#    #- GPN-MSA_absLLR.Unsupervised
-#    #- Enformer_absDelta.Unsupervised
-#    #- CADD.Unsupervised
-#    #- CADD+Enformer.LogisticRegression
-#  gonzalobenegas/eqtl:
-#    - GPN-MSA.LogisticRegression
-#    - Enformer.LogisticRegression
-#    - GPN-MSA+Enformer.LogisticRegression
-#    #- GPN-MSA_absLLR.Unsupervised
-#    #- Enformer_absDelta.Unsupervised
-#    #- CADD.Unsupervised
-#    #- CADD+Enformer.LogisticRegression
-#  gonzalobenegas/sqtl:
-#    - GPN-MSA.LogisticRegression
-#    - Enformer.LogisticRegression
-#    - GPN-MSA+Enformer.LogisticRegression
-#    #- GPN-MSA_absLLR.Unsupervised
-#    #- Enformer_absDelta.Unsupervised
-#    #- CADD.Unsupervised
-#    #- CADD+Enformer.LogisticRegression
   gonzalobenegas/dsqtl:
     - GPN-MSA.LogisticRegression.odd_even
     - Enformer.LogisticRegression.odd_even
@@ -78,17 +42,15 @@ dataset_eval_models:
     - GPN.LogisticRegression.odd_even
     - Enformer_absDelta.Unsupervised
   gonzalobenegas/siraj_gwas_highpip:
-#    - GPN-MSA.LogisticRegression.odd_even
-#    - Enformer.LogisticRegression.odd_even
-#    - GPN-MSA+Enformer.LogisticRegression.odd_even
-#    - GPN-MSA.LogisticRegression.chrom
-#    - Enformer.LogisticRegression.chrom
-#    - GPN-MSA+Enformer.LogisticRegression.chrom
+    - GPN-MSA.LogisticRegression.chrom
+    - Enformer.LogisticRegression.chrom
+    - Borzoi.LogisticRegression.chrom
+    - GPN-MSA+Borzoi.LogisticRegression.chrom
     #- GPN-MSA+Enformer.RandomForest.chrom
     #- GPN.LogisticRegression.chrom
 #    - emVar.Unsupervised
-    - Enformer_absDelta.Unsupervised
-    - Enformer_L2.Unsupervised
+#    - Enformer_L2.Unsupervised
+#    - Borzoi_L2.Unsupervised
 #    - Enformer_absDelta_s_het.Unsupervised
 #    - Enformer+s_het.LogisticRegression.chrom
   gonzalobenegas/siraj_eqtl_highpip:
@@ -99,25 +61,6 @@ dataset_eval_models:
     #- GPN.LogisticRegression.odd_even
     #- emVar.Unsupervised
     #- Enformer_absDelta.Unsupervised
-  #gonzalobenegas/siraj_gwas_highpip_emvar:
-  #  - GPN-MSA.LogisticRegression.odd_even
-  #  - Enformer.LogisticRegression.odd_even
-  #  - GPN-MSA+Enformer.LogisticRegression.odd_even
-  #  - GPN.LogisticRegression.odd_even
-# #   - GPN-MSA.LogisticRegression.chrom
-# #   - Enformer.LogisticRegression.chrom
-# #   - GPN-MSA+Enformer.LogisticRegression.chrom
-  #gonzalobenegas/siraj_eqtl_highpip_emvar:
-  #  - GPN-MSA.LogisticRegression.odd_even
-  #  - Enformer.LogisticRegression.odd_even
-  #  - GPN-MSA+Enformer.LogisticRegression.odd_even
-  #  - GPN.LogisticRegression.odd_even
-  ##gonzalobenegas/splicing_assay:
-  ##  - GPN-MSA.LogisticRegression
-  ##  - GPN-MSA+Pangolin.LogisticRegression
-  ##  - GPN-MSA_absLLR.Unsupervised
-  ##  - Pangolin.Unsupervised
-  ##  - CADD.Unsupervised
 
 baseline_features:
   gonzalobenegas/gwas:
@@ -129,9 +72,7 @@ baseline_features:
   gonzalobenegas/splicing_assay: []
   gonzalobenegas/dsqtl:
     - Enformer_absDelta
-  gonzalobenegas/siraj_gwas_highpip:
-    - Enformer_absDelta
-    - Enformer_L2
+  gonzalobenegas/siraj_gwas_highpip: []
   gonzalobenegas/siraj_eqtl_highpip:
     - Enformer_absDelta
   gonzalobenegas/siraj_gwas_highpip_emvar:
