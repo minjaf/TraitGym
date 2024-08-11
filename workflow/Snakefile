@@ -11,6 +11,7 @@ include: "rules/features/cadd.smk"
 include: "rules/features/enformer.smk"
 include: "rules/features/gpn.smk"
 include: "rules/features/gpn_msa.smk"
+include: "rules/features/grelu.smk"
 include: "rules/model.smk"
 
 

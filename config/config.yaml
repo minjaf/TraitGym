@@ -8,7 +8,7 @@ datasets:
 #  - "gonzalobenegas/splicing_assay"
 #  - "gonzalobenegas/dsqtl"
   - "gonzalobenegas/siraj_gwas_highpip"
-  - "gonzalobenegas/siraj_eqtl_highpip"
+#  - "gonzalobenegas/siraj_eqtl_highpip"
 #  - "gonzalobenegas/siraj_gwas_highpip_emvar"
 #  - "gonzalobenegas/siraj_eqtl_highpip_emvar"
 
@@ -19,8 +19,9 @@ features:
 #  - "Enformer_absDelta"
 #  - Pangolin
 #  - CADD
-  - "Enformer_absDelta_s_het"
-  - s_het
+#  - "Enformer_absDelta_s_het"
+#  - s_het
+  - Enformer_L2
 
 feature_sets:
   GPN:
@@ -80,13 +81,14 @@ dataset_eval_models:
 #    - GPN-MSA.LogisticRegression.odd_even
 #    - Enformer.LogisticRegression.odd_even
 #    - GPN-MSA+Enformer.LogisticRegression.odd_even
-    - GPN-MSA.LogisticRegression.chrom
-    - Enformer.LogisticRegression.chrom
-    - GPN-MSA+Enformer.LogisticRegression.chrom
+#    - GPN-MSA.LogisticRegression.chrom
+#    - Enformer.LogisticRegression.chrom
+#    - GPN-MSA+Enformer.LogisticRegression.chrom
     #- GPN-MSA+Enformer.RandomForest.chrom
     #- GPN.LogisticRegression.chrom
 #    - emVar.Unsupervised
-#    - Enformer_absDelta.Unsupervised
+    - Enformer_absDelta.Unsupervised
+    - Enformer_L2.Unsupervised
 #    - Enformer_absDelta_s_het.Unsupervised
 #    - Enformer+s_het.LogisticRegression.chrom
   gonzalobenegas/siraj_eqtl_highpip:
@@ -129,6 +131,7 @@ baseline_features:
     - Enformer_absDelta
   gonzalobenegas/siraj_gwas_highpip:
     - Enformer_absDelta
+    - Enformer_L2
   gonzalobenegas/siraj_eqtl_highpip:
     - Enformer_absDelta
   gonzalobenegas/siraj_gwas_highpip_emvar:

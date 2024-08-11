@@ -13,6 +13,7 @@ from sklearn.linear_model import LogisticRegressionCV
 from sklearn.metrics import average_precision_score, roc_auc_score
 from sklearn.preprocessing import StandardScaler, RobustScaler
 from sklearn.pipeline import Pipeline
+import torch
 from tqdm import tqdm
 import yaml
 
