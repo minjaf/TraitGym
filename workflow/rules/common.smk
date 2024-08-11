@@ -10,6 +10,7 @@ import polars as pl
 from scipy.spatial.distance import cdist
 import seaborn as sns
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.metrics import average_precision_score, roc_auc_score
 from sklearn.preprocessing import StandardScaler, RobustScaler
@@ -310,6 +311,7 @@ rule upload_features_to_hf:
 def train_predict_logistic_regression(V_train, V_test, features):
     balanced = V_train.label.sum() == len(V_train) // 2
     clf = Pipeline([
+        ('imputer', SimpleImputer(missing_values=np.nan, strategy='mean')),
         ('scaler', RobustScaler()),
         ('linear', LogisticRegressionCV(
             class_weight="balanced",

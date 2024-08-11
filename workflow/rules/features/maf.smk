@@ -24,6 +24,4 @@ rule maf_features:
         V["score"] = db.get_info_from_df(V, wildcards.col)[wildcards.col]
         V.score = V.score.where(V.score < 0.5, 1 - V.score)
         V.score = -V.score
-        print(V.score.isna().sum())
-        V = V.fillna(V["score"].mean())
         V[["score"]].to_parquet(output[0], index=False)

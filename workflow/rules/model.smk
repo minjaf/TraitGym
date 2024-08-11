@@ -65,6 +65,7 @@ rule unsupervised_l2_score:
         "results/preds/{dataset}/{features}.Unsupervised.L2.parquet",
     run:
         df = pd.read_parquet(f"https://huggingface.co/datasets/{wildcards.dataset}/resolve/main/features/{wildcards.features}.parquet")
+        df = df.fillna(df.mean())
         df["score"] = np.linalg.norm(df, axis=1)
         df[["score"]].to_parquet(output[0], index=False)
 
@@ -75,6 +76,7 @@ rule unsupervised_scalar_score:
     run:
         df = pd.read_parquet(f"https://huggingface.co/datasets/{wildcards.dataset}/resolve/main/features/{wildcards.features}.parquet")
         assert df.shape[1] == 1
+        df = df.fillna(df.mean())
         df = df.rename(columns={df.columns[0]: "score"})
         df.to_parquet(output[0], index=False)
 

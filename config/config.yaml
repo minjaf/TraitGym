@@ -28,15 +28,28 @@ features:
   - CADD_Annot
 
 feature_sets:
+  Baseline:
+  - minus_MAF
+  - minus_TSS_dist
   GPN:
     - GPN_EmbedDists
   GPN-MSA:
     - GPN-MSA_absLLR
     - GPN-MSA_InnerProducts
+    - minus_MAF
+    - minus_TSS_dist
+  CADD:
+    - CADD_Annot
+    - minus_MAF
+    - minus_TSS_dist
   Enformer:
     - Enformer_L2
+    - minus_MAF
+    - minus_TSS_dist
   Borzoi:
     - Borzoi_L2
+    - minus_MAF
+    - minus_TSS_dist
   GPN-MSA+Borzoi:
     - GPN-MSA_absLLR
     - GPN-MSA_InnerProducts
@@ -65,22 +78,24 @@ dataset_eval_models:
     - GPN.LogisticRegression.odd_even
     - Enformer_absDelta.Unsupervised
   gonzalobenegas/siraj_gwas_highpip:
-    - Ensemble.LogisticRegression.chrom
+    - Baseline.LogisticRegression.chrom
+
+#    - Ensemble.LogisticRegression.chrom
+
     - GPN-MSA.LogisticRegression.chrom
+    - CADD.LogisticRegression.chrom
     - Enformer.LogisticRegression.chrom
     - Borzoi.LogisticRegression.chrom
-    - GPN-MSA+Borzoi.LogisticRegression.chrom
-    - Enformer_L2.Unsupervised.L2
-    - Borzoi_L2.Unsupervised.L2
-    - GPN-MSA_absLLR.Unsupervised.scalar
-    - phyloP-100v.Unsupervised.scalar
-    - phastCons-100v.Unsupervised.scalar
-    - phyloP-241m.Unsupervised.scalar
-    - minus_TSS_dist.Unsupervised.scalar
-    - minus_MAF.Unsupervised.scalar
-    - minus_MAF_popmax.Unsupervised.scalar
-    - CADD_RawScore.Unsupervised.scalar
-    - CADD_Annot.LogisticRegression.chrom
+#    - GPN-MSA+Borzoi.LogisticRegression.chrom
+#    - Enformer_L2.Unsupervised.L2
+#    - Borzoi_L2.Unsupervised.L2
+#    - GPN-MSA_absLLR.Unsupervised.scalar
+#    - phyloP-100v.Unsupervised.scalar
+#    - phastCons-100v.Unsupervised.scalar
+#    - phyloP-241m.Unsupervised.scalar
+#    - minus_MAF_popmax.Unsupervised.scalar
+#    - CADD_RawScore.Unsupervised.scalar
+#    - CADD_Annot.LogisticRegression.chrom
   gonzalobenegas/siraj_eqtl_highpip:
     - GPN-MSA.LogisticRegression.odd_even
     - Enformer.LogisticRegression.odd_even

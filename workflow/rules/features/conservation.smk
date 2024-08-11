@@ -34,6 +34,5 @@ rule conservation_features:
             lambda v: bw.values(f"chr{v.chrom}", v.pos-1, v.pos)[0],
             axis=1
         )
-        df = df.fillna(df["score"].mean())
         df = df[["score"]]
         df.to_parquet(output[0], index=False)

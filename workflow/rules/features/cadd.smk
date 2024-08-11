@@ -35,10 +35,7 @@ rule cadd_process:
             if c in COORDINATES: continue
             if df[c].apply(lambda x: isinstance(x, str)).all():
                 df.drop(columns=[c], inplace=True)
-        # Fill NaN with the mean of the column
         other_cols = [c for c in df.columns if c not in COORDINATES]
-        for c in other_cols:
-            df[c] = df[c].fillna(df[c].mean())
         V = V.merge(df, how="left", on=COORDINATES)
         V[["RawScore"]].to_parquet(output[0], index=False)
         V[other_cols].to_parquet(output[1], index=False)
