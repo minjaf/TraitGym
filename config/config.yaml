@@ -18,6 +18,9 @@ features:
 #  - GPN_EmbedDists
   - Enformer_L2
   - Borzoi_L2
+  - phyloP-100v
+  - phastCons-100v
+  - phyloP-241m
 
 feature_sets:
   GPN:
@@ -46,13 +49,12 @@ dataset_eval_models:
     - Enformer.LogisticRegression.chrom
     - Borzoi.LogisticRegression.chrom
     - GPN-MSA+Borzoi.LogisticRegression.chrom
-    #- GPN-MSA+Enformer.RandomForest.chrom
-    #- GPN.LogisticRegression.chrom
-#    - emVar.Unsupervised
-#    - Enformer_L2.Unsupervised
-#    - Borzoi_L2.Unsupervised
-#    - Enformer_absDelta_s_het.Unsupervised
-#    - Enformer+s_het.LogisticRegression.chrom
+    - Enformer_L2.Unsupervised.L2
+    - Borzoi_L2.Unsupervised.L2
+    - GPN-MSA_absLLR.Unsupervised.scalar
+    - phyloP-100v.Unsupervised.scalar
+    - phastCons-100v.Unsupervised.scalar
+    - phyloP-241m.Unsupervised.scalar
   gonzalobenegas/siraj_eqtl_highpip:
     - GPN-MSA.LogisticRegression.odd_even
     - Enformer.LogisticRegression.odd_even

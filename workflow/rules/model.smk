@@ -60,14 +60,23 @@ rule run_classifier:
         ).to_parquet(output[0], index=False)
 
 
-# let's just do L2 norm for now
-rule unsupervised_score:
+rule unsupervised_l2_score:
     output:
-        "results/preds/{dataset}/{features}.Unsupervised.parquet",
+        "results/preds/{dataset}/{features}.Unsupervised.L2.parquet",
     run:
         df = pd.read_parquet(f"https://huggingface.co/datasets/{wildcards.dataset}/resolve/main/features/{wildcards.features}.parquet")
         df["score"] = np.linalg.norm(df, axis=1)
         df[["score"]].to_parquet(output[0], index=False)
+
+
+rule unsupervised_scalar_score:
+    output:
+        "results/preds/{dataset}/{features}.Unsupervised.scalar.parquet",
+    run:
+        df = pd.read_parquet(f"https://huggingface.co/datasets/{wildcards.dataset}/resolve/main/features/{wildcards.features}.parquet")
+        assert df.shape[1] == 1
+        df = df.rename(columns={df.columns[0]: "score"})
+        df.to_parquet(output[0], index=False)
 
 
 rule get_metrics:
