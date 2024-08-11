@@ -4,6 +4,7 @@ from gpn.data import Genome, load_table, load_dataset_from_file_or_dir
 from liftover import get_lifter
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 import pandas as pd
 import polars as pl
 from scipy.spatial.distance import cdist

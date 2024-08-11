@@ -14,6 +14,7 @@ include: "rules/features/enformer.smk"
 include: "rules/features/gpn.smk"
 include: "rules/features/gpn_msa.smk"
 include: "rules/features/grelu.smk"
+include: "rules/features/maf.smk"
 include: "rules/model.smk"
 
 
@@ -28,10 +29,3 @@ rule all:
             "results/plots/{dataset}.pdf",
             dataset=config["datasets"],
         )
-        #expand(
-        #    "results/features/results/gwas/intermediate/{features}.parquet",
-        #    features=config["features"],
-        #),
-        #"results/gwas/filt.annot.matched/test.parquet",
-        #"results/eqtl/merged/ge/merged.annot.matched/test.parquet",
-        #"results/eqtl/merged/leafcutter/merged.annot.matched/test.parquet",
