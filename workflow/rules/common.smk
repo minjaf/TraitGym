@@ -52,7 +52,10 @@ def lift_hg19_to_hg38(V):
 def sort_chrom_pos(V):
     chrom_order = [str(i) for i in range(1, 23)] + ['X', 'Y']
     V.chrom = pd.Categorical(V.chrom, categories=chrom_order, ordered=True)
-    V = V.sort_values(['chrom', 'pos'])
+    if "ref" not in V.columns:
+        V = V.sort_values(['chrom', 'pos'])
+    else:
+        V = V.sort_values(['chrom', 'pos', 'ref', 'alt'])
     V.chrom = V.chrom.astype(str)
     return V
 

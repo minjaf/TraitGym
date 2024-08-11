@@ -21,6 +21,7 @@ features:
   - phyloP-100v
   - phastCons-100v
   - phyloP-241m
+  - minus_TSS_dist
 
 feature_sets:
   GPN:
@@ -55,6 +56,7 @@ dataset_eval_models:
     - phyloP-100v.Unsupervised.scalar
     - phastCons-100v.Unsupervised.scalar
     - phyloP-241m.Unsupervised.scalar
+    - minus_TSS_dist.Unsupervised.scalar
   gonzalobenegas/siraj_eqtl_highpip:
     - GPN-MSA.LogisticRegression.odd_even
     - Enformer.LogisticRegression.odd_even
