@@ -24,6 +24,8 @@ features:
   - minus_TSS_dist
   - minus_MAF
   - minus_MAF_popmax
+  - CADD_RawScore
+  - CADD_Annot
 
 feature_sets:
   GPN:
@@ -39,6 +41,8 @@ feature_sets:
     - GPN-MSA_absLLR
     - GPN-MSA_InnerProducts
     - Borzoi_L2
+  CADD_Annot:
+    - CADD_Annot
   Ensemble:
   - GPN-MSA_absLLR
   - GPN-MSA_InnerProducts
@@ -49,6 +53,9 @@ feature_sets:
   - phastCons-100v
   - phyloP-241m
   - minus_TSS_dist
+  - minus_MAF
+  - minus_MAF_popmax
+  - CADD_Annot
 
 dataset_eval_models:
   gonzalobenegas/dsqtl:
@@ -72,6 +79,8 @@ dataset_eval_models:
     - minus_TSS_dist.Unsupervised.scalar
     - minus_MAF.Unsupervised.scalar
     - minus_MAF_popmax.Unsupervised.scalar
+    - CADD_RawScore.Unsupervised.scalar
+    - CADD_Annot.LogisticRegression.chrom
   gonzalobenegas/siraj_eqtl_highpip:
     - GPN-MSA.LogisticRegression.odd_even
     - Enformer.LogisticRegression.odd_even
