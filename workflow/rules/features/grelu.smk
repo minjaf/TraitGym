@@ -1,3 +1,40 @@
+rule enformer_metadata:
+    output:
+        "results/metadata/Enformer.csv",
+    run:
+        import grelu.resources
+
+        model = grelu.resources.load_model(project="enformer", model_name="human")
+        metadata = pd.DataFrame(model.data_params["tasks"])
+        metadata.to_csv(output[0], index=False)
+
+
+rule borzoi_metadata:
+    output:
+        "results/metadata/Borzoi.csv",
+    run:
+        import grelu.resources
+
+        model = grelu.resources.load_model(project="borzoi", model_name="human_fold0")
+        metadata = pd.DataFrame(model.data_params["tasks"])
+        metadata.to_csv(output[0], index=False)
+
+
+rule grelu_aggregate_assay:
+    input:
+        "results/features/{dataset}/{model}_L2.parquet",
+        "results/metadata/{model}.csv",
+    output:
+        "results/features/{dataset}/{model,Enformer|Borzoi}_L2_L2.parquet",
+    run:
+        df = pd.read_parquet(input[0])
+        metadata = pd.read_csv(input[1])
+        assays = metadata.assay.unique()
+        for assay in assays:
+            df[assay] = np.linalg.norm(df[metadata[metadata.assay==assay].name], axis=1)
+        df[assays].to_parquet(output[0], index=False)
+
+
 #rule grelu_features:
 #    output:
 #        "results/features/{dataset}/{model,Enformer|Borzoi}_L2.parquet",

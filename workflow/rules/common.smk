@@ -327,23 +327,34 @@ def train_predict_logistic_regression(V_train, V_test, features):
 
 
 def train_predict_random_forest(V_train, V_test, features):
-    balanced = V_train.label.sum() == len(V_train) // 2
-    clf = RandomForestClassifier(
-        class_weight="balanced",
-        n_estimators=1000,
-        random_state=42,
-        n_jobs=-1,
-    )
+    clf = Pipeline([
+        ('imputer', SimpleImputer(missing_values=np.nan, strategy='mean')),
+        (
+            'random_forest',
+            RandomForestClassifier(
+                class_weight="balanced",
+                n_estimators=1000,
+                random_state=42,
+                n_jobs=-1,
+            )
+        )
+    ])
     clf.fit(V_train[features], V_train.label)
     return clf.predict_proba(V_test[features])[:, 1]
 
 
 def train_predict_xgboost(V_train, V_test, features):
     import xgboost as xgb
-    clf = xgb.XGBClassifier(
-        random_state=42,
-        n_jobs=-1,
-    )
+    clf = Pipeline([
+        ('imputer', SimpleImputer(missing_values=np.nan, strategy='mean')),
+        (
+            'xgb',
+            xgb.XGBClassifier(
+                random_state=42,
+                n_jobs=-1,
+            )
+        )
+    ])
     clf.fit(V_train[features], V_train.label)
     return clf.predict_proba(V_test[features])[:, 1]
 

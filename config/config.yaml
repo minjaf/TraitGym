@@ -2,9 +2,9 @@ genome_url: "http://ftp.ensembl.org/pub/release-107/fasta/homo_sapiens/dna/Homo_
 annotation_url: "http://ftp.ensembl.org/pub/release-107/gtf/homo_sapiens/Homo_sapiens.GRCh38.107.chr.gtf.gz"
 
 datasets:
-  - "gonzalobenegas/dsqtl"
+#  - "gonzalobenegas/dsqtl"
   - "gonzalobenegas/siraj_gwas_highpip"
-  - "gonzalobenegas/siraj_eqtl_highpip"
+#  - "gonzalobenegas/siraj_eqtl_highpip"
 
 features:
 #  - GPN-MSA_absLLR
@@ -20,28 +20,27 @@ features:
   - minus_MAF_popmax
   - CADD_RawScore
   - CADD_Annot
+  - Enformer_L2_L2
+  - Borzoi_L2_L2
 
 feature_sets:
   Baseline:
   - minus_MAF
   - minus_TSS_dist
-  GPN:
-    - GPN_EmbedDists
-  GPN-MSA:
-    - GPN-MSA_absLLR
-    - GPN-MSA_InnerProducts
-    - minus_MAF
-    - minus_TSS_dist
   CADD:
     - CADD_Annot
     - minus_MAF
     - minus_TSS_dist
   Enformer:
-    - Enformer_L2
+    - Enformer_L2_L2
     - minus_MAF
     - minus_TSS_dist
   Borzoi:
-    - Borzoi_L2
+    - Borzoi_L2_L2
+    - minus_MAF
+    - minus_TSS_dist
+  GPN-MSA:
+    - GPN-MSA_absLLR
     - minus_MAF
     - minus_TSS_dist
   phyloP-100v:
@@ -56,21 +55,20 @@ feature_sets:
     - phyloP-241m
     - minus_MAF
     - minus_TSS_dist
-  Enformer_precomputed:
-    - Enformer_absDelta
-    - minus_MAF
-    - minus_TSS_dist
+#  Enformer_precomputed:
+#    - Enformer_absDelta
+#    - minus_MAF
+#    - minus_TSS_dist
   Ensemble:
+  - CADD_Annot
+  - Borzoi_L2_L2
   - GPN-MSA_absLLR
-  - GPN-MSA_InnerProducts
-  - Borzoi_L2
   - phyloP-100v
   - phastCons-100v
   - phyloP-241m
   - minus_TSS_dist
   - minus_MAF
   - minus_MAF_popmax
-  - CADD_Annot
   Ensemble_precomputed:
   - GPN-MSA_absLLR
   - GPN-MSA_InnerProducts
@@ -85,17 +83,18 @@ feature_sets:
 
 dataset_eval_models:
   gonzalobenegas/siraj_gwas_highpip:
-    - Baseline.LogisticRegression.chrom
+    - Baseline.RandomForest.chrom
 
-    - Ensemble.LogisticRegression.chrom
+    - Ensemble.RandomForest.chrom
+    #- Ensemble.XGBoost.chrom
 
-    - GPN-MSA.LogisticRegression.chrom
-    - CADD.LogisticRegression.chrom
-    - Enformer.LogisticRegression.chrom
-    - Borzoi.LogisticRegression.chrom
-    - phyloP-100v.LogisticRegression.chrom
-    - phastCons-100v.LogisticRegression.chrom
-    - phyloP-241m.LogisticRegression.chrom
+    - CADD.RandomForest.chrom
+    - Enformer.RandomForest.chrom
+    - Borzoi.RandomForest.chrom
+    - GPN-MSA.RandomForest.chrom
+    - phyloP-100v.RandomForest.chrom
+    - phastCons-100v.RandomForest.chrom
+    - phyloP-241m.RandomForest.chrom
   gonzalobenegas/siraj_eqtl_highpip:
     - Baseline.LogisticRegression.odd_even
 
