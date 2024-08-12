@@ -30,11 +30,13 @@ rule cadd_process:
 
         df = df.loc[:, df.isna().mean() < 0.1]
         df = df.loc[:, df.nunique() > 1]
-        # drop string columns
-        for c in df.columns:
-            if c in COORDINATES: continue
-            if df[c].apply(lambda x: isinstance(x, str)).all():
-                df.drop(columns=[c], inplace=True)
+
+        df = df[[
+            c for c in df.columns
+            if c in COORDINATES or c in df.select_dtypes(include=["number", "bool"]).columns
+        ]]
+        print(df)
+
         other_cols = [c for c in df.columns if c not in COORDINATES]
         V = V.merge(df, how="left", on=COORDINATES)
         V[["RawScore"]].to_parquet(output[0], index=False)

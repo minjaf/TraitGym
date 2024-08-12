@@ -2,22 +2,16 @@ genome_url: "http://ftp.ensembl.org/pub/release-107/fasta/homo_sapiens/dna/Homo_
 annotation_url: "http://ftp.ensembl.org/pub/release-107/gtf/homo_sapiens/Homo_sapiens.GRCh38.107.chr.gtf.gz"
 
 datasets:
-#  - "gonzalobenegas/gwas"
-#  - "gonzalobenegas/eqtl"
-#  - "gonzalobenegas/sqtl"
-#  - "gonzalobenegas/splicing_assay"
-#  - "gonzalobenegas/dsqtl"
+  - "gonzalobenegas/dsqtl"
   - "gonzalobenegas/siraj_gwas_highpip"
-#  - "gonzalobenegas/siraj_eqtl_highpip"
-#  - "gonzalobenegas/siraj_gwas_highpip_emvar"
-#  - "gonzalobenegas/siraj_eqtl_highpip_emvar"
+  - "gonzalobenegas/siraj_eqtl_highpip"
 
 features:
 #  - GPN-MSA_absLLR
 #  - GPN-MSA_InnerProducts
 #  - GPN_EmbedDists
-  - Enformer_L2
-  - Borzoi_L2
+#  - Enformer_L2
+#  - Borzoi_L2
   - phyloP-100v
   - phastCons-100v
   - phyloP-241m
@@ -62,12 +56,25 @@ feature_sets:
     - phyloP-241m
     - minus_MAF
     - minus_TSS_dist
+  Enformer_precomputed:
+    - Enformer_absDelta
+    - minus_MAF
+    - minus_TSS_dist
   Ensemble:
   - GPN-MSA_absLLR
   - GPN-MSA_InnerProducts
-#  - GPN_EmbedDists
-#  - Enformer_L2
   - Borzoi_L2
+  - phyloP-100v
+  - phastCons-100v
+  - phyloP-241m
+  - minus_TSS_dist
+  - minus_MAF
+  - minus_MAF_popmax
+  - CADD_Annot
+  Ensemble_precomputed:
+  - GPN-MSA_absLLR
+  - GPN-MSA_InnerProducts
+  - Enformer_absDelta
   - phyloP-100v
   - phastCons-100v
   - phyloP-241m
@@ -77,12 +84,6 @@ feature_sets:
   - CADD_Annot
 
 dataset_eval_models:
-  gonzalobenegas/dsqtl:
-    - GPN-MSA.LogisticRegression.odd_even
-    - Enformer.LogisticRegression.odd_even
-    - GPN-MSA+Enformer.LogisticRegression.odd_even
-    - GPN.LogisticRegression.odd_even
-    - Enformer_absDelta.Unsupervised
   gonzalobenegas/siraj_gwas_highpip:
     - Baseline.LogisticRegression.chrom
 
@@ -96,30 +97,27 @@ dataset_eval_models:
     - phastCons-100v.LogisticRegression.chrom
     - phyloP-241m.LogisticRegression.chrom
   gonzalobenegas/siraj_eqtl_highpip:
+    - Baseline.LogisticRegression.odd_even
+
+    - Ensemble_precomputed.LogisticRegression.odd_even
+
     - GPN-MSA.LogisticRegression.odd_even
-    - Enformer.LogisticRegression.odd_even
-    - GPN-MSA+Enformer.LogisticRegression.odd_even
-    #- GPN-MSA+Enformer.RandomForest.odd_even
-    #- GPN.LogisticRegression.odd_even
-    #- emVar.Unsupervised
-    #- Enformer_absDelta.Unsupervised
+    - CADD.LogisticRegression.odd_even
+    - Enformer_precomputed.LogisticRegression.odd_even
+  gonzalobenegas/dsqtl:
+    - Baseline.LogisticRegression.odd_even
+
+    - Ensemble_precomputed.LogisticRegression.odd_even
+
+    - GPN-MSA.LogisticRegression.odd_even
+    - CADD.LogisticRegression.odd_even
+    - Enformer_precomputed.LogisticRegression.odd_even
 
 baseline_features:
-  gonzalobenegas/gwas:
-    - Enformer_absDelta
-  gonzalobenegas/eqtl:
-    - Enformer_absDelta
-  gonzalobenegas/sqtl:
-    - Enformer_absDelta
-  gonzalobenegas/splicing_assay: []
   gonzalobenegas/dsqtl:
     - Enformer_absDelta
   gonzalobenegas/siraj_gwas_highpip: []
   gonzalobenegas/siraj_eqtl_highpip:
-    - Enformer_absDelta
-  gonzalobenegas/siraj_gwas_highpip_emvar:
-    - Enformer_absDelta
-  gonzalobenegas/siraj_eqtl_highpip_emvar:
     - Enformer_absDelta
 
 gpn_msa:
