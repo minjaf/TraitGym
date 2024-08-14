@@ -26,7 +26,21 @@ rule all:
         #    dataset=config["datasets"],
         #    features=config["features"],
         #),
+        #expand(
+        #    "results/plots/{dataset}.pdf",
+        #    dataset=config["datasets"],
+        #)
         expand(
-            "results/plots/{dataset}.pdf",
-            dataset=config["datasets"],
+            "results/interpretation/top_features/gwas_gokcen_experiment1_{trait}/{model}_L2.csv",
+            trait=[
+                "IBD",
+                "Height",
+                "CD",
+                "BMD-HT",
+                "PLT",
+            ],
+            model=[
+                "Enformer",
+                "Borzoi",
+            ],
         )

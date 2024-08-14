@@ -20,6 +20,62 @@ rule borzoi_metadata:
         metadata.to_csv(output[0], index=False)
 
 
+rule run_vep_enformer:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+        "results/genome.fa.gz",
+    output:
+        "results/dataset/{dataset}/features/Enformer_L2.parquet",
+    threads:
+        workflow.cores
+    shell:
+        """
+        python \
+        workflow/scripts/vep_enformer_borzoi.py {input} enformer human {output} \
+        --per_device_batch_size 16 --dataloader_num_workers {threads} --is_file
+        """
+#torchrun --nproc_per_node $(echo $CUDA_VISIBLE_DEVICES | awk -F',' '{{print NF}}') \
+
+
+rule run_vep_borzoi:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+        "results/genome.fa.gz",
+    output:
+        "results/dataset/{dataset}/features/Borzoi_L2.parquet",
+    threads:
+        workflow.cores
+    shell:
+        """
+        python \
+        workflow/scripts/vep_enformer_borzoi.py {input} borzoi human_fold0 {output} \
+        --per_device_batch_size 8 --dataloader_num_workers {threads} --is_file
+        """
+
+
+rule enformer_borzoi_top_features:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+        "results/dataset/{dataset}/features/{model}_L2.parquet",
+        "results/metadata/{model}.csv",
+    output:
+        "results/interpretation/top_features/{dataset}/{model,Enformer|Borzoi}_L2.csv",
+    run:
+        V = pd.read_parquet(input[0])
+        features = pd.read_parquet(input[1])
+        metadata = pd.read_csv(input[2], usecols=["name", "assay", "description"])
+        balanced = V.label.sum() == len(V) // 2
+        metric = roc_auc_score if balanced else average_precision_score
+        metric_name = "AUROC" if balanced else "AUPRC"
+        res = []
+        for f in tqdm(features.columns):
+            res.append([metric(V.label, features[f]), f])
+        res = pd.DataFrame(res, columns=[metric_name, "feature"])
+        res = res.merge(metadata, left_on="feature", right_on="name")
+        res = res.sort_values(metric_name, ascending=False)
+        res.to_csv(output[0], index=False)
+
+
 rule grelu_aggregate_assay:
     input:
         "results/features/{dataset}/{model}_L2.parquet",
