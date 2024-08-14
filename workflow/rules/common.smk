@@ -26,6 +26,12 @@ ODD_EVEN_CHROMS = [
     [str(i) for i in range(1, 23, 2)] + ['X'],
     [str(i) for i in range(2, 23, 2)] + ['Y'],
 ]
+CHROMS = [str(i) for i in range(1, 23)] + ['X', 'Y']
+
+
+def filter_chroms(V):
+    V = V[V.chrom.isin(CHROMS)]
+    return V
 
 
 def filter_snp(V):
@@ -445,3 +451,34 @@ rule delta_times_s_het:
         s_het.s_het *= delta
         print(s_het)
         s_het.to_parquet(output[0], index=False)
+
+
+cre_classes = ["PLS", "pELS", "dELS", "DNase-H3K4me3", "CTCF-only"]
+
+
+rule download_cre:
+    output:
+        temp("results/intervals/cre.tsv"),
+    shell:
+        "wget -O {output} https://downloads.wenglab.org/Registry-V3/GRCh38-cCREs.bed"
+
+
+rule process_cre:
+    input:
+        "results/intervals/cre.tsv",
+    output:
+        general="results/intervals/cre.parquet",
+        specific=expand("results/intervals/cre_{c}.parquet", c=cre_classes),
+    run:
+        df = (
+            pd.read_csv(input[0], sep="\t", header=None, usecols=[0, 1, 2, 5])
+            .rename(columns={0: "chrom", 1: "start", 2: "end", 5: "classes"})
+        )
+        df.chrom = df.chrom.str.replace("chr", "")
+        df = filter_chroms(df)
+        for c, path in zip(cre_classes, output.specific):
+            df_c = df[df.classes.str.contains(c)]
+            df_c = bf.merge(df_c).drop(columns="n_intervals")
+            df_c.to_parquet(path, index=False)
+        df = bf.merge(df).drop(columns="n_intervals")
+        df.to_parquet(output.general, index=False)
