@@ -28,6 +28,14 @@ ODD_EVEN_CHROMS = [
     [str(i) for i in range(2, 23, 2)] + ['Y'],
 ]
 CHROMS = [str(i) for i in range(1, 23)] + ['X', 'Y']
+NON_EXONIC = [
+    "intergenic_variant",
+    "intron_variant",
+    "upstream_gene_variant",
+    "downstream_gene_variant"
+]
+
+cre_classes = ["PLS", "pELS", "dELS", "DNase-H3K4me3", "CTCF-only"]
 
 
 def filter_chroms(V):
@@ -180,7 +188,7 @@ rule make_ensembl_vep_input:
     input:
         "{anything}.parquet",
     output:
-        "{anything}.ensembl_vep.input.tsv.gz",
+        temp("{anything}.ensembl_vep.input.tsv.gz"),
     threads: workflow.cores
     run:
         df = pd.read_parquet(input[0])
@@ -213,7 +221,7 @@ rule run_ensembl_vep:
         "{anything}.ensembl_vep.input.tsv.gz",
         "results/ensembl_vep_cache",
     output:
-        "{anything}.ensembl_vep.output.tsv.gz",  # TODO: make temp
+        temp("{anything}.ensembl_vep.output.tsv.gz"),
     singularity:
         "docker://ensemblorg/ensembl-vep:release_109.1"
     threads: workflow.cores
@@ -244,6 +252,28 @@ rule process_ensembl_vep:
         V2.drop(columns=["variant"], inplace=True)
         V = V.merge(V2, on=COORDINATES, how="inner")
         print(V)
+        V.to_parquet(output[0], index=False)
+
+
+rule cre_annotation:
+    input:
+        "{anything}.annot.parquet",
+        expand("results/intervals/cre_{c}.parquet", c=cre_classes),
+    output:
+        "{anything}.annot_with_cre.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        V["start"] = V.pos - 1
+        V["end"] = V.pos
+        for c, path in zip(cre_classes, input[1:]):
+            I = pd.read_parquet(path)
+            V = bf.coverage(V, I)
+            V.loc[
+                (V.consequence.isin(NON_EXONIC)) & (V.coverage > 0),
+                "consequence"
+            ] = c
+            V = V.drop(columns=["coverage"])
+        V = V.drop(columns=["start", "end"])
         V.to_parquet(output[0], index=False)
 
 
@@ -456,9 +486,6 @@ rule delta_times_s_het:
         s_het.s_het *= delta
         print(s_het)
         s_het.to_parquet(output[0], index=False)
-
-
-cre_classes = ["PLS", "pELS", "dELS", "DNase-H3K4me3", "CTCF-only"]
 
 
 rule download_cre:

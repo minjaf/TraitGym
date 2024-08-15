@@ -52,6 +52,45 @@ rule gwas_gokcen_merge_coords:
         V.to_parquet(output[0], index=False)
 
 
+rule gwas_gokcen_merge_filt:
+    input:
+        "results/gwas_gokcen/coords.annot_with_cre.parquet",
+        expand(
+            "results/gwas_gokcen/processed/{trait}.parquet",
+            trait=gwas_gokcen_metadata.index
+        ),
+    output:
+        "results/gwas_gokcen/filt/merged.parquet",
+    run:
+        annot = pd.read_parquet(input[0])
+        V = (
+            pl.concat([
+                pl.read_parquet(path).with_columns(
+                    pl.when(pl.col("PIP") > 0.9)
+                    .then(pl.lit(trait))
+                    .otherwise(pl.lit(None))
+                    .alias("trait")
+                )
+                for trait, path in tqdm(zip(gwas_gokcen_metadata.index, input[1:]))
+            ])
+            .group_by(COORDINATES)
+            .agg(pl.max("PIP"), pl.mean("MAF"), pl.col("trait").drop_nulls().unique())
+            .with_columns(
+                pl.when(pl.col("PIP") > 0.9).then(True)
+                .when(pl.col("PIP") < 0.01).then(False)
+                .otherwise(None)
+                .alias("label")
+            )
+            .drop_nulls()
+            .with_columns(pl.col("trait").list.sort().list.join(","))
+            .to_pandas()
+        )
+        V = V.merge(annot, on=COORDINATES)
+        V = sort_variants(V)
+        print(V)
+        V.to_parquet(output[0], index=False)
+
+
 rule gwas_gokcen_experiment1_filt:
     input:
         "results/gwas_gokcen/processed/{trait}.parquet",
