@@ -26,20 +26,6 @@ rule all:
             dataset=config["datasets"],
         )
         #expand(
-        #    "results/dataset/{dataset}/unsupervised_metrics/{features}.csv",
-        #    dataset=config["datasets"],
-        #    features=[
-        #        "Enformer_L2",
-        #        "Enformer_L2_L1",
-        #        "Enformer_L2_L2",
-        #        "Enformer_L2_Linf",
-        #        #"Borzoi_L2",
-        #        #"Borzoi_L2_L1",
-        #        #"Borzoi_L2_L2",
-        #        #"Borzoi_L2_Linf",
-        #    ]
-        #)
-        #expand(
         #    "results/interpretation/top_features/gwas_gokcen_experiment1_{trait}/{model}_L2.csv",
         #    trait=[
         #        "IBD",
@@ -53,3 +39,24 @@ rule all:
         #        "Borzoi",
         #    ],
         #)
+
+
+rule all_unsupervised:
+    input:
+        expand(
+            "results/dataset/{dataset}/unsupervised_metrics/{features}.csv",
+            dataset=config["datasets"],
+            features=[
+                "Enformer_L2",
+                "Enformer_L2_L1",
+                "Enformer_L2_L2",
+                "Enformer_L2_Linf",
+                "Borzoi_L2",
+                "Borzoi_L2_L1",
+                "Borzoi_L2_L2",
+                "Borzoi_L2_Linf",
+                "GPN-MSA_absLLR",
+                "GPN-MSA_InnerProducts",
+                #"GPN_EmbedDists",
+            ]
+        )

@@ -12,8 +12,12 @@ datasets:
 #  - gwas_gokcen_experiment1_BMD-HT
 #  - gwas_gokcen_experiment1_PLT
 
-  - gwas_gokcen_merged_cre_matched
+#  - gwas_gokcen_merged_cre_matched
 #  - gwas_gokcen_merged_nonexonic_matched
+
+  - gwas_gokcen_Height_cre_matched
+  - gwas_gokcen_IBD_cre_matched
+  - gwas_gokcen_BMD-HT_cre_matched
 
 features:
 #  - GPN-MSA_absLLR
@@ -50,8 +54,9 @@ feature_sets:
     - minus_TSS_dist
   GPN-MSA:
     - GPN-MSA_absLLR
-    - minus_MAF
-    - minus_TSS_dist
+    - GPN-MSA_InnerProducts
+#    - minus_MAF
+#    - minus_TSS_dist
   phyloP-100v:
     - phyloP-100v
     - minus_MAF
@@ -72,6 +77,10 @@ feature_sets:
     - Enformer_L2
   Borzoi_L2:
     - Borzoi_L2
+  Borzoi_L2+GPN-MSA:
+    - Borzoi_L2
+    - GPN-MSA_absLLR
+    - GPN-MSA_InnerProducts
   Ensemble:
   - CADD_Annot
   - Borzoi_L2_L2
@@ -133,6 +142,11 @@ dataset_eval_models:
   gwas_gokcen_merged_cre_matched:
     - Enformer_L2.LogisticRegression.chrom
     - Borzoi_L2.LogisticRegression.chrom
+    - GPN-MSA.LogisticRegression.chrom
+    - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
+  gwas_gokcen_merged_nonexonic_matched:
+    - Enformer_L2.LogisticRegression.chrom
+    - GPN-MSA.LogisticRegression.chrom
 
 baseline_features:
   gonzalobenegas/dsqtl:
@@ -147,5 +161,6 @@ gpn_msa:
   window_size: 128
 
 gpn:
-  model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/512/512/512_17_512/checkpoint-100000
+  #model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/512/512/512_17_512/checkpoint-100000
+  model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/256/256/512_25_768/checkpoint-100000
   window_size: 512

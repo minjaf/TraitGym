@@ -52,7 +52,34 @@ rule gwas_gokcen_merge_coords:
         V.to_parquet(output[0], index=False)
 
 
-rule gwas_gokcen_merge_filt:
+rule gwas_gokcen_trait_filt:
+    input:
+        "results/gwas_gokcen/coords.annot_with_cre.parquet",
+        "results/gwas_gokcen/processed/{trait}.parquet",
+    output:
+        "results/gwas_gokcen/filt/{trait}.parquet",
+    wildcard_constraints:
+        trait="|".join(gwas_gokcen_metadata.index),
+    run:
+        annot = pd.read_parquet(input[0])
+        V = (
+            pl.read_parquet(input[1])
+            .with_columns(
+                pl.when(pl.col("PIP") > 0.9).then(True)
+                .when(pl.col("PIP") < 0.01).then(False)
+                .otherwise(None)
+                .alias("label")
+            )
+            .drop_nulls()
+            .to_pandas()
+        )
+        V = V.merge(annot, on=COORDINATES)
+        V = sort_variants(V)
+        print(V)
+        V.to_parquet(output[0], index=False)
+
+
+rule gwas_gokcen_merged_filt:
     input:
         "results/gwas_gokcen/coords.annot_with_cre.parquet",
         expand(
