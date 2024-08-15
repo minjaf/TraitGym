@@ -91,6 +91,74 @@ rule gwas_gokcen_merge_filt:
         V.to_parquet(output[0], index=False)
 
 
+rule gwas_gokcen_match:
+    input:
+        "results/gwas_gokcen/filt/{anything}.parquet",
+        "results/tss.parquet",
+    output:
+        "results/dataset/gwas_gokcen_{anything}_matched/test.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+
+        V["start"] = V.pos - 1
+        V["end"] = V.pos
+
+        tss = pd.read_parquet(input[1], columns=["chrom", "start", "end"])
+
+        V = bf.closest(V, tss).rename(columns={
+            "distance": "tss_dist"
+        }).drop(columns=["start", "end", "chrom_", "start_", "end_"])
+
+        base_match_features = ["MAF"]
+
+        consequences = V[V.label].consequence.unique()
+        V_cs = []
+        for c in consequences:
+            print(c)
+            V_c = V[V.consequence == c].copy()
+            if c in NON_EXONIC + cre_classes:
+                match_features = base_match_features + ["tss_dist"]
+            else:
+                match_features = base_match_features
+            for f in match_features:
+                V_c[f"{f}_scaled"] = RobustScaler().fit_transform(V_c[f].values.reshape(-1, 1))
+            print(V_c.label.value_counts())
+            V_c = match_columns(V_c, "label", [f"{f}_scaled" for f in match_features])
+            V_c["match_group"] = c + "_" + V_c.match_group.astype(str)
+            print(V_c.label.value_counts())
+            print(V_c.groupby("label")[match_features].median())
+            V_c.drop(columns=[f"{f}_scaled" for f in match_features], inplace=True)
+            V_cs.append(V_c)
+        V = pd.concat(V_cs, ignore_index=True)
+        V = sort_variants(V)
+        print(V)
+        V.to_parquet(output[0], index=False)
+
+
+rule gwas_gokcen_filt_nonexonic:
+    input:
+        "results/dataset/gwas_gokcen_{anything}_matched/test.parquet",
+    output:
+        "results/dataset/gwas_gokcen_{anything}_nonexonic_matched/test.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        V = V[V.consequence.isin(NON_EXONIC + cre_classes)]
+        print(V)
+        V.to_parquet(output[0], index=False)
+
+
+rule gwas_gokcen_filt_cre:
+    input:
+        "results/dataset/gwas_gokcen_{anything}_matched/test.parquet",
+    output:
+        "results/dataset/gwas_gokcen_{anything}_cre_matched/test.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        V = V[V.consequence.isin(cre_classes)]
+        print(V)
+        V.to_parquet(output[0], index=False)
+
+
 rule gwas_gokcen_experiment1_filt:
     input:
         "results/gwas_gokcen/processed/{trait}.parquet",
