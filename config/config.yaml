@@ -13,6 +13,7 @@ datasets:
 #  - gwas_gokcen_experiment1_PLT
 
   - gwas_gokcen_merged_cre_matched
+#  - gwas_gokcen_merged_nonexonic_matched
 
 features:
 #  - GPN-MSA_absLLR
@@ -129,7 +130,9 @@ dataset_eval_models:
   gwas_gokcen_experiment1_BMD-HT:
     - Enformer_L2.LogisticRegression.chrom
     - Borzoi_L2.LogisticRegression.chrom
-  #gwas_gokcen_merged_cre_matched:
+  gwas_gokcen_merged_cre_matched:
+    - Enformer_L2.LogisticRegression.chrom
+    - Borzoi_L2.LogisticRegression.chrom
 
 baseline_features:
   gonzalobenegas/dsqtl:

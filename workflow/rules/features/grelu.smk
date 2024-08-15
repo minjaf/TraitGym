@@ -81,13 +81,21 @@ rule grelu_aggregate_assay:
         "results/dataset/{dataset}/features/{model}_L2.parquet",
         "results/metadata/{model}.csv",
     output:
-        "results/dataset/{dataset}/features/{model,Enformer|Borzoi}_L2_L2.parquet",
+        "results/dataset/{dataset}/features/{model,Enformer|Borzoi}_L2_L{norm_ord}.parquet",
     run:
         df = pd.read_parquet(input[0])
         metadata = pd.read_csv(input[1])
         assays = metadata.assay.unique()
+        if wildcards.norm_ord == "1":
+            norm_ord = 1
+        elif wildcards.norm_ord == "2":
+            norm_ord = 2
+        elif wildcards.norm_ord == "inf":
+            norm_ord = np.inf
         for assay in assays:
-            df[assay] = np.linalg.norm(df[metadata[metadata.assay==assay].name], axis=1)
+            df[assay] = np.linalg.norm(
+                df[metadata[metadata.assay==assay].name], axis=1, ord=norm_ord,
+            )
         df[assays].to_parquet(output[0], index=False)
 
 
