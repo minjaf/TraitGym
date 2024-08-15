@@ -69,6 +69,9 @@ def sort_chrom_pos(V):
     return V
 
 
+sort_variants = sort_chrom_pos
+
+
 def sort_chrom_pos_ref_alt(V):
     chrom_order = [str(i) for i in range(1, 23)] + ['X', 'Y']
     V.chrom = pd.Categorical(V.chrom, categories=chrom_order, ordered=True)

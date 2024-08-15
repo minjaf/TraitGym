@@ -33,6 +33,25 @@ rule gwas_gokcen_process:
         V.to_parquet(output[0], index=False)
 
 
+rule gwas_gokcen_merge_coords:
+    input:
+        expand(
+            "results/gwas_gokcen/processed/{trait}.parquet",
+            trait=gwas_gokcen_metadata.index
+        ),
+    output:
+        "results/gwas_gokcen/coords.parquet",
+    run:
+        V = (
+            pl.concat([pl.read_parquet(f, columns=COORDINATES) for f in input])
+            .unique()
+            .to_pandas()
+        )
+        V = sort_variants(V)
+        print(V)
+        V.to_parquet(output[0], index=False)
+
+
 rule gwas_gokcen_experiment1_filt:
     input:
         "results/gwas_gokcen/processed/{trait}.parquet",
