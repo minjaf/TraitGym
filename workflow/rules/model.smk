@@ -1,41 +1,19 @@
-rule benchmark_set:
-    output:
-        "results/benchmark_set/{dataset}.parquet",
-    run:
-        V = load_dataset(wildcards.dataset, split="test").to_pandas()
-        print(V)
-        all_features = []
-        for features in config["baseline_features"][wildcards.dataset]:
-            df = pd.read_parquet(f"https://huggingface.co/datasets/{wildcards.dataset}/resolve/main/features/{features}.parquet")
-            df.columns = [f"{features}_{col}" for col in df.columns]
-            all_features += df.columns.tolist()
-            V = pd.concat([V, df], axis=1)
-        V = V.dropna(subset=all_features)
-        if "match_group" in V.columns:
-            V = V[V.duplicated("match_group", keep=False)]
-        print(V)
-        V[COORDINATES].to_parquet(output[0], index=False)
-
-
 rule run_classifier:
     input:
-        "results/benchmark_set/{dataset}.parquet",
+        "results/dataset/{dataset}/test.parquet",
+        lambda wildcards: expand("results/dataset/{{dataset}}/features/{features}.parquet", features=config["feature_sets"][wildcards.feature_set]),
     output:
-        "results/preds/{dataset}/{feature_set}.{classifier,LogisticRegression|RandomForest|XGBoost}.{split_mode,chrom|odd_even}.parquet",
+        "results/dataset/{dataset}/preds/{feature_set}.{classifier,LogisticRegression|RandomForest|XGBoost}.{split_mode,chrom|odd_even}.parquet",
     threads:
         workflow.cores
     run:
-        V_full = load_dataset(wildcards.dataset, split="test").to_pandas()
-        print(V_full)
+        V = pd.read_parquet(input[0])
         all_features = []
-        for features in config["feature_sets"][wildcards.feature_set]:
-            df = pd.read_parquet(f"https://huggingface.co/datasets/{wildcards.dataset}/resolve/main/features/{features}.parquet")
+        for features, path in zip(config["feature_sets"][wildcards.feature_set], input[1:]):
+            df = pd.read_parquet(path)
             df.columns = [f"{features}_{col}" for col in df.columns]
             all_features += df.columns.tolist()
-            V_full = pd.concat([V_full, df], axis=1)
-        print(V_full)
-        V_subset = pd.read_parquet(input[0])
-        V = V_full.merge(V_subset, on=COORDINATES, how="inner")
+            V = pd.concat([V, df], axis=1)
         print(V)
 
         mask_train_list = []
@@ -55,42 +33,39 @@ rule run_classifier:
                 V[mask_train], V[mask_test], all_features
             )
 
-        V_full[COORDINATES].merge(
-            V[COORDINATES + ["score"]], on=COORDINATES, how="left"
-        ).to_parquet(output[0], index=False)
+        V[["score"]].to_parquet(output[0], index=False)
 
 
-rule unsupervised_l2_score:
-    output:
-        "results/preds/{dataset}/{features}.Unsupervised.L2.parquet",
-    run:
-        df = pd.read_parquet(f"https://huggingface.co/datasets/{wildcards.dataset}/resolve/main/features/{wildcards.features}.parquet")
-        df = df.fillna(df.mean())
-        df["score"] = np.linalg.norm(df, axis=1)
-        df[["score"]].to_parquet(output[0], index=False)
-
-
-rule unsupervised_scalar_score:
-    output:
-        "results/preds/{dataset}/{features}.Unsupervised.scalar.parquet",
-    run:
-        df = pd.read_parquet(f"https://huggingface.co/datasets/{wildcards.dataset}/resolve/main/features/{wildcards.features}.parquet")
-        assert df.shape[1] == 1
-        df = df.fillna(df.mean())
-        df = df.rename(columns={df.columns[0]: "score"})
-        df.to_parquet(output[0], index=False)
+#rule unsupervised_l2_score:
+#    output:
+#        "results/preds/{dataset}/{features}.Unsupervised.L2.parquet",
+#    run:
+#        df = pd.read_parquet(f"https://huggingface.co/datasets/{wildcards.dataset}/resolve/main/features/{wildcards.features}.parquet")
+#        df = df.fillna(df.mean())
+#        df["score"] = np.linalg.norm(df, axis=1)
+#        df[["score"]].to_parquet(output[0], index=False)
+#
+#
+#rule unsupervised_scalar_score:
+#    output:
+#        "results/preds/{dataset}/{features}.Unsupervised.scalar.parquet",
+#    run:
+#        df = pd.read_parquet(f"https://huggingface.co/datasets/{wildcards.dataset}/resolve/main/features/{wildcards.features}.parquet")
+#        assert df.shape[1] == 1
+#        df = df.fillna(df.mean())
+#        df = df.rename(columns={df.columns[0]: "score"})
+#        df.to_parquet(output[0], index=False)
 
 
 rule get_metrics:
     input:
-        "results/preds/{dataset}/{model}.parquet",
-        "results/benchmark_set/{dataset}.parquet",
+        "results/dataset/{dataset}/test.parquet",
+        "results/dataset/{dataset}/preds/{model}.parquet",
     output:
-        "results/metrics/{dataset}/{model}.csv",
+        "results/dataset/{dataset}/metrics/{model}.csv",
     run:
-        V = load_dataset(wildcards.dataset, split="test").to_pandas()
-        V["score"] = pd.read_parquet(input[0])["score"]
-        V = V.merge(pd.read_parquet(input[1]), on=COORDINATES, how="inner")
+        V = pd.read_parquet(input[0])
+        V["score"] = pd.read_parquet(input[1])["score"]
         balanced = V.label.sum() == len(V) // 2
         metric = roc_auc_score if balanced else average_precision_score
         metric_name = "AUROC" if balanced else "AUPRC"
@@ -105,11 +80,11 @@ rule get_metrics:
 rule merge_metrics:
     input:
         lambda wildcards: expand(
-            "results/metrics/{{dataset}}/{model}.csv",
+            "results/dataset/{{dataset}}/metrics/{model}.csv",
             model=config["dataset_eval_models"][wildcards.dataset]
         )
     output:
-        "results/merged_metrics/{dataset}.csv",
+        "results/dataset/{dataset}/merged_metrics.csv",
     run:
         dfs = [pd.read_csv(f) for f in input]
         df = pd.concat(dfs, axis=0)
@@ -120,13 +95,12 @@ rule merge_metrics:
 
 rule plot_metrics:
     input:
-        "results/benchmark_set/{dataset}.parquet",
-        "results/merged_metrics/{dataset}.csv",
+        "results/dataset/{dataset}/test.parquet",
+        "results/dataset/{dataset}/merged_metrics.csv",
     output:
-        "results/plots/{dataset}.pdf",
+        "results/dataset/{dataset}/plot.pdf",
     run:
-        V = load_dataset(wildcards.dataset, split="test").to_pandas()
-        V = V.merge(pd.read_parquet(input[0]), on=COORDINATES, how="inner")
+        V = pd.read_parquet(input[0])
         n_pos, n_neg = V.label.sum(), len(V) - V.label.sum()
         res = pd.read_csv(input[1])
         metric = res.columns[-1]

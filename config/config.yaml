@@ -3,8 +3,14 @@ annotation_url: "http://ftp.ensembl.org/pub/release-107/gtf/homo_sapiens/Homo_sa
 
 datasets:
 #  - "gonzalobenegas/dsqtl"
-  - "gonzalobenegas/siraj_gwas_highpip"
+#  - "gonzalobenegas/siraj_gwas_highpip"
 #  - "gonzalobenegas/siraj_eqtl_highpip"
+
+#  - gwas_gokcen_experiment1_IBD
+#  - gwas_gokcen_experiment1_Height
+#  - gwas_gokcen_experiment1_CD
+  - gwas_gokcen_experiment1_BMD-HT
+#  - gwas_gokcen_experiment1_PLT
 
 features:
 #  - GPN-MSA_absLLR
@@ -59,6 +65,10 @@ feature_sets:
 #    - Enformer_absDelta
 #    - minus_MAF
 #    - minus_TSS_dist
+  Enformer_L2:
+    - Enformer_L2
+  Borzoi_L2:
+    - Borzoi_L2
   Ensemble:
   - CADD_Annot
   - Borzoi_L2_L2
@@ -111,6 +121,12 @@ dataset_eval_models:
     - GPN-MSA.LogisticRegression.odd_even
     - CADD.LogisticRegression.odd_even
     - Enformer_precomputed.LogisticRegression.odd_even
+  gwas_gokcen_experiment1_Height:
+    - Enformer_L2.LogisticRegression.chrom
+    - Borzoi_L2.LogisticRegression.chrom
+  gwas_gokcen_experiment1_BMD-HT:
+    - Enformer_L2.LogisticRegression.chrom
+    - Borzoi_L2.LogisticRegression.chrom
 
 baseline_features:
   gonzalobenegas/dsqtl:
