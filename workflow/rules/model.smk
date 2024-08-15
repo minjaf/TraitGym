@@ -36,6 +36,27 @@ rule run_classifier:
         V[["score"]].to_parquet(output[0], index=False)
 
 
+rule eval_unsupervised_features:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+        "results/dataset/{dataset}/features/{features}.parquet",
+    output:
+        "results/dataset/{dataset}/unsupervised_metrics/{features}.csv",
+    run:
+        V = pd.read_parquet(input[0])
+        features = pd.read_parquet(input[1])
+        balanced = V.label.sum() == len(V) // 2
+        metric = roc_auc_score if balanced else average_precision_score
+        metric_name = "AUROC" if balanced else "AUPRC"
+        res = []
+        for f in tqdm(features.columns):
+            score = max(metric(V.label, features[f]), metric(V.label, -features[f]))
+            res.append([score, f])
+        res = pd.DataFrame(res, columns=[metric_name, "feature"])
+        res = res.sort_values(metric_name, ascending=False)
+        res.to_csv(output[0], index=False)
+
+
 #rule unsupervised_l2_score:
 #    output:
 #        "results/preds/{dataset}/{features}.Unsupervised.L2.parquet",

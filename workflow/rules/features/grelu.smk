@@ -78,10 +78,10 @@ rule enformer_borzoi_top_features:
 
 rule grelu_aggregate_assay:
     input:
-        "results/features/{dataset}/{model}_L2.parquet",
+        "results/dataset/{dataset}/features/{model}_L2.parquet",
         "results/metadata/{model}.csv",
     output:
-        "results/features/{dataset}/{model,Enformer|Borzoi}_L2_L2.parquet",
+        "results/dataset/{dataset}/features/{model,Enformer|Borzoi}_L2_L2.parquet",
     run:
         df = pd.read_parquet(input[0])
         metadata = pd.read_csv(input[1])
