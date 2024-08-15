@@ -151,3 +151,73 @@ rule plot_metrics:
                 va='center'  # Vertical alignment
             )
         plt.savefig(output[0], bbox_inches="tight")
+
+
+rule get_metrics_by_chrom:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+        "results/dataset/{dataset}/preds/{model}.parquet",
+    output:
+        "results/dataset/{dataset}/metrics_by_chrom/{model}.csv",
+    run:
+        V = pd.read_parquet(input[0])
+        V["score"] = pd.read_parquet(input[1])["score"]
+        balanced = V.label.sum() == len(V) // 2
+        metric = roc_auc_score if balanced else average_precision_score
+        metric_name = "AUROC" if balanced else "AUPRC"
+        res = []
+        for chrom in V.chrom.unique():
+            V_chrom = V[V.chrom == chrom]
+            res.append([chrom, wildcards.model, metric(V_chrom.label, V_chrom.score)])
+        res = pd.DataFrame(res, columns=["chrom", "Model", metric_name])
+        print(res)
+        res.to_csv(output[0], index=False)
+
+
+rule merge_metrics_by_chrom:
+    input:
+        lambda wildcards: expand(
+            "results/dataset/{{dataset}}/metrics_by_chrom/{model}.csv",
+            model=config["dataset_eval_models"][wildcards.dataset]
+        )
+    output:
+        "results/dataset/{dataset}/merged_metrics_by_chrom.csv",
+    run:
+        dfs = [pd.read_csv(f) for f in input]
+        df = pd.concat(dfs, axis=0)
+        print(df)
+        df.to_csv(output[0], index=False)
+
+
+rule plot_metrics_by_chrom:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+        "results/dataset/{dataset}/merged_metrics_by_chrom.csv",
+    output:
+        "results/dataset/{dataset}/plot_by_chrom.pdf",
+    run:
+        V = pd.read_parquet(input[0])
+        n_pos, n_neg = V.label.sum(), len(V) - V.label.sum()
+        res = pd.read_csv(input[1])
+        metric = res.columns[-1]
+        if metric == "AUROC":
+            baseline = 0.5
+        elif metric == "AUPRC":
+            baseline = n_pos / (n_pos + n_neg)
+        plt.figure(figsize=(2,2))
+        g = sns.boxplot(
+            data=res,
+            y="Model",
+            x=metric,
+            color="C0",
+            order=res.groupby("Model")[metric].median().sort_values(ascending=False).index,
+        )
+        sns.despine()
+        sample_size = f"n={format_number(n_pos)} vs. {format_number(n_neg)}"
+        g.set(
+            #xlim=baseline,
+            ylabel=""
+        )
+        title = f"{wildcards.dataset.split('/')[-1]}\n{sample_size}"
+        plt.title(title)
+        plt.savefig(output[0], bbox_inches="tight")

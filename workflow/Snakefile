@@ -22,7 +22,8 @@ include: "rules/model.smk"
 rule all:
     input:
         expand(
-            "results/dataset/{dataset}/plot.pdf",
+            #"results/dataset/{dataset}/plot.pdf",
+            "results/dataset/{dataset}/plot_by_chrom.pdf",
             dataset=config["datasets"],
         )
         #expand(

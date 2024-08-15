@@ -12,9 +12,9 @@ datasets:
 #  - gwas_gokcen_experiment1_BMD-HT
 #  - gwas_gokcen_experiment1_PLT
 
-#  - gwas_gokcen_merged_cre_matched
 #  - gwas_gokcen_merged_nonexonic_matched
 
+  - gwas_gokcen_merged_cre_matched
   - gwas_gokcen_Height_cre_matched
   - gwas_gokcen_IBD_cre_matched
   - gwas_gokcen_BMD-HT_cre_matched
@@ -139,14 +139,31 @@ dataset_eval_models:
   gwas_gokcen_experiment1_BMD-HT:
     - Enformer_L2.LogisticRegression.chrom
     - Borzoi_L2.LogisticRegression.chrom
+
+  gwas_gokcen_merged_nonexonic_matched:
+    - Enformer_L2.LogisticRegression.chrom
+    - GPN-MSA.LogisticRegression.chrom
+
   gwas_gokcen_merged_cre_matched:
     - Enformer_L2.LogisticRegression.chrom
     - Borzoi_L2.LogisticRegression.chrom
     - GPN-MSA.LogisticRegression.chrom
     - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
-  gwas_gokcen_merged_nonexonic_matched:
+  gwas_gokcen_Height_cre_matched:
     - Enformer_L2.LogisticRegression.chrom
+    - Borzoi_L2.LogisticRegression.chrom
     - GPN-MSA.LogisticRegression.chrom
+    - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
+  gwas_gokcen_IBD_cre_matched:
+    - Enformer_L2.LogisticRegression.chrom
+    - Borzoi_L2.LogisticRegression.chrom
+    - GPN-MSA.LogisticRegression.chrom
+    - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
+  gwas_gokcen_BMD-HT_cre_matched:
+    - Enformer_L2.LogisticRegression.chrom
+    - Borzoi_L2.LogisticRegression.chrom
+    - GPN-MSA.LogisticRegression.chrom
+    - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
 
 baseline_features:
   gonzalobenegas/dsqtl:
