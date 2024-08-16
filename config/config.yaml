@@ -19,6 +19,11 @@ datasets:
   - gwas_gokcen_IBD_cre_matched
   - gwas_gokcen_BMD-HT_cre_matched
 
+  - gwas_gokcen_merged_cre_matched_9
+  - gwas_gokcen_Height_cre_matched_9
+  - gwas_gokcen_IBD_cre_matched_9
+  - gwas_gokcen_BMD-HT_cre_matched_9
+
 features:
 #  - GPN-MSA_absLLR
 #  - GPN-MSA_InnerProducts
@@ -164,7 +169,7 @@ dataset_eval_models:
     - GPN-MSA.LogisticRegression.chrom
 
   gwas_gokcen_merged_cre_matched:
-    #- Enformer_L2.LogisticRegression.chrom
+    - Enformer_L2.LogisticRegression.chrom
     - Borzoi_L2.LogisticRegression.chrom
     - GPN-MSA.LogisticRegression.chrom
     - CADD.LogisticRegression.chrom
@@ -173,7 +178,7 @@ dataset_eval_models:
     - CADD+GPN-MSA.LogisticRegression.chrom
     - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
   gwas_gokcen_Height_cre_matched:
-    #- Enformer_L2.LogisticRegression.chrom
+    - Enformer_L2.LogisticRegression.chrom
     - Borzoi_L2.LogisticRegression.chrom
     - GPN-MSA.LogisticRegression.chrom
     - CADD.LogisticRegression.chrom
@@ -182,7 +187,7 @@ dataset_eval_models:
     - CADD+GPN-MSA.LogisticRegression.chrom
     - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
   gwas_gokcen_IBD_cre_matched:
-    #- Enformer_L2.LogisticRegression.chrom
+    - Enformer_L2.LogisticRegression.chrom
     - Borzoi_L2.LogisticRegression.chrom
     - GPN-MSA.LogisticRegression.chrom
     - CADD.LogisticRegression.chrom
@@ -191,7 +196,44 @@ dataset_eval_models:
     - CADD+GPN-MSA.LogisticRegression.chrom
     - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
   gwas_gokcen_BMD-HT_cre_matched:
-    #- Enformer_L2.LogisticRegression.chrom
+    - Enformer_L2.LogisticRegression.chrom
+    - Borzoi_L2.LogisticRegression.chrom
+    - GPN-MSA.LogisticRegression.chrom
+    - CADD.LogisticRegression.chrom
+    - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
+    - Borzoi_L2+CADD.LogisticRegression.chrom
+    - CADD+GPN-MSA.LogisticRegression.chrom
+    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
+
+  gwas_gokcen_merged_cre_matched_9:
+    - Enformer_L2.LogisticRegression.chrom
+    - Borzoi_L2.LogisticRegression.chrom
+    - GPN-MSA.LogisticRegression.chrom
+    - CADD.LogisticRegression.chrom
+    - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
+    - Borzoi_L2+CADD.LogisticRegression.chrom
+    - CADD+GPN-MSA.LogisticRegression.chrom
+    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
+  gwas_gokcen_Height_cre_matched_9:
+    - Enformer_L2.LogisticRegression.chrom
+    - Borzoi_L2.LogisticRegression.chrom
+    - GPN-MSA.LogisticRegression.chrom
+    - CADD.LogisticRegression.chrom
+    - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
+    - Borzoi_L2+CADD.LogisticRegression.chrom
+    - CADD+GPN-MSA.LogisticRegression.chrom
+    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
+  gwas_gokcen_IBD_cre_matched_9:
+    - Enformer_L2.LogisticRegression.chrom
+    - Borzoi_L2.LogisticRegression.chrom
+    - GPN-MSA.LogisticRegression.chrom
+    - CADD.LogisticRegression.chrom
+    - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
+    - Borzoi_L2+CADD.LogisticRegression.chrom
+    - CADD+GPN-MSA.LogisticRegression.chrom
+    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
+  gwas_gokcen_BMD-HT_cre_matched_9:
+    - Enformer_L2.LogisticRegression.chrom
     - Borzoi_L2.LogisticRegression.chrom
     - GPN-MSA.LogisticRegression.chrom
     - CADD.LogisticRegression.chrom
@@ -219,7 +261,6 @@ gpn:
 
 cadd:
   url: https://krishna.gs.washington.edu/download/CADD/v1.7/GRCh38/whole_genome_SNVs_inclAnno.tsv.gz
-  # https://github.com/kircherlab/CADD-scripts/blob/master/config/impute_GRCh38_v1.7.cfg
   features:
 #  - Type
 #  - Length

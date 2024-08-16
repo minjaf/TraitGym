@@ -134,6 +134,33 @@ def match_columns(df, target, covariates):
     return res
 
 
+def match_columns_k(df, target, covariates, k):
+    all_pos = []
+    all_neg_matched = []
+    for chrom in tqdm(df.chrom.unique()):
+        df_c = df[df.chrom == chrom]
+        pos = df_c[df_c[target]]
+        neg = df_c[~df_c[target]]
+        if len(pos) * k > len(neg):
+            print("WARNING: subsampling positive set to size of negative set")
+            pos = pos.sample(len(neg) // k, random_state=42)
+        D = cdist(pos[covariates], neg[covariates])
+
+        closest = []
+        for i in range(len(pos)):
+            js = np.argsort(D[i])[:k].tolist()
+            closest += js
+            D[:, js] = np.inf  # ensure they cannot be picked up again
+        all_pos.append(pos)
+        all_neg_matched.append(neg.iloc[closest])
+    
+    pos = pd.concat(all_pos, ignore_index=True)
+    neg_matched = pd.concat(all_neg_matched, ignore_index=True)
+    res = pd.concat([pos, neg_matched], ignore_index=True)
+    res = sort_variants(res)
+    return res
+
+
 rule download_genome:
     output:
         "results/genome.fa.gz",

@@ -25,6 +25,20 @@ rule all:
             "results/dataset/{dataset}/{plot}.pdf",
             dataset=config["datasets"],
             plot=["plot", "plot_by_chrom"]
+        ),
+        expand(
+            "results/dataset/{dataset}/unsupervised_metrics/{features}.csv",
+            dataset=config["datasets"],
+            features=[
+                "Enformer_L2",
+                "Enformer_L2_L2",
+                "Borzoi_L2",
+                "Borzoi_L2_L2",
+                "GPN-MSA_absLLR",
+                "GPN-MSA_InnerProducts",
+                "CADD",
+                #"GPN_EmbedDists",
+            ]
         )
         #expand(
         #    "results/interpretation/top_features/gwas_gokcen_experiment1_{trait}/{model}_L2.csv",
@@ -40,21 +54,3 @@ rule all:
         #        "Borzoi",
         #    ],
         #)
-
-
-rule all_unsupervised:
-    input:
-        expand(
-            "results/dataset/{dataset}/unsupervised_metrics/{features}.csv",
-            dataset=config["datasets"],
-            features=[
-                "Enformer_L2",
-                "Enformer_L2_L2",
-                "Borzoi_L2",
-                "Borzoi_L2_L2",
-                "GPN-MSA_absLLR",
-                "GPN-MSA_InnerProducts",
-                "CADD",
-                #"GPN_EmbedDists",
-            ]
-        )
