@@ -22,8 +22,8 @@ include: "rules/model.smk"
 rule all:
     input:
         expand(
-            #"results/dataset/{dataset}/plot.pdf",
-            "results/dataset/{dataset}/plot_by_chrom.pdf",
+            "results/dataset/{dataset}/plot.pdf",
+            #"results/dataset/{dataset}/plot_by_chrom.pdf",
             dataset=config["datasets"],
         )
         #expand(
@@ -49,15 +49,12 @@ rule all_unsupervised:
             dataset=config["datasets"],
             features=[
                 "Enformer_L2",
-                "Enformer_L2_L1",
                 "Enformer_L2_L2",
-                "Enformer_L2_Linf",
                 "Borzoi_L2",
-                "Borzoi_L2_L1",
                 "Borzoi_L2_L2",
-                "Borzoi_L2_Linf",
                 "GPN-MSA_absLLR",
                 "GPN-MSA_InnerProducts",
+                "CADD",
                 #"GPN_EmbedDists",
             ]
         )

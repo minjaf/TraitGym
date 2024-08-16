@@ -45,6 +45,7 @@ rule eval_unsupervised_features:
     run:
         V = pd.read_parquet(input[0])
         features = pd.read_parquet(input[1])
+        features = features.fillna(features.mean())
         balanced = V.label.sum() == len(V) // 2
         metric = roc_auc_score if balanced else average_precision_score
         metric_name = "AUROC" if balanced else "AUPRC"

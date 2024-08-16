@@ -41,9 +41,10 @@ feature_sets:
   - minus_MAF
   - minus_TSS_dist
   CADD:
-    - CADD_Annot
-    - minus_MAF
-    - minus_TSS_dist
+  - CADD
+#    - CADD_Annot
+#    - minus_MAF
+#    - minus_TSS_dist
   Enformer:
     - Enformer_L2_L2
     - minus_MAF
@@ -149,21 +150,25 @@ dataset_eval_models:
     - Borzoi_L2.LogisticRegression.chrom
     - GPN-MSA.LogisticRegression.chrom
     - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
+    - CADD.LogisticRegression.chrom
   gwas_gokcen_Height_cre_matched:
     - Enformer_L2.LogisticRegression.chrom
     - Borzoi_L2.LogisticRegression.chrom
     - GPN-MSA.LogisticRegression.chrom
     - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
+    - CADD.LogisticRegression.chrom
   gwas_gokcen_IBD_cre_matched:
     - Enformer_L2.LogisticRegression.chrom
     - Borzoi_L2.LogisticRegression.chrom
     - GPN-MSA.LogisticRegression.chrom
     - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
+    - CADD.LogisticRegression.chrom
   gwas_gokcen_BMD-HT_cre_matched:
     - Enformer_L2.LogisticRegression.chrom
     - Borzoi_L2.LogisticRegression.chrom
     - GPN-MSA.LogisticRegression.chrom
     - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
+    - CADD.LogisticRegression.chrom
 
 baseline_features:
   gonzalobenegas/dsqtl:
@@ -181,3 +186,147 @@ gpn:
   #model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/512/512/512_17_512/checkpoint-100000
   model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/256/256/512_25_768/checkpoint-100000
   window_size: 512
+
+cadd:
+  url: https://krishna.gs.washington.edu/download/CADD/v1.7/GRCh38/whole_genome_SNVs_inclAnno.tsv.gz
+  # https://github.com/kircherlab/CADD-scripts/blob/master/config/impute_GRCh38_v1.7.cfg
+  features:
+#  - Type
+#  - Length
+#  - Consequence
+  - GC
+  - CpG
+  - motifECount
+  - motifEHIPos
+  - motifEScoreChng
+#  - oAA
+#  - nAA
+  - cDNApos
+  - relcDNApos
+  - CDSpos
+  - relCDSpos
+  - protPos
+  - relProtPos
+#  - Domain
+  - Dst2Splice
+#  - Dst2SplType
+  - minDistTSS
+  - minDistTSE
+#  - SIFTcat
+  - SIFTval
+#  - PolyPhenCat
+  - PolyPhenVal
+  - priPhCons
+  - mamPhCons
+  - verPhCons
+  - priPhyloP
+  - mamPhyloP
+  - verPhyloP
+  - bStatistic
+  - targetScan
+  - mirSVR-Score
+  - mirSVR-E
+  - mirSVR-Aln
+  - cHmm_E1
+  - cHmm_E2
+  - cHmm_E3
+  - cHmm_E4
+  - cHmm_E5
+  - cHmm_E6
+  - cHmm_E7
+  - cHmm_E8
+  - cHmm_E9
+  - cHmm_E10
+  - cHmm_E11
+  - cHmm_E12
+  - cHmm_E13
+  - cHmm_E14
+  - cHmm_E15
+  - cHmm_E16
+  - cHmm_E17
+  - cHmm_E18
+  - cHmm_E19
+  - cHmm_E20
+  - cHmm_E21
+  - cHmm_E22
+  - cHmm_E23
+  - cHmm_E24
+  - cHmm_E25
+  - GerpRS
+  - GerpRSpval
+  - GerpN
+  - GerpS
+  - tOverlapMotifs
+  - motifDist
+  - EncodeH3K4me1-sum
+  - EncodeH3K4me1-max
+  - EncodeH3K4me2-sum
+  - EncodeH3K4me2-max
+  - EncodeH3K4me3-sum
+  - EncodeH3K4me3-max
+  - EncodeH3K9ac-sum
+  - EncodeH3K9ac-max
+  - EncodeH3K9me3-sum
+  - EncodeH3K9me3-max
+  - EncodeH3K27ac-sum
+  - EncodeH3K27ac-max
+  - EncodeH3K27me3-sum
+  - EncodeH3K27me3-max
+  - EncodeH3K36me3-sum
+  - EncodeH3K36me3-max
+  - EncodeH3K79me2-sum
+  - EncodeH3K79me2-max
+  - EncodeH4K20me1-sum
+  - EncodeH4K20me1-max
+  - EncodeH2AFZ-sum
+  - EncodeH2AFZ-max
+  - EncodeDNase-sum
+  - EncodeDNase-max
+  - EncodetotalRNA-sum
+  - EncodetotalRNA-max
+  - Grantham
+  - SpliceAI-acc-gain
+  - SpliceAI-acc-loss
+  - SpliceAI-don-gain
+  - SpliceAI-don-loss
+  - MMSp_acceptorIntron
+  - MMSp_acceptor
+  - MMSp_exon
+  - MMSp_donor
+  - MMSp_donorIntron
+  - Dist2Mutation
+  - Freq100bp
+  - Rare100bp
+  - Sngl100bp
+  - Freq1000bp
+  - Rare1000bp
+  - Sngl1000bp
+  - Freq10000bp
+  - Rare10000bp
+  - Sngl10000bp
+#  - EnsembleRegulatoryFeature
+  - dbscSNV-ada_score
+  - dbscSNV-rf_score
+  - RemapOverlapTF
+  - RemapOverlapCL
+  - EsmScoreMissense
+  - EsmScoreInFrame
+  - EsmScoreFrameshift
+  - RegSeq0
+  - RegSeq1
+  - RegSeq2
+  - RegSeq3
+  - RegSeq4
+  - RegSeq5
+  - RegSeq6
+  - RegSeq7
+  - Aparent2
+  - ZooPriPhyloP
+  - ZooVerPhyloP
+  - ZooRoCC
+  - ZooUCE
+#  - Roulette-FILTER
+  - Roulette-MR
+  - Roulette-AR
+  - RawScore
+#  - PHRED
