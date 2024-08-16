@@ -21,11 +21,11 @@ include: "rules/model.smk"
 
 rule all:
     input:
-        expand(
-            "results/dataset/{dataset}/{plot}.pdf",
-            dataset=config["datasets"],
-            plot=["plot", "plot_by_chrom"]
-        ),
+        #expand(
+        #    "results/dataset/{dataset}/{plot}.pdf",
+        #    dataset=config["datasets"],
+        #    plot=["plot", "plot_by_chrom"]
+        #),
         expand(
             "results/dataset/{dataset}/unsupervised_metrics/{features}.csv",
             dataset=config["datasets"],

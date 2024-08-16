@@ -23,6 +23,14 @@ datasets:
   - gwas_gokcen_Height_cre_matched_9
   - gwas_gokcen_IBD_cre_matched_9
   - gwas_gokcen_BMD-HT_cre_matched_9
+  - gwas_gokcen_CD_cre_matched_9
+  - gwas_gokcen_PLT_cre_matched_9
+  - gwas_gokcen_TG_cre_matched_9
+  - gwas_gokcen_EY_cre_matched_9
+  - gwas_gokcen_BMI_cre_matched_9
+  - gwas_gokcen_MNR_cre_matched_9
+  - gwas_gokcen_Breast_cancer_cre_matched_9
+  - gwas_gokcen_MNP_cre_matched_9
 
 features:
 #  - GPN-MSA_absLLR
@@ -233,6 +241,33 @@ dataset_eval_models:
     - CADD+GPN-MSA.LogisticRegression.chrom
     - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
   gwas_gokcen_BMD-HT_cre_matched_9:
+    - Enformer_L2.LogisticRegression.chrom
+    - Borzoi_L2.LogisticRegression.chrom
+    - GPN-MSA.LogisticRegression.chrom
+    - CADD.LogisticRegression.chrom
+    - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
+    - Borzoi_L2+CADD.LogisticRegression.chrom
+    - CADD+GPN-MSA.LogisticRegression.chrom
+    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
+  gwas_gokcen_CD_cre_matched_9:
+    - Enformer_L2.LogisticRegression.chrom
+    - Borzoi_L2.LogisticRegression.chrom
+    - GPN-MSA.LogisticRegression.chrom
+    - CADD.LogisticRegression.chrom
+    - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
+    - Borzoi_L2+CADD.LogisticRegression.chrom
+    - CADD+GPN-MSA.LogisticRegression.chrom
+    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
+  gwas_gokcen_PLT_cre_matched_9:
+    - Enformer_L2.LogisticRegression.chrom
+    - Borzoi_L2.LogisticRegression.chrom
+    - GPN-MSA.LogisticRegression.chrom
+    - CADD.LogisticRegression.chrom
+    - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
+    - Borzoi_L2+CADD.LogisticRegression.chrom
+    - CADD+GPN-MSA.LogisticRegression.chrom
+    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
+  gwas_gokcen_TG_cre_matched_9:
     - Enformer_L2.LogisticRegression.chrom
     - Borzoi_L2.LogisticRegression.chrom
     - GPN-MSA.LogisticRegression.chrom
