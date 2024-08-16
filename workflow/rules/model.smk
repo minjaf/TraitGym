@@ -3,7 +3,7 @@ rule run_classifier:
         "results/dataset/{dataset}/test.parquet",
         lambda wildcards: expand("results/dataset/{{dataset}}/features/{features}.parquet", features=config["feature_sets"][wildcards.feature_set]),
     output:
-        "results/dataset/{dataset}/preds/{feature_set}.{classifier,LogisticRegression|RandomForest|XGBoost}.{split_mode,chrom|odd_even}.parquet",
+        "results/dataset/{dataset}/preds/{feature_set}.{classifier,LogisticRegression|RandomForest|XGBoost|PCALogisticRegression|FeatureSelectionLogisticRegression}.{split_mode,chrom|odd_even}.parquet",
     threads:
         workflow.cores
     run:

@@ -22,9 +22,9 @@ include: "rules/model.smk"
 rule all:
     input:
         expand(
-            "results/dataset/{dataset}/plot.pdf",
-            #"results/dataset/{dataset}/plot_by_chrom.pdf",
+            "results/dataset/{dataset}/{plot}.pdf",
             dataset=config["datasets"],
+            plot=["plot", "plot_by_chrom"]
         )
         #expand(
         #    "results/interpretation/top_features/gwas_gokcen_experiment1_{trait}/{model}_L2.csv",

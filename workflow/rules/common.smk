@@ -9,6 +9,7 @@ import pandas as pd
 import polars as pl
 from scipy.spatial.distance import cdist
 import seaborn as sns
+from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.impute import SimpleImputer
@@ -353,7 +354,45 @@ def train_predict_logistic_regression(V_train, V_test, features):
     clf = Pipeline([
         ('imputer', SimpleImputer(missing_values=np.nan, strategy='mean')),
         ('scaler', RobustScaler()),
+        ('linear', LogisticRegressionCV(
+            class_weight="balanced",
+            scoring="roc_auc" if balanced else "average_precision",
+            Cs=np.logspace(-10, 10, 11),
+            cv=3,
+            random_state=42,
+            n_jobs=-1,
+        ))
+    ])
+    clf.fit(V_train[features], V_train.label)
+    return clf.predict_proba(V_test[features])[:, 1]
+
+
+def train_predict_feature_selection_logistic_regression(V_train, V_test, features):
+    balanced = V_train.label.sum() == len(V_train) // 2
+    clf = Pipeline([
+        ('imputer', SimpleImputer(missing_values=np.nan, strategy='mean')),
+        ('scaler', RobustScaler()),
+        ('feature_selection', SelectKBest(score_func=f_classif, k=10)),
+        ('linear', LogisticRegressionCV(
+            class_weight="balanced",
+            scoring="roc_auc" if balanced else "average_precision",
+            Cs=np.logspace(-10, 10, 11),
+            cv=3,
+            random_state=42,
+            n_jobs=-1,
+        ))
+    ])
+    clf.fit(V_train[features], V_train.label)
+    return clf.predict_proba(V_test[features])[:, 1]
+
+
+def train_predict_pca_logistic_regression(V_train, V_test, features):
+    balanced = V_train.label.sum() == len(V_train) // 2
+    clf = Pipeline([
+        ('imputer', SimpleImputer(missing_values=np.nan, strategy='mean')),
+        ('scaler', RobustScaler()),
         # ('feature_selection', SelectKBest(score_func=f_classif, k=10)),
+        ('pca', PCA(n_components=20, random_state=42)),
         ('linear', LogisticRegressionCV(
             class_weight="balanced",
             scoring="roc_auc" if balanced else "average_precision",
@@ -404,6 +443,8 @@ classifier_map = {
     "LogisticRegression": train_predict_logistic_regression,
     "RandomForest": train_predict_random_forest,
     "XGBoost": train_predict_xgboost,
+    "PCALogisticRegression": train_predict_pca_logistic_regression,
+    "FeatureSelectionLogisticRegression": train_predict_feature_selection_logistic_regression,
 }
 
 
