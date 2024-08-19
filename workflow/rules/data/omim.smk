@@ -41,27 +41,43 @@ rule omim_dataset:
         "results/omim/variants.annot_with_cre.parquet",
         "results/gnomad/common.parquet",
     output:
-        "results/dataset/omim/test.parquet",
+        "results/dataset/omim_{ratio,\d+}/test.parquet",
     run:
         pos = pd.read_parquet(input[0])
         pos["label"] = True
         neg = pd.read_parquet(input[1])
         neg["label"] = False
         Vs = []
-        ratio = 99
         for c in tqdm(pos.consequence.unique()):
             pos_c = pos[pos.consequence == c]
             neg_c = neg[neg.consequence == c]
             for chrom in pos_c.chrom.unique():
                 pos_c_chrom = pos_c[pos_c.chrom == chrom]
                 neg_c_chrom = neg_c[neg_c.chrom == chrom]
-                if len(neg_c_chrom) < len(pos_c_chrom) * ratio:
+                n = len(pos_c_chrom) * int(wildcards.ratio)
+                if len(neg_c_chrom) < n:
+                    print(f"Skipping {c} {chrom}")
                     continue
                 Vs.append(pd.concat([
-                    pos_c_chrom,
-                    neg_c_chrom.sample(n=ratio*len(pos_c_chrom), random_state=42)
+                    pos_c_chrom, neg_c_chrom.sample(n=n, random_state=42)
                 ]))
         V = pd.concat(Vs)
         V = sort_variants(V)
         print(V)
         V.to_parquet(output[0], index=False)
+
+
+rule omim_nonexonic_dataset:
+    input:
+        "results/dataset/omim_{ratio}/test.parquet",
+    output:
+        "results/dataset/omim_{ratio}_nonexonic/test.parquet",
+    run:
+        (
+            pl.read_parquet(input[0])
+            .filter(
+                pl.col("consequence")
+                .is_in(NON_EXONIC + cre_classes + cre_flank_classes)
+            )
+            .write_parquet(output[0])
+        )
