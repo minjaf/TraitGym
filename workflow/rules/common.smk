@@ -37,6 +37,7 @@ NON_EXONIC = [
 ]
 
 cre_classes = ["PLS", "pELS", "dELS", "DNase-H3K4me3", "CTCF-only"]
+cre_flank_classes = [f"{c}_flank" for c in cre_classes]
 
 
 def filter_chroms(V):
@@ -285,19 +286,29 @@ rule process_ensembl_vep:
 
 rule cre_annotation:
     input:
-        "{anything}.annot.parquet",
-        expand("results/intervals/cre_{c}.parquet", c=cre_classes),
+        V="{anything}.annot.parquet",
+        cre_flank=expand("results/intervals/cre_{c}.parquet", c=cre_flank_classes),
+        cre=expand("results/intervals/cre_{c}.parquet", c=cre_classes),
     output:
         "{anything}.annot_with_cre.parquet",
     run:
-        V = pd.read_parquet(input[0])
+        V = pd.read_parquet(input.V)
         V["start"] = V.pos - 1
         V["end"] = V.pos
-        for c, path in zip(cre_classes, input[1:]):
+        # first overlap with CRE flanks, since CRE flank is a superset of CRE
+        for c, path in zip(cre_flank_classes, input.cre_flank):
             I = pd.read_parquet(path)
             V = bf.coverage(V, I)
             V.loc[
                 (V.consequence.isin(NON_EXONIC)) & (V.coverage > 0),
+                "consequence"
+            ] = c
+            V = V.drop(columns=["coverage"])
+        for c, path in zip(cre_classes, input.cre):
+            I = pd.read_parquet(path)
+            V = bf.coverage(V, I)
+            V.loc[
+                (V.consequence.isin(cre_flank_classes)) & (V.coverage > 0),
                 "consequence"
             ] = c
             V = V.drop(columns=["coverage"])
@@ -582,3 +593,15 @@ rule process_cre:
             df_c.to_parquet(path, index=False)
         df = bf.merge(df).drop(columns="n_intervals")
         df.to_parquet(output.general, index=False)
+
+
+rule cre_flank:
+    input:
+        "results/intervals/cre_{c}.parquet",
+    output:
+        "results/intervals/cre_{c}_flank.parquet",
+    run:
+        I = pd.read_parquet(input[0])
+        I = bf.expand(I, pad=500)
+        I = bf.merge(I).drop(columns="n_intervals")
+        I.to_parquet(output[0], index=False)
