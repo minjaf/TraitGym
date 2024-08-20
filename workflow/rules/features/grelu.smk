@@ -26,6 +26,7 @@ rule run_vep_enformer:
         "results/genome.fa.gz",
     output:
         "results/dataset/{dataset}/features/Enformer_L2.parquet",
+    priority: 101
     threads:
         workflow.cores
     shell:
@@ -45,6 +46,7 @@ rule run_vep_borzoi:
         "results/dataset/{dataset}/features/Borzoi_L2.parquet",
     threads:
         workflow.cores
+    priority: 100
     shell:
         """
         python \

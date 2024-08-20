@@ -32,19 +32,28 @@ datasets:
 #  - gwas_gokcen_Breast_cancer_cre_matched_9
 #  - gwas_gokcen_MNP_cre_matched_9
 
-  #- omim_99
-  - omim_99_nonexonic
-  - gwas_gokcen_Height_matched_9_nonexonic
-  - gwas_gokcen_BMD-HT_matched_9_nonexonic
-  - gwas_gokcen_PLT_matched_9_nonexonic
-  - gwas_gokcen_MCH_matched_9_nonexonic
-  - gwas_gokcen_HDL_matched_9_nonexonic
-  - gwas_gokcen_RDW_matched_9_nonexonic
-  - gwas_gokcen_RBC_matched_9_nonexonic
-  - gwas_gokcen_TG_matched_9_nonexonic
-  - gwas_gokcen_HbA1c_matched_9_nonexonic
+#  - omim_99
+#  - omim_99_nonexonic
+
+#  - gwas_gokcen_merged_matched_1
+#  - gwas_gokcen_merged_matched_1_nonexonic
+
+#  - gwas_gokcen_Height_matched_9_nonexonic
+#  - gwas_gokcen_BMD-HT_matched_9_nonexonic
+#  - gwas_gokcen_PLT_matched_9_nonexonic
+#  - gwas_gokcen_MCH_matched_9_nonexonic
+#  - gwas_gokcen_HDL_matched_9_nonexonic
+#  - gwas_gokcen_RDW_matched_9_nonexonic
+#  - gwas_gokcen_RBC_matched_9_nonexonic
+#  - gwas_gokcen_TG_matched_9_nonexonic
+#  - gwas_gokcen_HbA1c_matched_9_nonexonic
   - gwas_gokcen_BMI_matched_9_nonexonic
-  - gwas_gokcen_MNR_matched_9_nonexonic
+#  - gwas_gokcen_MNR_matched_9_nonexonic
+  - gwas_gokcen_AD_matched_9_nonexonic
+#  - gwas_gokcen_MS_matched_9_nonexonic
+#  - gwas_gokcen_Breast_cancer_matched_9_nonexonic
+  - gwas_gokcen_Intel_matched_9_nonexonic
+#  - gwas_gokcen_SCZ_matched_9_nonexonic
 
 features:
 #  - GPN-MSA_absLLR
@@ -290,6 +299,30 @@ dataset_eval_models:
     - Borzoi_L2+CADD.LogisticRegression.chrom
     - CADD+GPN-MSA.LogisticRegression.chrom
     - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
+
+  gwas_gokcen_BMI_matched_9_nonexonic:
+    - Borzoi_L2.LogisticRegression.chrom
+    - GPN-MSA.LogisticRegression.chrom
+    - CADD.LogisticRegression.chrom
+    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
+  gwas_gokcen_AD_matched_9_nonexonic:
+    - Borzoi_L2.LogisticRegression.chrom
+    - GPN-MSA.LogisticRegression.chrom
+    - CADD.LogisticRegression.chrom
+    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
+  gwas_gokcen_Intel_matched_9_nonexonic:
+    - Borzoi_L2.LogisticRegression.chrom
+    - GPN-MSA.LogisticRegression.chrom
+    - CADD.LogisticRegression.chrom
+    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
+
+  gwas_gokcen_merged_matched_1_nonexonic:
+    - Borzoi_L2.LogisticRegression.chrom
+    - Enformer_L2.LogisticRegression.chrom
+    - GPN-MSA.LogisticRegression.chrom
+    - CADD.LogisticRegression.chrom
+    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
+    - Borzoi_L2+GPN-MSA+CADD.RandomForest.chrom
 
 baseline_features:
   gonzalobenegas/dsqtl:
