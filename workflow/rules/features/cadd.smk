@@ -74,7 +74,9 @@ rule cadd_process:
     run:
         V = pd.read_parquet(input[0])
         original_cols = V.columns
-        df = pd.read_csv(input[1], sep="\t", skiprows=1, dtype={"#Chrom": "str"})
+        df = pd.read_csv(
+            input[1], sep="\t", skiprows=1, dtype={"#Chrom": "str"}, na_values=["."],
+        )
         df = df.rename(columns={"#Chrom": "chrom", "Pos": "pos", "Ref": "ref", "Alt": "alt"})
         # some variants have separate rows for AnnoType = Transcript vs. Intergenic
         df = df.drop_duplicates(COORDINATES)

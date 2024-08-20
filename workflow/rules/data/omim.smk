@@ -51,16 +51,13 @@ rule omim_dataset:
         for c in tqdm(pos.consequence.unique()):
             pos_c = pos[pos.consequence == c]
             neg_c = neg[neg.consequence == c]
-            for chrom in pos_c.chrom.unique():
-                pos_c_chrom = pos_c[pos_c.chrom == chrom]
-                neg_c_chrom = neg_c[neg_c.chrom == chrom]
-                n = len(pos_c_chrom) * int(wildcards.ratio)
-                if len(neg_c_chrom) < n:
-                    print(f"Skipping {c} {chrom}")
-                    continue
-                Vs.append(pd.concat([
-                    pos_c_chrom, neg_c_chrom.sample(n=n, random_state=42)
-                ]))
+            n = len(pos_c) * int(wildcards.ratio)
+            if len(neg_c) < n:
+                print(f"Skipping {c}")
+                continue
+            Vs.append(pd.concat([
+                pos_c, neg_c.sample(n=n, random_state=42)
+            ]))
         V = pd.concat(Vs)
         V = sort_variants(V)
         print(V)

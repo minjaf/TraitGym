@@ -20,11 +20,15 @@ rule gwas_gokcen_process:
     output:
         "results/gwas_gokcen/processed/{trait}.parquet",
     run:
-        V = pl.read_csv(
-            input[0], separator="\t",
-            columns=["CHR", "BP", "A1", "A2", "MAF", "PIP"],
-            new_columns=["chrom", "pos", "ref", "alt", "MAF", "PIP"],
-        ).to_pandas()
+        V = (
+            pl.read_csv(
+                input[0], separator="\t",
+                columns=["CHR", "BP", "A1", "A2", "MAF", "PIP", "P"],
+            )
+            .filter(pl.col("P") < 5e-8).drop("P")
+            .rename({"CHR": "chrom", "BP": "pos", "A1": "ref", "A2": "alt"})
+            .to_pandas()
+        )
         V.chrom = V.chrom.str.replace("chr", "")
         V = filter_chroms(V)
         V = filter_snp(V)
@@ -118,48 +122,48 @@ rule gwas_gokcen_merged_filt:
         V.to_parquet(output[0], index=False)
 
 
-rule gwas_gokcen_match:
-    input:
-        "results/gwas_gokcen/filt/{anything}.parquet",
-        "results/tss.parquet",
-    output:
-        "results/dataset/gwas_gokcen_{anything}_matched/test.parquet",
-    run:
-        V = pd.read_parquet(input[0])
-
-        V["start"] = V.pos - 1
-        V["end"] = V.pos
-
-        tss = pd.read_parquet(input[1], columns=["chrom", "start", "end"])
-
-        V = bf.closest(V, tss).rename(columns={
-            "distance": "tss_dist"
-        }).drop(columns=["start", "end", "chrom_", "start_", "end_"])
-
-        base_match_features = ["MAF"]
-
-        consequences = V[V.label].consequence.unique()
-        V_cs = []
-        for c in consequences:
-            print(c)
-            V_c = V[V.consequence == c].copy()
-            if c in NON_EXONIC + cre_classes:
-                match_features = base_match_features + ["tss_dist"]
-            else:
-                match_features = base_match_features
-            for f in match_features:
-                V_c[f"{f}_scaled"] = RobustScaler().fit_transform(V_c[f].values.reshape(-1, 1))
-            print(V_c.label.value_counts())
-            V_c = match_columns(V_c, "label", [f"{f}_scaled" for f in match_features])
-            V_c["match_group"] = c + "_" + V_c.match_group.astype(str)
-            print(V_c.label.value_counts())
-            print(V_c.groupby("label")[match_features].median())
-            V_c.drop(columns=[f"{f}_scaled" for f in match_features], inplace=True)
-            V_cs.append(V_c)
-        V = pd.concat(V_cs, ignore_index=True)
-        V = sort_variants(V)
-        print(V)
-        V.to_parquet(output[0], index=False)
+#rule gwas_gokcen_match:
+#    input:
+#        "results/gwas_gokcen/filt/{anything}.parquet",
+#        "results/tss.parquet",
+#    output:
+#        "results/dataset/gwas_gokcen_{anything}_matched/test.parquet",
+#    run:
+#        V = pd.read_parquet(input[0])
+#
+#        V["start"] = V.pos - 1
+#        V["end"] = V.pos
+#
+#        tss = pd.read_parquet(input[1], columns=["chrom", "start", "end"])
+#
+#        V = bf.closest(V, tss).rename(columns={
+#            "distance": "tss_dist"
+#        }).drop(columns=["start", "end", "chrom_", "start_", "end_"])
+#
+#        base_match_features = ["MAF"]
+#
+#        consequences = V[V.label].consequence.unique()
+#        V_cs = []
+#        for c in consequences:
+#            print(c)
+#            V_c = V[V.consequence == c].copy()
+#            if c in NON_EXONIC + cre_classes + cre_flank_classes:
+#                match_features = base_match_features + ["tss_dist"]
+#            else:
+#                match_features = base_match_features
+#            for f in match_features:
+#                V_c[f"{f}_scaled"] = RobustScaler().fit_transform(V_c[f].values.reshape(-1, 1))
+#            print(V_c.label.value_counts())
+#            V_c = match_columns(V_c, "label", [f"{f}_scaled" for f in match_features])
+#            V_c["match_group"] = c + "_" + V_c.match_group.astype(str)
+#            print(V_c.label.value_counts())
+#            print(V_c.groupby("label")[match_features].median())
+#            V_c.drop(columns=[f"{f}_scaled" for f in match_features], inplace=True)
+#            V_cs.append(V_c)
+#        V = pd.concat(V_cs, ignore_index=True)
+#        V = sort_variants(V)
+#        print(V)
+#        V.to_parquet(output[0], index=False)
 
 
 rule gwas_gokcen_match_k:
@@ -167,7 +171,7 @@ rule gwas_gokcen_match_k:
         "results/gwas_gokcen/filt/{anything}.parquet",
         "results/tss.parquet",
     output:
-        "results/dataset/gwas_gokcen_{anything}_matched_{k}/test.parquet",
+        "results/dataset/gwas_gokcen_{anything}_matched_{k,\d+}/test.parquet",
     run:
         k = int(wildcards.k)
         V = pd.read_parquet(input[0])
@@ -188,7 +192,7 @@ rule gwas_gokcen_match_k:
         for c in consequences:
             print(c)
             V_c = V[V.consequence == c].copy()
-            if c in NON_EXONIC + cre_classes:
+            if c in NON_EXONIC + cre_classes + cre_flank_classes:
                 match_features = base_match_features + ["tss_dist"]
             else:
                 match_features = base_match_features
@@ -208,87 +212,23 @@ rule gwas_gokcen_match_k:
 
 rule gwas_gokcen_filt_nonexonic:
     input:
-        "results/dataset/gwas_gokcen_{anything}_matched/test.parquet",
+        "results/dataset/gwas_gokcen_{anything}/test.parquet",
     output:
-        "results/dataset/gwas_gokcen_{anything}_nonexonic_matched/test.parquet",
+        "results/dataset/gwas_gokcen_{anything}_nonexonic/test.parquet",
     run:
         V = pd.read_parquet(input[0])
-        V = V[V.consequence.isin(NON_EXONIC + cre_classes)]
+        V = V[V.consequence.isin(NON_EXONIC + cre_classes + cre_flank_classes)]
         print(V)
         V.to_parquet(output[0], index=False)
 
 
 rule gwas_gokcen_filt_cre:
     input:
-        "results/dataset/gwas_gokcen_{anything}_matched{foo}/test.parquet",
+        "results/dataset/gwas_gokcen_{anything}/test.parquet",
     output:
-        "results/dataset/gwas_gokcen_{anything}_cre_matched{foo}/test.parquet",
+        "results/dataset/gwas_gokcen_{anything}_cre/test.parquet",
     run:
         V = pd.read_parquet(input[0])
-        V = V[V.consequence.isin(cre_classes)]
-        print(V)
-        V.to_parquet(output[0], index=False)
-
-
-rule gwas_gokcen_experiment1_filt:
-    input:
-        "results/gwas_gokcen/processed/{trait}.parquet",
-        expand("results/intervals/cre_{c}.parquet", c=cre_classes),
-    output:
-        "results/gwas_gokcen/experiment1/filt/{trait}.parquet",
-    run:
-        V = pd.read_parquet(input[0])
-        print(V.shape)
-        V["start"] = V.pos - 1
-        V["end"] = V.pos
-        for c, path in zip(cre_classes, input[1:]):
-            I = pd.read_parquet(path)
-            V = bf.coverage(V, I)
-            V[c] = V.coverage > 0
-            V = V.drop(columns=["coverage"])
-        V = V.drop(columns=["start", "end"])
-        V = V[V[cre_classes].any(axis=1)]
-        V.loc[V.PIP > 0.9, "label"] = True
-        V.loc[V.PIP < 0.01, "label"] = False
-        V = V.dropna(subset=["label"])
-        print(V)
-        V.to_parquet(output[0], index=False)
-
-
-rule gwas_gokcen_experiment1_match:
-    input:
-        "results/gwas_gokcen/experiment1/filt/{trait}.parquet",
-        "results/tss.parquet",
-    output:
-        "results/dataset/gwas_gokcen_experiment1_{trait}/test.parquet",
-    run:
-        V = pd.read_parquet(input[0])
-
-        V["start"] = V.pos - 1
-        V["end"] = V.pos
-
-        tss = pd.read_parquet(input[1], columns=["chrom", "start", "end"])
-
-        V = bf.closest(V, tss).rename(columns={
-            "distance": "tss_dist"
-        }).drop(columns=["start", "end", "chrom_", "start_", "end_"])
-
-        match_features = ["MAF", "tss_dist"]
-
-        V_cs = []
-        for c in cre_classes:
-            print(c)
-            V_c = V[V[c]].copy()
-            for f in match_features:
-                V_c[f"{f}_scaled"] = RobustScaler().fit_transform(V_c[f].values.reshape(-1, 1))
-            print(V_c.label.value_counts())
-            V_c = match_columns(V_c, "label", [f"{f}_scaled" for f in match_features])
-            V_c["match_group"] = c + "_" + V_c.match_group.astype(str)
-            print(V_c.label.value_counts())
-            print(V_c.groupby("label")[match_features].median())
-            V_c.drop(columns=[f"{f}_scaled" for f in match_features], inplace=True)
-            V_cs.append(V_c)
-        V = pd.concat(V_cs, ignore_index=True)
-        V = sort_chrom_pos(V)
+        V = V[V.consequence.isin(cre_classes + cre_flank_classes)]
         print(V)
         V.to_parquet(output[0], index=False)
