@@ -395,8 +395,6 @@ def train_predict_logistic_regression(V_train, V_test, features):
         ('linear', LogisticRegressionCV(
             class_weight="balanced",
             scoring="roc_auc" if balanced else "average_precision",
-            Cs=np.logspace(-10, 10, 11),
-            cv=3,
             random_state=42,
             n_jobs=-1,
         ))

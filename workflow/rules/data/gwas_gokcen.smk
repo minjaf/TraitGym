@@ -6,6 +6,26 @@ gwas_gokcen_metadata["path"] = (
     gwas_gokcen_metadata.trait + "-" + gwas_gokcen_metadata.source
 )
 gwas_gokcen_metadata.set_index("trait", inplace=True)
+eval_traits = [
+    trait for trait in gwas_gokcen_metadata.index
+    # < 5 non-exonic variants with PIP > 0.9 
+    if trait not in [
+        "SWB",
+        "SCZ",
+        "MDD",
+        "BP",
+        "SLE",
+        "RA",
+        "NRT",
+        "Celiac",
+        "Insomnia",
+        "DHD",	
+        "Celiac",
+        "Insomnia",
+        "ADHD",
+    ]
+]
+print(f"{len(eval_traits)=}")
 
 
 def get_input_gwas_gokcen_process(wildcards):
@@ -25,7 +45,8 @@ rule gwas_gokcen_process:
                 input[0], separator="\t",
                 columns=["CHR", "BP", "A1", "A2", "MAF", "PIP", "P"],
             )
-            .filter(pl.col("P") < 5e-8).drop("P")
+            # Filter out PIP > 0.9 but not genome-wide significant
+            .filter(~((pl.col("PIP") > 0.9) & (pl.col("P") > 5e-8))).drop("P")
             .rename({"CHR": "chrom", "BP": "pos", "A1": "ref", "A2": "alt"})
             .to_pandas()
         )

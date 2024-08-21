@@ -23,30 +23,32 @@ include: "rules/model.smk"
 
 rule all:
     input:
-        expand(
-            "results/dataset/{dataset}/{plot}.pdf",
-            dataset=config["datasets"],
-            plot=[
-                "plot",
-                #"plot_by_chrom",
-            ]
-        ),
         #expand(
-        #    "results/dataset/{dataset}/unsupervised_metrics/{features}.csv",
+        #    "results/dataset/{dataset}/{plot}.pdf",
         #    dataset=config["datasets"],
-        #    features=[
-        #        #"Enformer_L2",
-        #        #"Enformer_L2_L2",
-        #        #"Borzoi_L2",
-        #        #"Borzoi_L2_L2",
-        #        "GPN-MSA_absLLR",
-        #        "GPN-MSA_InnerProducts",
-        #        ###"GPN-MSA_Influence",
-        #        ###"GPN-MSA_LLR",
-        #        #"CADD",
-        #        #"GPN_EmbedDists",
+        #    plot=[
+        #        "plot",
+        #        #"plot_by_chrom",
         #    ]
-        #)
+        #),
+        expand(
+            #"results/dataset/{dataset}/unsupervised_metrics/{features}.csv",
+            #dataset=config["datasets"],
+            "results/dataset/gwas_gokcen_{trait}_matched_9_nonexonic/unsupervised_metrics/{features}.csv",
+            trait=eval_traits, 
+            features=[
+                "Enformer_L2",
+                #"Enformer_L2_L2",
+                "Borzoi_L2",
+                #"Borzoi_L2_L2",
+                "GPN-MSA_absLLR",
+                "GPN-MSA_InnerProducts",
+                ###"GPN-MSA_Influence",
+                ###"GPN-MSA_LLR",
+                "CADD",
+                #"GPN_EmbedDists",
+            ]
+        )
 
 rule all_cadd:
     input:
