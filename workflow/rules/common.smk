@@ -13,8 +13,9 @@ from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.impute import SimpleImputer
-from sklearn.linear_model import LogisticRegressionCV
+from sklearn.linear_model import LogisticRegressionCV, LogisticRegression
 from sklearn.metrics import average_precision_score, roc_auc_score
+from sklearn.model_selection import GroupKFold, GridSearchCV
 from sklearn.preprocessing import StandardScaler, RobustScaler
 from sklearn.pipeline import Pipeline
 import torch
@@ -408,17 +409,26 @@ def train_predict_best_feature(V_train, V_test, features):
 
 def train_predict_logistic_regression(V_train, V_test, features):
     balanced = V_train.label.sum() == len(V_train) // 2
-    clf = Pipeline([
+    pipeline = Pipeline([
         ('imputer', SimpleImputer(missing_values=np.nan, strategy='mean')),
-        ('scaler', RobustScaler()),
-        ('linear', LogisticRegressionCV(
+        ('scaler', StandardScaler()),
+        ('linear', LogisticRegression(
             class_weight="balanced",
-            scoring="roc_auc" if balanced else "average_precision",
             random_state=42,
-            n_jobs=-1,
         ))
     ])
-    clf.fit(V_train[features], V_train.label)
+    param_grid = {
+        'linear__C': np.logspace(-10, 0, 11),
+    }
+    clf = GridSearchCV(
+        pipeline,
+        param_grid,
+        scoring="roc_auc" if balanced else "average_precision",
+        cv=GroupKFold(n_splits=min(2, V_train.chrom.nunique())),
+        n_jobs=-1,
+    )
+    clf.fit(V_train[features], V_train.label, groups=V_train.chrom)
+    print(f"{clf.best_params_=}")
     return clf.predict_proba(V_test[features])[:, 1]
 
 

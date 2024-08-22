@@ -36,15 +36,21 @@ rule all:
             #dataset=config["datasets"],
             #"results/dataset/gwas_gokcen_{trait}_matched_9_nonexonic/unsupervised_metrics/{features}.csv",
             #"results/dataset/gwas_gokcen_{trait}_matched_1_nonexonic/unsupervised_metrics/{features}.csv",
-            "results/dataset/gwas_gokcen_{trait}_matched_9_nonexonic/metrics_by_chrom_weighted_average/{feature_set}.BestFeature.chrom.csv",
+            "results/dataset/gwas_gokcen_{trait}_matched_9_nonexonic/metrics_by_chrom_weighted_average/{feature_set}.{classifier}.chrom.csv",
             #trait=["AD", "BMI", "Height"], 
-            trait=eval_traits, 
+            #trait=eval_traits, 
+            trait=traits_high_n, 
             feature_set=[
                 "GPN-MSA",
                 "CADD",
                 "Enformer_L2",
                 "Borzoi_L2",
+                "Enformer_L2+GPN-MSA+CADD",
             ],
+            classifier=[
+                #"BestFeature",
+                "LogisticRegression",
+            ]
             #features=[
             #    "Enformer_L2",
             #    #"Enformer_L2_L2",

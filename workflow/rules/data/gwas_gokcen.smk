@@ -27,6 +27,25 @@ eval_traits = [
 ]
 print(f"{len(eval_traits)=}")
 
+traits_high_n = [
+    "Height",
+    "BMD-HT",
+    "PLT",
+    "MCH",
+    "HDL",
+    "RDW",
+    "RBC",
+    "TG",
+    "IBD",
+    "CD",
+    "HbA1c",
+    "TC",
+    "WHR",
+    "BMI",
+    "LDL",
+    "HTN",
+    "Glucose",
+]
 
 def get_input_gwas_gokcen_process(wildcards):
     path = gwas_gokcen_metadata.loc[wildcards.trait, "path"]

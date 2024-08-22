@@ -137,6 +137,12 @@ feature_sets:
     - GPN-MSA_InnerProducts
     - CADD
 
+  Enformer_L2+GPN-MSA+CADD:
+    - Enformer_L2
+    - GPN-MSA_absLLR
+    - GPN-MSA_InnerProducts
+    - CADD
+
 
   Ensemble:
   - CADD_Annot
