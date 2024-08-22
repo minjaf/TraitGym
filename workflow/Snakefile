@@ -46,6 +46,7 @@ rule all:
                 "Enformer_L2",
                 "Borzoi_L2",
                 "Enformer_L2+GPN-MSA+CADD",
+                "Borzoi_L2+GPN-MSA+CADD",
             ],
             classifier=[
                 #"BestFeature",
