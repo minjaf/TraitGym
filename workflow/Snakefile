@@ -34,20 +34,29 @@ rule all:
         expand(
             #"results/dataset/{dataset}/unsupervised_metrics/{features}.csv",
             #dataset=config["datasets"],
-            "results/dataset/gwas_gokcen_{trait}_matched_9_nonexonic/unsupervised_metrics/{features}.csv",
+            #"results/dataset/gwas_gokcen_{trait}_matched_9_nonexonic/unsupervised_metrics/{features}.csv",
+            #"results/dataset/gwas_gokcen_{trait}_matched_1_nonexonic/unsupervised_metrics/{features}.csv",
+            "results/dataset/gwas_gokcen_{trait}_matched_9_nonexonic/metrics_by_chrom_weighted_average/{feature_set}.BestFeature.chrom.csv",
+            #trait=["AD", "BMI", "Height"], 
             trait=eval_traits, 
-            features=[
-                "Enformer_L2",
-                #"Enformer_L2_L2",
-                "Borzoi_L2",
-                #"Borzoi_L2_L2",
-                "GPN-MSA_absLLR",
-                "GPN-MSA_InnerProducts",
-                ###"GPN-MSA_Influence",
-                ###"GPN-MSA_LLR",
+            feature_set=[
+                "GPN-MSA",
                 "CADD",
-                #"GPN_EmbedDists",
-            ]
+                "Enformer_L2",
+                "Borzoi_L2",
+            ],
+            #features=[
+            #    "Enformer_L2",
+            #    #"Enformer_L2_L2",
+            #    "Borzoi_L2",
+            #    #"Borzoi_L2_L2",
+            #    #"GPN-MSA_absLLR",
+            #    "GPN-MSA_InnerProducts",
+            #    ###"GPN-MSA_Influence",
+            #    ###"GPN-MSA_LLR",
+            #    "CADD",
+            #    #"GPN_EmbedDists",
+            #]
         )
 
 rule all_cadd:

@@ -387,6 +387,25 @@ rule upload_features_to_hf:
         )
 
 
+def train_predict_best_feature(V_train, V_test, features):
+    balanced = V_train.label.sum() == len(V_train) // 2
+    metric = roc_auc_score if balanced else average_precision_score
+    if V_train[features].isna().any().any():
+        print("WARNING: NaNs in features, filling with mean")
+        train_mean = V_train[features].mean()
+        train_mean = train_mean.fillna(0)
+        V_train = V_train.copy()
+        V_test = V_test.copy()
+        V_train[features] = V_train[features].fillna(train_mean)
+        V_test[features] = V_test[features].fillna(train_mean)
+    scores = [
+        max(metric(V_train.label, V_train[f]), metric(V_train.label, -V_train[f]))
+        for f in features
+    ]
+    chosen = features[np.argmax(scores)]
+    return V_test[chosen].values
+
+
 def train_predict_logistic_regression(V_train, V_test, features):
     balanced = V_train.label.sum() == len(V_train) // 2
     clf = Pipeline([
@@ -476,6 +495,7 @@ def train_predict_xgboost(V_train, V_test, features):
 
 
 classifier_map = {
+    "BestFeature": train_predict_best_feature,
     "LogisticRegression": train_predict_logistic_regression,
     "RandomForest": train_predict_random_forest,
     "XGBoost": train_predict_xgboost,

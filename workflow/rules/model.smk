@@ -3,9 +3,9 @@ rule run_classifier:
         "results/dataset/{dataset}/test.parquet",
         lambda wildcards: expand("results/dataset/{{dataset}}/features/{features}.parquet", features=config["feature_sets"][wildcards.feature_set]),
     output:
-        "results/dataset/{dataset}/preds/{feature_set}.{classifier,LogisticRegression|RandomForest|XGBoost|PCALogisticRegression|FeatureSelectionLogisticRegression}.{split_mode,chrom|odd_even}.parquet",
+        "results/dataset/{dataset}/preds/{feature_set}.{classifier,LogisticRegression|RandomForest|XGBoost|PCALogisticRegression|FeatureSelectionLogisticRegression|BestFeature}.{split_mode,chrom|odd_even}.parquet",
     threads:
-        workflow.cores
+        lambda wildcards: 1 if wildcards.classifier == "BestFeature" else workflow.cores
     run:
         V = pd.read_parquet(input[0])
         all_features = []
@@ -172,6 +172,26 @@ rule get_metrics_by_chrom:
             res.append([chrom, wildcards.model, metric(V_chrom.label, V_chrom.score)])
         res = pd.DataFrame(res, columns=["chrom", "Model", metric_name])
         print(res)
+        res.to_csv(output[0], index=False)
+
+
+rule get_metrics_by_chrom_weighted_average:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+        "results/dataset/{dataset}/metrics_by_chrom/{model}.csv",
+    output:
+        "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{model}.csv",
+    run:
+        V = pd.read_parquet(input[0])
+        chrom_n = V.groupby("chrom").size().rename("n").reset_index()
+        res = pd.read_csv(input[1], dtype={"chrom": str})
+        metric = res.columns[-1]
+        res = res.merge(chrom_n, on="chrom")
+        res["weight"] = res.n / res.n.sum()
+        res = pd.DataFrame({
+            "Model": [wildcards.model],
+            metric: [(res[metric] * res.weight).sum()]
+        })
         res.to_csv(output[0], index=False)
 
 
