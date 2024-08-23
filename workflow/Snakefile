@@ -2,7 +2,7 @@ configfile: "config/config.yaml"
 
 include: "rules/common.smk"
 include: "rules/data/gwas.smk"
-include: "rules/data/gwas_gokcen.smk"
+include: "rules/data/insights.smk"
 include: "rules/data/splicing_assay.smk"
 include: "rules/data/caqtl.smk"
 include: "rules/data/dsqtl.smk"
@@ -23,55 +23,66 @@ include: "rules/model.smk"
 
 rule all:
     input:
-        #expand(
-        #    "results/dataset/{dataset}/{plot}.pdf",
-        #    dataset=config["datasets"],
-        #    plot=[
-        #        "plot",
-        #        #"plot_by_chrom",
-        #    ]
-        #),
         expand(
-            #"results/dataset/{dataset}/unsupervised_metrics/{features}.csv",
-            #dataset=config["datasets"],
-            #"results/dataset/gwas_gokcen_{trait}_matched_9_nonexonic/unsupervised_metrics/{features}.csv",
-            #"results/dataset/gwas_gokcen_{trait}_matched_1_nonexonic/unsupervised_metrics/{features}.csv",
-            "results/dataset/gwas_gokcen_{trait}_matched_9_nonexonic/metrics_by_chrom_weighted_average/{feature_set}.{classifier}.chrom.csv",
-            #trait=["AD", "BMI", "Height"], 
-            #trait=eval_traits, 
-            trait=traits_high_n, 
-            feature_set=[
-                "GPN-MSA",
-                "CADD",
-                "Enformer_L2",
-                "Borzoi_L2",
-                "Enformer_L2+GPN-MSA+CADD",
-                "Borzoi_L2+GPN-MSA+CADD",
-            ],
-            classifier=[
-                #"BestFeature",
-                "LogisticRegression",
+            "results/dataset/{dataset}/{plot}.pdf",
+            dataset=config["datasets"],
+            plot=[
+                "plot",
+                #"plot_by_chrom",
             ]
-            #features=[
-            #    "Enformer_L2",
-            #    #"Enformer_L2_L2",
-            #    "Borzoi_L2",
-            #    #"Borzoi_L2_L2",
-            #    #"GPN-MSA_absLLR",
-            #    "GPN-MSA_InnerProducts",
-            #    ###"GPN-MSA_Influence",
-            #    ###"GPN-MSA_LLR",
-            #    "CADD",
-            #    #"GPN_EmbedDists",
-            #]
-        )
+        ),
+        #expand(
+        #    #"results/dataset/{dataset}/unsupervised_metrics/{features}.csv",
+        #    #dataset=config["datasets"],
+        #    #"results/dataset/gwas_gokcen_{trait}_matched_9_nonexonic/unsupervised_metrics/{features}.csv",
+        #    #"results/dataset/gwas_gokcen_{trait}_matched_1_nonexonic/unsupervised_metrics/{features}.csv",
+        #    #"results/dataset/gwas_gokcen_{trait}_matched_9_nonexonic/metrics_by_chrom_weighted_average/{feature_set}.{classifier}.chrom.csv",
+        #    "results/dataset/gwas_gokcen_{trait}_matched_9/metrics_by_chrom_weighted_average/{feature_set}.{classifier}.chrom.csv",
+        #    trait=["BMI",], 
+        #    #trait=eval_traits, 
+        #    #trait=traits_high_n, 
+        #    feature_set=[
+        #        "GPN-MSA",
+        #        #"CADD",
+        #        #"Enformer_L2",
+        #        #"Borzoi_L2",
+        #        #"Enformer_L2+GPN-MSA+CADD",
+        #        #"Borzoi_L2+GPN-MSA+CADD",
+        #    ],
+        #    classifier=[
+        #        "BestFeature",
+        #        #"LogisticRegression",
+        #    ]
+        #    #features=[
+        #    #    "Enformer_L2",
+        #    #    #"Enformer_L2_L2",
+        #    #    "Borzoi_L2",
+        #    #    #"Borzoi_L2_L2",
+        #    #    #"GPN-MSA_absLLR",
+        #    #    "GPN-MSA_InnerProducts",
+        #    #    ###"GPN-MSA_Influence",
+        #    #    ###"GPN-MSA_LLR",
+        #    #    "CADD",
+        #    #    #"GPN_EmbedDists",
+        #    #]
+        #)
 
 rule all_cadd:
     input:
-        expand(
-            "results/dataset/{dataset}/unsupervised_metrics/{features}.csv",
-            dataset=config["datasets"],
-            features=[
-                "CADD",
-            ]
-        )
+        #expand(
+        #    "results/dataset/{dataset}/unsupervised_metrics/{features}.csv",
+        #    dataset=config["datasets"],
+        #    features=[
+        #        "CADD",
+        #    ]
+        #)
+        #expand(
+        #    "results/dataset/gwas_gokcen_{trait}_matched_9/metrics_by_chrom_weighted_average/{feature_set}.{classifier}.chrom.csv",
+        #    trait=traits_high_n, 
+        #    feature_set=[
+        #        "CADD",
+        #    ],
+        #    classifier=[
+        #        "BestFeature",
+        #    ]
+        #)

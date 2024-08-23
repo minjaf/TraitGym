@@ -25,7 +25,7 @@ eval_traits = [
         "ADHD",
     ]
 ]
-print(f"{len(eval_traits)=}")
+
 
 traits_high_n = [
     "Height",
