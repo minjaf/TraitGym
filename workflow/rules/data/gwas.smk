@@ -129,41 +129,56 @@ rule gwas_process:
         V.to_parquet(output[0], index=False) 
 
 
-#rule gwas_filt:
-#    input:
-#        "results/gwas/processed.parquet",
-#    output:
-#        "results/gwas/filt.parquet",
-#    run:
-#        V = pd.read_parquet(input[0])
-#        V = V[V.method=="SUSIE"]
-#        V = V[(~V.LD_HWE) & (~V.LD_SV)]
-#        # reinterpreting trait as "causal in trait" rather than "tested" in trait
-#        V.loc[V.pip <= 0.9, "trait"] = ""
-#        V = V.groupby(COORDINATES).agg({
-#            "pip": "max", "maf": "mean", "trait": "unique",
-#        }).reset_index()
-#        V.loc[V.pip > 0.9, "label"] = True
-#        V.loc[V.pip < 0.01, "label"] = False
-#        V = V.dropna(subset="label")
-#        V.trait = V.trait.progress_apply(
-#            lambda traits: ",".join(sorted([trait for trait in traits if trait != ""]))
-#        )
-#        print(V)
-#        V.to_parquet(output[0], index=False)
-#
-#
-#rule gwas_intermediate:
-#    input:
-#        "results/gwas/processed.parquet",
-#    output:
-#        "results/gwas/intermediate/test.parquet",
-#    run:
-#        V = pd.read_parquet(input[0])
-#        V = V[V.method=="SUSIE"]
-#        V = V[(~V.LD_HWE) & (~V.LD_SV)]
-#        V = V.groupby(COORDINATES).agg({"pip": "max"}).reset_index()
-#        V = V[V.pip.between(0.01, 0.9)]
-#        print(V)
-#        V.to_parquet(output[0], index=False)
-#
+rule gwas_match:
+    input:
+        "results/gwas/processed.annot_with_cre.parquet",
+        "results/tss.parquet",
+    output:
+        "results/dataset/gwas_matched_{k,\d+}/test.parquet",
+    run:
+        k = int(wildcards.k)
+        V = (
+            pl.read_parquet(input[0])
+            .with_columns(
+                pl.when(pl.col("pip") > 0.9).then(True)
+                .when(pl.col("pip") < 0.01).then(False)
+                .otherwise(None)
+                .alias("label")
+            )
+            .drop_nulls()
+            .to_pandas()
+        )
+
+        V["start"] = V.pos - 1
+        V["end"] = V.pos
+
+        tss = pd.read_parquet(input[1], columns=["chrom", "start", "end"])
+
+        V = bf.closest(V, tss).rename(columns={
+            "distance": "tss_dist"
+        }).drop(columns=["start", "end", "chrom_", "start_", "end_"])
+
+        base_match_features = []
+
+        consequences = V[V.label].consequence.unique()
+        V_cs = []
+        for c in consequences:
+            print(c)
+            V_c = V[V.consequence == c].copy()
+            if c in NON_EXONIC + cre_classes + cre_flank_classes:
+                match_features = base_match_features + ["tss_dist"]
+            else:
+                match_features = base_match_features
+            for f in match_features:
+                V_c[f"{f}_scaled"] = RobustScaler().fit_transform(V_c[f].values.reshape(-1, 1))
+            print(V_c.label.value_counts())
+            V_c = match_columns_k(V_c, "label", [f"{f}_scaled" for f in match_features], k)
+            V_c["match_group"] = c + "_" + V_c.match_group.astype(str)
+            print(V_c.label.value_counts())
+            print(V_c.groupby("label")[match_features].median())
+            V_c.drop(columns=[f"{f}_scaled" for f in match_features], inplace=True)
+            V_cs.append(V_c)
+        V = pd.concat(V_cs, ignore_index=True)
+        V = sort_variants(V)
+        print(V)
+        V.to_parquet(output[0], index=False)
