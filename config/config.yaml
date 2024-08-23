@@ -49,13 +49,15 @@ datasets:
 #  - gwas_gokcen_HbA1c_matched_9_nonexonic
 #  - gwas_gokcen_BMI_matched_9_nonexonic
 #  - gwas_gokcen_MNR_matched_9_nonexonic
-  - gwas_gokcen_AD_matched_9_nonexonic
+#  - gwas_gokcen_AD_matched_9_nonexonic
 #  - gwas_gokcen_MS_matched_9_nonexonic
 #  - gwas_gokcen_Breast_cancer_matched_9_nonexonic
 #  - gwas_gokcen_Intel_matched_9_nonexonic
 #  - gwas_gokcen_SCZ_matched_9_nonexonic
 
-  - gwas_gokcen_AD_matched_99_nonexonic
+#  - gwas_gokcen_AD_matched_99_nonexonic
+
+  - gwas_matched_1
 
 features:
 #  - GPN-MSA_absLLR
@@ -336,6 +338,10 @@ dataset_eval_models:
     - CADD.LogisticRegression.chrom
     - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
     - Borzoi_L2+GPN-MSA+CADD.RandomForest.chrom
+
+  gwas_matched_1:
+    - GPN-MSA.LogisticRegression.chrom
+    - CADD.LogisticRegression.chrom
 
 baseline_features:
   gonzalobenegas/dsqtl:

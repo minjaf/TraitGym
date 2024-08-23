@@ -1,3 +1,14 @@
+# possible columns:
+# https://github.com/KalinNonchev/gnomAD_DB/blob/master/gnomad_db/pkgdata/gnomad_columns.yaml
+# e.g. 
+# - AF # Alternate allele frequency in samples
+# - AF_eas # Alternate allele frequency in samples of East Asian ancestry
+# - AF_nfe # Alternate allele frequency in XY samples of Non-Finnish European ancestry
+# - AF_fin # Alternate allele frequency in XX samples of Finnish ancestry
+# - AF_afr # Alternate allele frequency in samples of African/African-American ancestry
+# - AF_asj # Alternate allele frequency in samples of Ashkenazi Jewish ancestry
+
+
 rule download_gnomad_db:
     output:
         directory("results/gnomad_db"),
@@ -11,17 +22,35 @@ rule download_gnomad_db:
 
 rule maf_features:
     input:
+        "results/dataset/{dataset}/test.parquet",
         "results/gnomad_db",
     output:
-        "results/features/{dataset}/minus_M{col,AF|AF_popmax}.parquet",
+        "results/dataset/{dataset}/features/M{af_col}.parquet",
     threads:
         workflow.cores  # there seems to be an issue with concurrent db access
     run:
         from gnomad_db.database import gnomAD_DB
 
-        V = load_dataset(wildcards["dataset"], split="test").to_pandas()
-        db = gnomAD_DB(input[0], gnomad_version="v3")
-        V["score"] = db.get_info_from_df(V, wildcards.col)[wildcards.col]
+        V = pd.read_parquet(input[0])
+        db = gnomAD_DB(input[1], gnomad_version="v3", parallel=True)
+        V["score"] = db.get_info_from_df(V, wildcards.af_col)[wildcards.af_col]
         V.score = V.score.where(V.score < 0.5, 1 - V.score)
-        V.score = -V.score
         V[["score"]].to_parquet(output[0], index=False)
+
+
+rule annot_maf:
+    input:
+        "{anything}.parquet",
+        "results/gnomad_db",
+    output:
+        "{anything}.annot_M{af_col}.parquet",
+    threads:
+        workflow.cores  # there seems to be an issue with concurrent db access
+    run:
+        from gnomad_db.database import gnomAD_DB
+
+        V = pd.read_parquet(input[0])
+        db = gnomAD_DB(input[1], gnomad_version="v3", parallel=True)
+        V["MAF"] = db.get_info_from_df(V, wildcards.af_col)[wildcards.af_col]
+        V.MAF = V.MAF.where(V.MAF < 0.5, 1 - V.MAF)
+        V.to_parquet(output[0], index=False)
