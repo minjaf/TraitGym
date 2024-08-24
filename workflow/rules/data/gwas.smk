@@ -131,7 +131,7 @@ rule gwas_process:
 
 rule gwas_match:
     input:
-        "results/gwas/processed.annot_with_cre.parquet",
+        "results/gwas/processed.annot_with_cre.annot_MAF_nfe.parquet",
         "results/tss.parquet",
     output:
         "results/dataset/gwas_matched_{k,\d+}/test.parquet",
@@ -158,7 +158,7 @@ rule gwas_match:
             "distance": "tss_dist"
         }).drop(columns=["start", "end", "chrom_", "start_", "end_"])
 
-        base_match_features = []
+        base_match_features = ["maf"]
 
         consequences = V[V.label].consequence.unique()
         V_cs = []
