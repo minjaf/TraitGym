@@ -57,7 +57,16 @@ datasets:
 
 #  - gwas_gokcen_AD_matched_99_nonexonic
 
-  - gwas_matched_1
+#  - gwas_matched_1
+  - gwas_matched_9
+
+subsets:
+  - all
+  - nonexonic
+  - missense_variant
+  - noncoding_transcript_exon_variant
+  - 3_prime_UTR_variant
+  - 5_prime_UTR_variant
 
 features:
 #  - GPN-MSA_absLLR
@@ -118,6 +127,10 @@ feature_sets:
     - Enformer_L2
   Borzoi_L2:
     - Borzoi_L2
+  Enformer_L2_L2:
+    - Enformer_L2_L2
+  Borzoi_L2_L2:
+    - Borzoi_L2_L2
 
   Borzoi_L2+GPN-MSA:
     - Borzoi_L2
@@ -145,10 +158,17 @@ feature_sets:
     - GPN-MSA_InnerProducts
     - CADD
 
+  Borzoi_L2+Enformer_L2+GPN-MSA+CADD:
+    - Borzoi_L2
+    - Enformer_L2
+    - GPN-MSA_absLLR
+    - GPN-MSA_InnerProducts
+    - CADD
+
 
   Ensemble:
-  - CADD_Annot
-  - Borzoi_L2_L2
+  - CADD
+  - Borzoi_L2
   - GPN-MSA_absLLR
   - phyloP-100v
   - phastCons-100v

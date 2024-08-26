@@ -39,6 +39,12 @@ NON_EXONIC = [
 
 cre_classes = ["PLS", "pELS", "dELS", "DNase-H3K4me3", "CTCF-only"]
 cre_flank_classes = [f"{c}_flank" for c in cre_classes]
+other_consequences = [
+    "missense_variant",
+    "noncoding_transcript_exon_variant",
+    "3_prime_UTR_variant",
+    "5_prime_UTR_variant",
+]
 
 
 def filter_chroms(V):

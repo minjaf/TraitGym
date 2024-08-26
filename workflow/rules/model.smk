@@ -1,19 +1,56 @@
+rule dataset_subset_all:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+    output:
+        "results/dataset/{dataset}/subset/all.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        V[COORDINATES].to_parquet(output[0], index=False)
+
+
+rule dataset_subset_nonexonic:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+    output:
+        "results/dataset/{dataset}/subset/nonexonic.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        V = V[V.consequence.isin(NON_EXONIC + cre_classes + cre_flank_classes)]
+        V[COORDINATES].to_parquet(output[0], index=False)
+
+
+rule dataset_subset_consequence:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+    output:
+        "results/dataset/{dataset}/subset/{c}.parquet",
+    wildcard_constraints:
+        c="|".join(other_consequences),
+    run:
+        V = pd.read_parquet(input[0])
+        V = V[V.consequence == wildcards.c]
+        V[COORDINATES].to_parquet(output[0], index=False)
+
+
 rule run_classifier:
     input:
         "results/dataset/{dataset}/test.parquet",
+        "results/dataset/{dataset}/subset/{subset}.parquet",
         lambda wildcards: expand("results/dataset/{{dataset}}/features/{features}.parquet", features=config["feature_sets"][wildcards.feature_set]),
     output:
-        "results/dataset/{dataset}/preds/{feature_set}.{classifier,LogisticRegression|RandomForest|XGBoost|PCALogisticRegression|FeatureSelectionLogisticRegression|BestFeature}.{split_mode,chrom|odd_even}.parquet",
+        "results/dataset/{dataset}/preds/{subset}/{feature_set}.{classifier,LogisticRegression|RandomForest|XGBoost|PCALogisticRegression|FeatureSelectionLogisticRegression|BestFeature}.{split_mode,chrom|odd_even}.parquet",
     threads:
         lambda wildcards: 1 if wildcards.classifier == "BestFeature" else workflow.cores
     run:
         V = pd.read_parquet(input[0])
+        subset = pd.read_parquet(input[1])
         all_features = []
-        for features, path in zip(config["feature_sets"][wildcards.feature_set], input[1:]):
+        for features, path in zip(config["feature_sets"][wildcards.feature_set], input[2:]):
             df = pd.read_parquet(path)
             df.columns = [f"{features}_{col}" for col in df.columns]
             all_features += df.columns.tolist()
             V = pd.concat([V, df], axis=1)
+        V = subset.merge(V, on=COORDINATES, how="left")
         print(V)
 
         mask_train_list = []
@@ -39,130 +76,117 @@ rule run_classifier:
 rule eval_unsupervised_features:
     input:
         "results/dataset/{dataset}/test.parquet",
+        "results/dataset/{dataset}/subset/{subset}.parquet",
         "results/dataset/{dataset}/features/{features}.parquet",
     output:
-        "results/dataset/{dataset}/unsupervised_metrics/{features}.csv",
+        "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
     run:
         V = pd.read_parquet(input[0])
-        features = pd.read_parquet(input[1])
-        features = features.fillna(features.mean())
+        subset = pd.read_parquet(input[1])
+        df = pd.read_parquet(input[2])
+        features = df.columns
+        df = df.fillna(df.mean())
+        V = pd.concat([V, df], axis=1)
+        V = subset.merge(V, on=COORDINATES, how="left")
         balanced = V.label.sum() == len(V) // 2
         metric = roc_auc_score if balanced else average_precision_score
         metric_name = "AUROC" if balanced else "AUPRC"
         res = []
-        for f in tqdm(features.columns):
-            score = max(metric(V.label, features[f]), metric(V.label, -features[f]))
+        for f in tqdm(features):
+            score = max(metric(V.label, V[f]), metric(V.label, -V[f]))
             res.append([score, f])
         res = pd.DataFrame(res, columns=[metric_name, "feature"])
         res = res.sort_values(metric_name, ascending=False)
         res.to_csv(output[0], index=False)
 
 
-#rule unsupervised_l2_score:
+#rule get_metrics:
+#    input:
+#        "results/dataset/{dataset}/test.parquet",
+#        "results/dataset/{dataset}/preds/{model}.parquet",
 #    output:
-#        "results/preds/{dataset}/{features}.Unsupervised.L2.parquet",
+#        "results/dataset/{dataset}/metrics/{model}.csv",
 #    run:
-#        df = pd.read_parquet(f"https://huggingface.co/datasets/{wildcards.dataset}/resolve/main/features/{wildcards.features}.parquet")
-#        df = df.fillna(df.mean())
-#        df["score"] = np.linalg.norm(df, axis=1)
-#        df[["score"]].to_parquet(output[0], index=False)
+#        V = pd.read_parquet(input[0])
+#        V["score"] = pd.read_parquet(input[1])["score"]
+#        balanced = V.label.sum() == len(V) // 2
+#        metric = roc_auc_score if balanced else average_precision_score
+#        metric_name = "AUROC" if balanced else "AUPRC"
+#        res = pd.DataFrame({
+#            "Model": [wildcards.model],
+#            metric_name: [metric(V.label, V.score)]
+#        })
+#        print(res)
+#        res.to_csv(output[0], index=False)
 #
 #
-#rule unsupervised_scalar_score:
+#rule merge_metrics:
+#    input:
+#        lambda wildcards: expand(
+#            "results/dataset/{{dataset}}/metrics/{model}.csv",
+#            model=config["dataset_eval_models"][wildcards.dataset]
+#        )
 #    output:
-#        "results/preds/{dataset}/{features}.Unsupervised.scalar.parquet",
+#        "results/dataset/{dataset}/merged_metrics.csv",
 #    run:
-#        df = pd.read_parquet(f"https://huggingface.co/datasets/{wildcards.dataset}/resolve/main/features/{wildcards.features}.parquet")
-#        assert df.shape[1] == 1
-#        df = df.fillna(df.mean())
-#        df = df.rename(columns={df.columns[0]: "score"})
-#        df.to_parquet(output[0], index=False)
-
-
-rule get_metrics:
-    input:
-        "results/dataset/{dataset}/test.parquet",
-        "results/dataset/{dataset}/preds/{model}.parquet",
-    output:
-        "results/dataset/{dataset}/metrics/{model}.csv",
-    run:
-        V = pd.read_parquet(input[0])
-        V["score"] = pd.read_parquet(input[1])["score"]
-        balanced = V.label.sum() == len(V) // 2
-        metric = roc_auc_score if balanced else average_precision_score
-        metric_name = "AUROC" if balanced else "AUPRC"
-        res = pd.DataFrame({
-            "Model": [wildcards.model],
-            metric_name: [metric(V.label, V.score)]
-        })
-        print(res)
-        res.to_csv(output[0], index=False)
-
-
-rule merge_metrics:
-    input:
-        lambda wildcards: expand(
-            "results/dataset/{{dataset}}/metrics/{model}.csv",
-            model=config["dataset_eval_models"][wildcards.dataset]
-        )
-    output:
-        "results/dataset/{dataset}/merged_metrics.csv",
-    run:
-        dfs = [pd.read_csv(f) for f in input]
-        df = pd.concat(dfs, axis=0)
-        df = df.sort_values(df.columns[-1], ascending=False)
-        print(df)
-        df.to_csv(output[0], index=False)
-
-
-rule plot_metrics:
-    input:
-        "results/dataset/{dataset}/test.parquet",
-        "results/dataset/{dataset}/merged_metrics.csv",
-    output:
-        "results/dataset/{dataset}/plot.pdf",
-    run:
-        V = pd.read_parquet(input[0])
-        n_pos, n_neg = V.label.sum(), len(V) - V.label.sum()
-        res = pd.read_csv(input[1])
-        metric = res.columns[-1]
-        if metric == "AUROC":
-            baseline = 0.5
-        elif metric == "AUPRC":
-            baseline = n_pos / (n_pos + n_neg)
-        plt.figure(figsize=(2,2))
-        g = sns.barplot(
-            data=res,
-            y="Model",
-            x=metric,
-            color="C0",
-        )
-        sns.despine()
-        sample_size = f"n={format_number(n_pos)} vs. {format_number(n_neg)}"
-        g.set(xlim=baseline, ylabel="")
-        title = f"{wildcards.dataset.split('/')[-1]}\n{sample_size}"
-        plt.title(title)
-        for bar, model in zip(g.patches, res.Model):
-            text = f'{bar.get_width():.3f}'
-
-            g.text(
-                max(bar.get_width(), baseline),  # X position, here at the end of the bar
-                bar.get_y() + bar.get_height()/2,  # Y position, in the middle of the bar
-                text,  # Text to be displayed, formatted to 3 decimal places
-                va='center'  # Vertical alignment
-            )
-        plt.savefig(output[0], bbox_inches="tight")
+#        dfs = [pd.read_csv(f) for f in input]
+#        df = pd.concat(dfs, axis=0)
+#        df = df.sort_values(df.columns[-1], ascending=False)
+#        print(df)
+#        df.to_csv(output[0], index=False)
+#
+#
+#rule plot_metrics:
+#    input:
+#        "results/dataset/{dataset}/test.parquet",
+#        "results/dataset/{dataset}/merged_metrics.csv",
+#    output:
+#        "results/dataset/{dataset}/plot.pdf",
+#    run:
+#        V = pd.read_parquet(input[0])
+#        n_pos, n_neg = V.label.sum(), len(V) - V.label.sum()
+#        res = pd.read_csv(input[1])
+#        metric = res.columns[-1]
+#        if metric == "AUROC":
+#            baseline = 0.5
+#        elif metric == "AUPRC":
+#            baseline = n_pos / (n_pos + n_neg)
+#        plt.figure(figsize=(2,2))
+#        g = sns.barplot(
+#            data=res,
+#            y="Model",
+#            x=metric,
+#            color="C0",
+#        )
+#        sns.despine()
+#        sample_size = f"n={format_number(n_pos)} vs. {format_number(n_neg)}"
+#        g.set(xlim=baseline, ylabel="")
+#        title = f"{wildcards.dataset.split('/')[-1]}\n{sample_size}"
+#        plt.title(title)
+#        for bar, model in zip(g.patches, res.Model):
+#            text = f'{bar.get_width():.3f}'
+#
+#            g.text(
+#                max(bar.get_width(), baseline),  # X position, here at the end of the bar
+#                bar.get_y() + bar.get_height()/2,  # Y position, in the middle of the bar
+#                text,  # Text to be displayed, formatted to 3 decimal places
+#                va='center'  # Vertical alignment
+#            )
+#        plt.savefig(output[0], bbox_inches="tight")
 
 
 rule get_metrics_by_chrom:
     input:
         "results/dataset/{dataset}/test.parquet",
-        "results/dataset/{dataset}/preds/{model}.parquet",
+        "results/dataset/{dataset}/subset/{subset}.parquet",
+        "results/dataset/{dataset}/preds/{subset}/{model}.parquet",
     output:
-        "results/dataset/{dataset}/metrics_by_chrom/{model}.csv",
+        "results/dataset/{dataset}/metrics_by_chrom/{subset}/{model}.csv",
     run:
         V = pd.read_parquet(input[0])
-        V["score"] = pd.read_parquet(input[1])["score"]
+        subset = pd.read_parquet(input[1])
+        V = subset.merge(V, on=COORDINATES, how="left")
+        V["score"] = pd.read_parquet(input[2])["score"]
         balanced = V.label.sum() == len(V) // 2
         metric = roc_auc_score if balanced else average_precision_score
         metric_name = "AUROC" if balanced else "AUPRC"
@@ -178,13 +202,16 @@ rule get_metrics_by_chrom:
 rule get_metrics_by_chrom_weighted_average:
     input:
         "results/dataset/{dataset}/test.parquet",
-        "results/dataset/{dataset}/metrics_by_chrom/{model}.csv",
+        "results/dataset/{dataset}/subset/{subset}.parquet",
+        "results/dataset/{dataset}/metrics_by_chrom/{subset}/{model}.csv",
     output:
-        "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{model}.csv",
+        "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
     run:
         V = pd.read_parquet(input[0])
+        subset = pd.read_parquet(input[1])
+        V = subset.merge(V, on=COORDINATES, how="left")
         chrom_n = V.groupby("chrom").size().rename("n").reset_index()
-        res = pd.read_csv(input[1], dtype={"chrom": str})
+        res = pd.read_csv(input[2], dtype={"chrom": str})
         metric = res.columns[-1]
         res = res.merge(chrom_n, on="chrom")
         res["weight"] = res.n / res.n.sum()
@@ -195,50 +222,51 @@ rule get_metrics_by_chrom_weighted_average:
         res.to_csv(output[0], index=False)
 
 
-rule merge_metrics_by_chrom:
-    input:
-        lambda wildcards: expand(
-            "results/dataset/{{dataset}}/metrics_by_chrom/{model}.csv",
-            model=config["dataset_eval_models"][wildcards.dataset]
-        )
-    output:
-        "results/dataset/{dataset}/merged_metrics_by_chrom.csv",
-    run:
-        dfs = [pd.read_csv(f) for f in input]
-        df = pd.concat(dfs, axis=0)
-        print(df)
-        df.to_csv(output[0], index=False)
-
-
-rule plot_metrics_by_chrom:
-    input:
-        "results/dataset/{dataset}/test.parquet",
-        "results/dataset/{dataset}/merged_metrics_by_chrom.csv",
-    output:
-        "results/dataset/{dataset}/plot_by_chrom.pdf",
-    run:
-        V = pd.read_parquet(input[0])
-        n_pos, n_neg = V.label.sum(), len(V) - V.label.sum()
-        res = pd.read_csv(input[1])
-        metric = res.columns[-1]
-        if metric == "AUROC":
-            baseline = 0.5
-        elif metric == "AUPRC":
-            baseline = n_pos / (n_pos + n_neg)
-        plt.figure(figsize=(2,2))
-        g = sns.boxplot(
-            data=res,
-            y="Model",
-            x=metric,
-            color="C0",
-            order=res.groupby("Model")[metric].median().sort_values(ascending=False).index,
-        )
-        sns.despine()
-        sample_size = f"n={format_number(n_pos)} vs. {format_number(n_neg)}"
-        g.set(
-            #xlim=baseline,
-            ylabel=""
-        )
-        title = f"{wildcards.dataset.split('/')[-1]}\n{sample_size}"
-        plt.title(title)
-        plt.savefig(output[0], bbox_inches="tight")
+#rule merge_metrics_by_chrom:
+#    input:
+#        lambda wildcards: expand(
+#            "results/dataset/{{dataset}}/metrics_by_chrom/{model}.csv",
+#            model=config["dataset_eval_models"][wildcards.dataset]
+#        )
+#    output:
+#        "results/dataset/{dataset}/merged_metrics_by_chrom.csv",
+#    run:
+#        dfs = [pd.read_csv(f) for f in input]
+#        df = pd.concat(dfs, axis=0)
+#        print(df)
+#        df.to_csv(output[0], index=False)
+#
+#
+#rule plot_metrics_by_chrom:
+#    input:
+#        "results/dataset/{dataset}/test.parquet",
+#        "results/dataset/{dataset}/merged_metrics_by_chrom.csv",
+#    output:
+#        "results/dataset/{dataset}/plot_by_chrom.pdf",
+#    run:
+#        V = pd.read_parquet(input[0])
+#        n_pos, n_neg = V.label.sum(), len(V) - V.label.sum()
+#        res = pd.read_csv(input[1])
+#        metric = res.columns[-1]
+#        if metric == "AUROC":
+#            baseline = 0.5
+#        elif metric == "AUPRC":
+#            baseline = n_pos / (n_pos + n_neg)
+#        plt.figure(figsize=(2,2))
+#        g = sns.boxplot(
+#            data=res,
+#            y="Model",
+#            x=metric,
+#            color="C0",
+#            order=res.groupby("Model")[metric].median().sort_values(ascending=False).index,
+#        )
+#        sns.despine()
+#        sample_size = f"n={format_number(n_pos)} vs. {format_number(n_neg)}"
+#        g.set(
+#            #xlim=baseline,
+#            ylabel=""
+#        )
+#        title = f"{wildcards.dataset.split('/')[-1]}\n{sample_size}"
+#        plt.title(title)
+#        plt.savefig(output[0], bbox_inches="tight")
+#

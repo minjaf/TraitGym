@@ -7,6 +7,7 @@ include: "rules/data/splicing_assay.smk"
 include: "rules/data/caqtl.smk"
 include: "rules/data/dsqtl.smk"
 include: "rules/data/gnomad.smk"
+include: "rules/data/ldscore.smk"
 include: "rules/data/omim.smk"
 include: "rules/data/sat_mut_mpra.smk"
 include: "rules/data/siraj.smk"
@@ -24,49 +25,35 @@ include: "rules/model.smk"
 rule all:
     input:
         #expand(
-        #    "results/dataset/{dataset}/{plot}.pdf",
+        #    "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
         #    dataset=config["datasets"],
-        #    plot=[
-        #        "plot",
-        #        #"plot_by_chrom",
-        #    ]
-        #),
+        #    subset=config["subsets"],
+        #    features=[
+        #        "Enformer_L2",
+        #        "Borzoi_L2",
+        #        "GPN-MSA_absLLR",
+        #        "GPN-MSA_InnerProducts",
+        #        "CADD",
+        #    ],
+        #)
         expand(
-            "results/dataset/{dataset}/unsupervised_metrics/{features}.csv",
-            #"results/dataset/{dataset}/metrics_by_chrom_weighted_average/{feature_set}.{classifier}.chrom.csv",
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
             dataset=config["datasets"],
-            #trait=["BMI",], 
-            #trait=eval_traits, 
-            #trait=traits_high_n, 
-            #feature_set=[
-            #    "GPN-MSA",
-            #    "CADD",
-            #    "CADD+GPN-MSA",
-            #    #"Enformer_L2",
-            #    #"Borzoi_L2",
-            #    #"Enformer_L2+GPN-MSA+CADD",
-            #    #"Borzoi_L2+GPN-MSA+CADD",
-            #],
-            #classifier=[
-            #    #"BestFeature",
-            #    "LogisticRegression",
-            #    #"RandomForest",
-            #]
-            features=[
-                "Enformer_L2",
-                "Enformer_L2_L2",
-                "Borzoi_L2",
-                "Borzoi_L2_L2",
-                "GPN-MSA_absLLR",
-                "GPN-MSA_InnerProducts",
-                #"MAF_nfe",
-                #"TSS_dist",
-               ###"GPN-MSA_Influence",
-               ###"GPN-MSA_LLR",
-               #"CADD",
-               #"GPN_EmbedDists",
+            subset=config["subsets"],
+            feature_set=[
+                "GPN-MSA",
+                "CADD",
+                #"Enformer_L2",
+                #"Borzoi_L2",
+                #"Enformer_L2+GPN-MSA+CADD",
+            ],
+            classifier=[
+                #"BestFeature",
+                "LogisticRegression",
+                #"RandomForest",
             ]
         )
+
 
 rule all_cadd:
     input:
