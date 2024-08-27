@@ -32,6 +32,23 @@ rule dataset_subset_consequence:
         V[COORDINATES].to_parquet(output[0], index=False)
 
 
+rule dataset_subset_trait:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+    output:
+        "results/dataset/{dataset}/subset/{trait}.parquet",
+    wildcard_constraints:
+        trait="|".join(traits_high_n),
+    run:
+        V = pd.read_parquet(input[0])
+        target_size = len(V[V.match_group==V.match_group.iloc[0]])
+        V = V[(~V.label) | (V.trait.str.contains(wildcards.trait))]
+        match_group_size = V.match_group.value_counts() 
+        match_groups = match_group_size[match_group_size == target_size].index
+        V = V[V.match_group.isin(match_groups)]
+        V[COORDINATES].to_parquet(output[0], index=False)
+
+
 rule run_classifier:
     input:
         "results/dataset/{dataset}/test.parquet",

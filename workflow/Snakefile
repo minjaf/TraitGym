@@ -43,9 +43,10 @@ rule all:
             feature_set=[
                 "GPN-MSA",
                 "CADD",
-                #"Enformer_L2",
-                #"Borzoi_L2",
-                #"Enformer_L2+GPN-MSA+CADD",
+                "Enformer_L2",
+                "Borzoi_L2",
+
+                "Enformer_L2+GPN-MSA+CADD",
             ],
             classifier=[
                 #"BestFeature",

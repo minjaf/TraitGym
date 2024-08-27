@@ -64,9 +64,32 @@ subsets:
   - all
   - nonexonic
   - missense_variant
-  - noncoding_transcript_exon_variant
+  - non_coding_transcript_exon_variant
   - 3_prime_UTR_variant
   - 5_prime_UTR_variant
+  - Height
+  - MCV
+  - MCH
+  - Mono
+  - Plt
+  - eBMD
+  - HbA1c
+  - RBC
+  - ALP
+  - IGF1
+#  - HDLC
+#  - Eosino
+#  - LDLC
+#  - SHBG
+#  - AG
+#  - Lym
+#  - Hb
+#  - GGT
+#  - eGFRcys
+#  - ApoA
+#  - WBC
+#  - eGFR
+#  - TP
 
 features:
 #  - GPN-MSA_absLLR

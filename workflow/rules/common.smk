@@ -41,10 +41,12 @@ cre_classes = ["PLS", "pELS", "dELS", "DNase-H3K4me3", "CTCF-only"]
 cre_flank_classes = [f"{c}_flank" for c in cre_classes]
 other_consequences = [
     "missense_variant",
-    "noncoding_transcript_exon_variant",
+    "non_coding_transcript_exon_variant",
     "3_prime_UTR_variant",
     "5_prime_UTR_variant",
 ]
+
+traits_high_n = pd.read_csv("config/traits_n30.csv").query('count >= 50').trait
 
 
 def filter_chroms(V):
