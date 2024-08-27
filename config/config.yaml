@@ -77,19 +77,19 @@ subsets:
   - RBC
   - ALP
   - IGF1
-#  - HDLC
-#  - Eosino
-#  - LDLC
-#  - SHBG
-#  - AG
-#  - Lym
-#  - Hb
-#  - GGT
-#  - eGFRcys
-#  - ApoA
-#  - WBC
-#  - eGFR
-#  - TP
+  - HDLC
+  - Eosino
+  - LDLC
+  - SHBG
+  - AG
+  - Lym
+  - Hb
+  - GGT
+  - eGFRcys
+  - ApoA
+  - WBC
+  - eGFR
+  - TP
 
 features:
 #  - GPN-MSA_absLLR

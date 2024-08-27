@@ -41,8 +41,9 @@ rule dataset_subset_trait:
         trait="|".join(traits_high_n),
     run:
         V = pd.read_parquet(input[0])
+        V.trait = V.trait.str.split(",")
         target_size = len(V[V.match_group==V.match_group.iloc[0]])
-        V = V[(~V.label) | (V.trait.str.contains(wildcards.trait))]
+        V = V[(~V.label) | (V.trait.apply(lambda x: wildcards.trait in x))]
         match_group_size = V.match_group.value_counts() 
         match_groups = match_group_size[match_group_size == target_size].index
         V = V[V.match_group.isin(match_groups)]
