@@ -50,6 +50,50 @@ rule dataset_subset_trait:
         V[COORDINATES].to_parquet(output[0], index=False)
 
 
+rule dataset_subset_traits_n50:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+    output:
+        "results/dataset/{dataset}/subset/traits_n50.parquet",
+    wildcard_constraints:
+        trait="|".join(traits_high_n),
+    run:
+        traits_n50 = set([
+            "Height",
+            "MCV",
+            "MCH",
+            "Mono",
+            "Plt",
+            "eBMD",
+            "HbA1c",
+            "RBC",
+            "ALP",
+            "IGF1",
+            "HDLC",
+            "Eosino",
+            "LDLC",
+            "SHBG",
+            "AG",
+            "Lym",
+            "Hb",
+            "GGT",
+            "eGFRcys",
+            "ApoA",
+            "WBC",
+            "eGFR",
+            "TP",
+        ])
+        V = pd.read_parquet(input[0])
+        V.trait = V.trait.str.split(",").apply(set)
+        target_size = len(V[V.match_group==V.match_group.iloc[0]])
+        V = V[(~V.label) | (V.trait.apply(lambda x: len(x.intersection(traits_n50)) > 0))]
+        match_group_size = V.match_group.value_counts() 
+        match_groups = match_group_size[match_group_size == target_size].index
+        V = V[V.match_group.isin(match_groups)]
+        print(V)
+        V[COORDINATES].to_parquet(output[0], index=False)
+
+
 rule run_classifier:
     input:
         "results/dataset/{dataset}/test.parquet",

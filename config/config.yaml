@@ -62,11 +62,13 @@ datasets:
 
 subsets:
   - all
+
   - nonexonic
   - missense_variant
   - non_coding_transcript_exon_variant
   - 3_prime_UTR_variant
   - 5_prime_UTR_variant
+
   - Height
   - MCV
   - MCH
@@ -90,6 +92,8 @@ subsets:
   - WBC
   - eGFR
   - TP
+
+  - traits_n50
 
 features:
 #  - GPN-MSA_absLLR
