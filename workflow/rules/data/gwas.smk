@@ -131,7 +131,8 @@ rule gwas_process:
 
 rule gwas_match:
     input:
-        "results/gwas/processed.annot_with_cre.annot_MAF_nfe.parquet",
+        "results/gwas/processed.parquet",
+        "results/ldscore/UKBB.EUR.ldscore.annot_with_cre.parquet",
         "results/tss.parquet",
     output:
         "results/dataset/gwas_matched_{k,\d+}/test.parquet",
@@ -149,16 +150,19 @@ rule gwas_match:
             .to_pandas()
         )
 
+        annot = pd.read_parquet(input[1])
+        V = V.merge(annot, on=COORDINATES, how="inner")
+
         V["start"] = V.pos - 1
         V["end"] = V.pos
 
-        tss = pd.read_parquet(input[1], columns=["chrom", "start", "end"])
+        tss = pd.read_parquet(input[2], columns=["chrom", "start", "end"])
 
         V = bf.closest(V, tss).rename(columns={
             "distance": "tss_dist"
         }).drop(columns=["start", "end", "chrom_", "start_", "end_"])
 
-        base_match_features = ["maf"]
+        base_match_features = ["maf", "ld_score"]
 
         consequences = V[V.label].consequence.unique()
         V_cs = []
