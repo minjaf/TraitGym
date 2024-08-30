@@ -162,17 +162,13 @@ rule gwas_match:
             "distance": "tss_dist"
         }).drop(columns=["start", "end", "chrom_", "start_", "end_"])
 
-        base_match_features = ["maf", "ld_score"]
+        match_features = ["maf", "ld_score", "tss_dist"]
 
         consequences = V[V.label].consequence.unique()
         V_cs = []
         for c in consequences:
             print(c)
             V_c = V[V.consequence == c].copy()
-            if c in NON_EXONIC + cre_classes + cre_flank_classes:
-                match_features = base_match_features + ["tss_dist"]
-            else:
-                match_features = base_match_features
             for f in match_features:
                 V_c[f"{f}_scaled"] = RobustScaler().fit_transform(V_c[f].values.reshape(-1, 1))
             print(V_c.label.value_counts())
