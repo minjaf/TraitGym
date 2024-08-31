@@ -24,15 +24,31 @@ rule gwas_process_main_file:
         V = (
             pl.read_csv(
                 input[0], separator="\t", has_header=False,
-                columns=[0, 2, 5, 6, 10, 11, 17, 21, 22],
+                columns=[0, 2, 5, 6, 10, 11, 14, 15, 17, 21, 22],
                 new_columns=[
-                    "chrom", "pos", "ref", "alt", "method", "trait", "pip", "LD_HWE",
-                    "LD_SV",
+                    "chrom", "pos", "ref", "alt", "method", "trait",
+                   "beta_marginal", "se_marginal", "pip", "LD_HWE", "LD_SV",
                 ],
                 schema_overrides={"column_3": float}
             )
             .with_columns(pl.col("pos").cast(int))
             .filter(~pl.col("LD_HWE"), ~pl.col("LD_SV"))
+            .with_columns(
+                (pl.col("beta_marginal") / pl.col("se_marginal")).alias("z")
+            )
+        )
+        V = (
+            V.with_columns(
+                p=2*stats.norm.sf(abs(V["z"])),
+            )
+            # when PIP > 0.9, manually override as 0.5 when not genome-wide significant
+            # (0.5 so it's excluded from both positive and negative set)
+            .with_columns(
+                pl.when(pl.col("pip") > 0.9, pl.col("p") > 5e-8)
+                .then(pl.lit(0.5))
+                .otherwise(pl.col("pip"))
+                .alias("pip")
+            )
             .select(["chrom", "pos", "ref", "alt", "trait", "method", "pip"])
         )
         print(V)
@@ -162,7 +178,7 @@ rule gwas_match:
             "distance": "tss_dist"
         }).drop(columns=["start", "end", "chrom_", "start_", "end_"])
 
-        match_features = ["maf", "ld_score", "tss_dist"]
+        match_features = ["maf", "tss_dist"]
 
         consequences = V[V.label].consequence.unique()
         V_cs = []

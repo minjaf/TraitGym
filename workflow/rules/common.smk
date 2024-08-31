@@ -8,6 +8,7 @@ import os
 import pandas as pd
 import polars as pl
 from scipy.spatial.distance import cdist
+import scipy.stats as stats
 import seaborn as sns
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
