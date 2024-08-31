@@ -3,41 +3,42 @@ annotation_url: "http://ftp.ensembl.org/pub/release-107/gtf/homo_sapiens/Homo_sa
 
 datasets:
   - gwas_matched_9
+  - eqtl_matched_1
 
 subsets:
   - all
 
-  - nonexonic
-  - missense_variant
-  - non_coding_transcript_exon_variant
-  - 3_prime_UTR_variant
-  - 5_prime_UTR_variant
+#  - nonexonic
+#  - missense_variant
+#  - non_coding_transcript_exon_variant
+#  - 3_prime_UTR_variant
+#  - 5_prime_UTR_variant
+#
+#  - Height
+#  - MCV
+#  - MCH
+#  - Mono
+#  - Plt
+#  - eBMD
+#  - HbA1c
+#  - RBC
+#  - ALP
+#  - IGF1
+#  - HDLC
+#  - Eosino
+#  - LDLC
+#  - SHBG
+#  - AG
+#  - Lym
+#  - Hb
+#  - GGT
+#  - eGFRcys
+#  - ApoA
+#  - WBC
+#  - eGFR
+#  - TP
 
-  - Height
-  - MCV
-  - MCH
-  - Mono
-  - Plt
-  - eBMD
-  - HbA1c
-  - RBC
-  - ALP
-  - IGF1
-  - HDLC
-  - Eosino
-  - LDLC
-  - SHBG
-  - AG
-  - Lym
-  - Hb
-  - GGT
-  - eGFRcys
-  - ApoA
-  - WBC
-  - eGFR
-  - TP
-
-  - traits_n50
+#  - traits_n50
 
 features:
 #  - GPN-MSA_absLLR
