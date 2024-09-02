@@ -350,3 +350,51 @@ rule get_metrics_by_chrom_weighted_average:
 #        plt.title(title)
 #        plt.savefig(output[0], bbox_inches="tight")
 #
+
+
+rule get_metrics_by_odd_even:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+        "results/dataset/{dataset}/subset/{subset}.parquet",
+        "results/dataset/{dataset}/preds/{subset}/{model}.parquet",
+    output:
+        "results/dataset/{dataset}/metrics_by_odd_even/{subset}/{model}.csv",
+    run:
+        V = pd.read_parquet(input[0])
+        subset = pd.read_parquet(input[1])
+        V = subset.merge(V, on=COORDINATES, how="left")
+        V["score"] = pd.read_parquet(input[2])["score"]
+        balanced = V.label.sum() == len(V) // 2
+        metric = roc_auc_score if balanced else average_precision_score
+        metric_name = "AUROC" if balanced else "AUPRC"
+        res = []
+        for name, chroms in zip(["odd", "even"], ODD_EVEN_CHROMS):
+            V_chroms = V[V.chrom.isin(chroms)]
+            res.append([name, wildcards.model, metric(V_chroms.label, V_chroms.score)])
+        res = pd.DataFrame(res, columns=["chroms", "Model", metric_name])
+        print(res)
+        res.to_csv(output[0], index=False)
+
+
+rule get_metrics_by_odd_even_weighted_average:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+        "results/dataset/{dataset}/subset/{subset}.parquet",
+        "results/dataset/{dataset}/metrics_by_odd_even/{subset}/{model}.csv",
+    output:
+        "results/dataset/{dataset}/metrics_by_odd_even_weighted_average/{subset}/{model}.csv",
+    run:
+        V = pd.read_parquet(input[0])
+        subset = pd.read_parquet(input[1])
+        V = subset.merge(V, on=COORDINATES, how="left")
+        V["chroms"] = V.chrom.apply(lambda x: "odd" if x in ODD_EVEN_CHROMS[0] else "even")
+        chroms_n = V.groupby("chroms").size().rename("n").reset_index()
+        res = pd.read_csv(input[2])
+        metric = res.columns[-1]
+        res = res.merge(chroms_n, on="chroms")
+        res["weight"] = res.n / res.n.sum()
+        res = pd.DataFrame({
+            "Model": [wildcards.model],
+            metric: [(res[metric] * res.weight).sum()]
+        })
+        res.to_csv(output[0], index=False)

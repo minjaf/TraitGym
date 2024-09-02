@@ -41,40 +41,29 @@ rule omim_dataset:
         "results/omim/variants.annot_with_cre.parquet",
         "results/gnomad/common.parquet",
     output:
-        "results/dataset/omim_{ratio,\d+}/test.parquet",
+        "results/dataset/omim_subsampled_{k,\d+}/test.parquet",
     run:
+        k = int(wildcards.k)
         pos = pd.read_parquet(input[0])
         pos["label"] = True
         neg = pd.read_parquet(input[1])
         neg["label"] = False
-        Vs = []
+        all_pos = []
+        all_neg = []
         for c in tqdm(pos.consequence.unique()):
-            pos_c = pos[pos.consequence == c]
-            neg_c = neg[neg.consequence == c]
-            n = len(pos_c) * int(wildcards.ratio)
-            if len(neg_c) < n:
-                print(f"Skipping {c}")
-                continue
-            Vs.append(pd.concat([
-                pos_c, neg_c.sample(n=n, random_state=42)
-            ]))
-        V = pd.concat(Vs)
+            for chroms in ODD_EVEN_CHROMS:
+                pos_c = pos[(pos.consequence == c) & (pos.chrom.isin(chroms))]
+                neg_c = neg[(neg.consequence == c) & (neg.chrom.isin(chroms))]
+                if len(neg_c) < len(pos_c) * k:
+                    print(f"Subsampling {c}")
+                    pos_c = pos_c.sample(n=len(neg_c) // k, random_state=42)
+                all_pos.append(pos_c)
+                all_neg.append(neg_c.sample(n=len(pos_c) * k, random_state=42))
+        pos = pd.concat(all_pos, ignore_index=True)
+        pos["match_group"] = np.arange(len(pos))
+        neg = pd.concat(all_neg, ignore_index=True)
+        neg["match_group"] = np.repeat(pos.match_group.values, k)
+        V = pd.concat([pos, neg], ignore_index=True)
         V = sort_variants(V)
         print(V)
         V.to_parquet(output[0], index=False)
-
-
-rule omim_nonexonic_dataset:
-    input:
-        "results/dataset/omim_{ratio}/test.parquet",
-    output:
-        "results/dataset/omim_{ratio}_nonexonic/test.parquet",
-    run:
-        (
-            pl.read_parquet(input[0])
-            .filter(
-                pl.col("consequence")
-                .is_in(NON_EXONIC + cre_classes + cre_flank_classes)
-            )
-            .write_parquet(output[0])
-        )
