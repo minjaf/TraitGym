@@ -2,18 +2,18 @@ genome_url: "http://ftp.ensembl.org/pub/release-107/fasta/homo_sapiens/dna/Homo_
 annotation_url: "http://ftp.ensembl.org/pub/release-107/gtf/homo_sapiens/Homo_sapiens.GRCh38.107.chr.gtf.gz"
 
 datasets:
-  - gwas_matched_9
+#  - gwas_matched_9
   - eqtl_matched_1
 
 subsets:
   - all
 
-#  - nonexonic
-#  - missense_variant
-#  - non_coding_transcript_exon_variant
-#  - 3_prime_UTR_variant
-#  - 5_prime_UTR_variant
-#
+  - nonexonic
+  - missense_variant
+  - non_coding_transcript_exon_variant
+  - 3_prime_UTR_variant
+  - 5_prime_UTR_variant
+
 #  - Height
 #  - MCV
 #  - MCH
@@ -38,7 +38,11 @@ subsets:
 #  - eGFR
 #  - TP
 
-#  - traits_n50
+  - Thyroid
+  - Whole_Blood
+  - Lung
+  - Brain_Cortex
+  - Liver
 
 features:
 #  - GPN-MSA_absLLR

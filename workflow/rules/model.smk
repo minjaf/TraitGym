@@ -94,6 +94,24 @@ rule dataset_subset_traits_n50:
         V[COORDINATES].to_parquet(output[0], index=False)
 
 
+rule dataset_subset_tissue:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+    output:
+        "results/dataset/{dataset}/subset/{tissue}.parquet",
+    wildcard_constraints:
+        tissue="|".join(tissues),
+    run:
+        V = pd.read_parquet(input[0])
+        V.tissue = V.tissue.str.split(",")
+        target_size = len(V[V.match_group==V.match_group.iloc[0]])
+        V = V[(~V.label) | (V.tissue.apply(lambda x: wildcards.tissue in x))]
+        match_group_size = V.match_group.value_counts() 
+        match_groups = match_group_size[match_group_size == target_size].index
+        V = V[V.match_group.isin(match_groups)]
+        V[COORDINATES].to_parquet(output[0], index=False)
+
+
 rule run_classifier:
     input:
         "results/dataset/{dataset}/test.parquet",

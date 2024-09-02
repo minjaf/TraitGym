@@ -49,6 +49,8 @@ other_consequences = [
 
 traits_high_n = pd.read_csv("config/traits_n30.csv").query('count >= 50').trait
 
+tissues = pd.read_csv("config/gtex_tissues.txt", header=None).values.ravel()
+
 
 def filter_chroms(V):
     V = V[V.chrom.isin(CHROMS)]
