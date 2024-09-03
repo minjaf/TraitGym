@@ -118,7 +118,7 @@ rule run_classifier:
         "results/dataset/{dataset}/subset/{subset}.parquet",
         lambda wildcards: expand("results/dataset/{{dataset}}/features/{features}.parquet", features=config["feature_sets"][wildcards.feature_set]),
     output:
-        "results/dataset/{dataset}/preds/{subset}/{feature_set}.{classifier,LogisticRegression|RandomForest|XGBoost|PCALogisticRegression|FeatureSelectionLogisticRegression|BestFeature}.{split_mode,chrom|odd_even}.parquet",
+        "results/dataset/{dataset}/preds/{subset}/{feature_set}.{classifier,LogisticRegression|RidgeRegression|RandomForest|XGBoost|PCALogisticRegression|FeatureSelectionLogisticRegression|BestFeature}.{split_mode,chrom|odd_even|pos_quarter}.parquet",
     threads:
         lambda wildcards: 1 if wildcards.classifier == "BestFeature" else workflow.cores
     run:
@@ -142,6 +142,11 @@ rule run_classifier:
         elif wildcards.split_mode == "odd_even":
             for chroms in ODD_EVEN_CHROMS:
                 mask_train = V.chrom.isin(chroms)
+                mask_train_list.append(mask_train)
+        elif wildcards.split_mode == "pos_quarter":
+            pos_subsets = np.array_split(np.unique(V.pos), 4)
+            for pos_subset in pos_subsets:
+                mask_train = V.pos.isin(pos_subset)
                 mask_train_list.append(mask_train)
 
         for mask_train in tqdm(mask_train_list):
@@ -273,27 +278,19 @@ rule get_metrics_by_chrom:
         res = []
         for chrom in V.chrom.unique():
             V_chrom = V[V.chrom == chrom]
-            res.append([chrom, wildcards.model, metric(V_chrom.label, V_chrom.score)])
-        res = pd.DataFrame(res, columns=["chrom", "Model", metric_name])
-        print(res)
+            res.append([chrom, len(V_chrom), wildcards.model, metric(V_chrom.label, V_chrom.score)])
+        res = pd.DataFrame(res, columns=["chrom", "n", "Model", metric_name])
         res.to_csv(output[0], index=False)
 
 
 rule get_metrics_by_chrom_weighted_average:
     input:
-        "results/dataset/{dataset}/test.parquet",
-        "results/dataset/{dataset}/subset/{subset}.parquet",
         "results/dataset/{dataset}/metrics_by_chrom/{subset}/{model}.csv",
     output:
         "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
     run:
-        V = pd.read_parquet(input[0])
-        subset = pd.read_parquet(input[1])
-        V = subset.merge(V, on=COORDINATES, how="left")
-        chrom_n = V.groupby("chrom").size().rename("n").reset_index()
-        res = pd.read_csv(input[2], dtype={"chrom": str})
+        res = pd.read_csv(input[0], dtype={"chrom": str})
         metric = res.columns[-1]
-        res = res.merge(chrom_n, on="chrom")
         res["weight"] = res.n / res.n.sum()
         res = pd.DataFrame({
             "Model": [wildcards.model],
@@ -370,28 +367,58 @@ rule get_metrics_by_odd_even:
         res = []
         for name, chroms in zip(["odd", "even"], ODD_EVEN_CHROMS):
             V_chroms = V[V.chrom.isin(chroms)]
-            res.append([name, wildcards.model, metric(V_chroms.label, V_chroms.score)])
-        res = pd.DataFrame(res, columns=["chroms", "Model", metric_name])
-        print(res)
+            res.append([name, len(V_chroms), wildcards.model, metric(V_chroms.label, V_chroms.score)])
+        res = pd.DataFrame(res, columns=["chroms", "n", "Model", metric_name])
         res.to_csv(output[0], index=False)
 
 
 rule get_metrics_by_odd_even_weighted_average:
     input:
-        "results/dataset/{dataset}/test.parquet",
-        "results/dataset/{dataset}/subset/{subset}.parquet",
         "results/dataset/{dataset}/metrics_by_odd_even/{subset}/{model}.csv",
     output:
         "results/dataset/{dataset}/metrics_by_odd_even_weighted_average/{subset}/{model}.csv",
     run:
+        res = pd.read_csv(input[0])
+        metric = res.columns[-1]
+        res["weight"] = res.n / res.n.sum()
+        res = pd.DataFrame({
+            "Model": [wildcards.model],
+            metric: [(res[metric] * res.weight).sum()]
+        })
+        res.to_csv(output[0], index=False)
+
+
+rule get_metrics_by_pos_quarter:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+        "results/dataset/{dataset}/subset/{subset}.parquet",
+        "results/dataset/{dataset}/preds/{subset}/{model}.parquet",
+    output:
+        "results/dataset/{dataset}/metrics_by_pos_quarter/{subset}/{model}.csv",
+    run:
         V = pd.read_parquet(input[0])
         subset = pd.read_parquet(input[1])
         V = subset.merge(V, on=COORDINATES, how="left")
-        V["chroms"] = V.chrom.apply(lambda x: "odd" if x in ODD_EVEN_CHROMS[0] else "even")
-        chroms_n = V.groupby("chroms").size().rename("n").reset_index()
-        res = pd.read_csv(input[2])
+        V["score"] = pd.read_parquet(input[2])["score"]
+        metric = lambda y_true, y_pred: pearsonr(y_true, y_pred)[0]
+        metric_name = "Pearson"
+        pos_subsets = np.array_split(np.unique(V.pos), 4)
+        res = []
+        for name, pos_subset in zip(range(len(pos_subsets)), pos_subsets):
+            V_pos = V[V.pos.isin(pos_subset)]
+            res.append([name, len(V_pos), wildcards.model, metric(V_pos.label, V_pos.score)])
+        res = pd.DataFrame(res, columns=["pos_quarter", "n", "Model", metric_name])
+        res.to_csv(output[0], index=False)
+
+
+rule get_metrics_by_pos_quarter_weighted_average:
+    input:
+        "results/dataset/{dataset}/metrics_by_pos_quarter/{subset}/{model}.csv",
+    output:
+        "results/dataset/{dataset}/metrics_by_pos_quarter_weighted_average/{subset}/{model}.csv",
+    run:
+        res = pd.read_csv(input[0])
         metric = res.columns[-1]
-        res = res.merge(chroms_n, on="chroms")
         res["weight"] = res.n / res.n.sum()
         res = pd.DataFrame({
             "Model": [wildcards.model],

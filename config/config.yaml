@@ -84,6 +84,9 @@ feature_sets:
     - GPN-MSA_InnerProducts
   GPN-MSA_InnerProducts:
     - GPN-MSA_InnerProducts
+  CADD+GPN-MSA_LLR:
+    - CADD
+    - GPN-MSA_LLR
   phyloP-100v:
     - phyloP-100v
     - minus_MAF

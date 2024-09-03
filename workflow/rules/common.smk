@@ -9,12 +9,13 @@ import pandas as pd
 import polars as pl
 from scipy.spatial.distance import cdist
 import scipy.stats as stats
+from scipy.stats import pearsonr, spearmanr
 import seaborn as sns
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.impute import SimpleImputer
-from sklearn.linear_model import LogisticRegressionCV, LogisticRegression
+from sklearn.linear_model import LogisticRegressionCV, LogisticRegression, Ridge
 from sklearn.metrics import average_precision_score, roc_auc_score
 from sklearn.model_selection import GroupKFold, GridSearchCV
 from sklearn.preprocessing import StandardScaler, RobustScaler
@@ -451,6 +452,31 @@ def train_predict_logistic_regression(V_train, V_test, features):
     return clf.predict_proba(V_test[features])[:, 1]
 
 
+def train_predict_ridge_regression(V_train, V_test, features):
+    pipeline = Pipeline([
+        ('imputer', SimpleImputer(missing_values=np.nan, strategy='mean')),
+        ('scaler', StandardScaler()),
+        ('linear', Ridge(
+            random_state=42,
+        ))
+    ])
+    C = np.logspace(-10, 0, 11)
+    alpha = 1 / (2 * C)
+    param_grid = {
+        'linear__alpha': alpha,
+    }
+    clf = GridSearchCV(
+        pipeline,
+        param_grid,
+        scoring="r2",
+        cv=2,
+        n_jobs=-1,
+    )
+    clf.fit(V_train[features], V_train.label)
+    print(f"{clf.best_params_=}")
+    return clf.predict(V_test[features])
+
+
 def train_predict_feature_selection_logistic_regression(V_train, V_test, features):
     balanced = V_train.label.sum() == len(V_train) // 2
     clf = Pipeline([
@@ -530,6 +556,7 @@ classifier_map = {
     "XGBoost": train_predict_xgboost,
     "PCALogisticRegression": train_predict_pca_logistic_regression,
     "FeatureSelectionLogisticRegression": train_predict_feature_selection_logistic_regression,
+    "RidgeRegression": train_predict_ridge_regression,
 }
 
 
