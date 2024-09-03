@@ -5,15 +5,16 @@ datasets:
 #  - gwas_matched_9
 #  - eqtl_matched_1
   - omim_subsampled_99
+#  - sat_mut_mpra
 
 subsets:
   - all
 
-  - nonexonic
-  - missense_variant
-  - non_coding_transcript_exon_variant
-  - 3_prime_UTR_variant
-  - 5_prime_UTR_variant
+#  - nonexonic
+#  - missense_variant
+#  - non_coding_transcript_exon_variant
+#  - 3_prime_UTR_variant
+#  - 5_prime_UTR_variant
 
 #  - Height
 #  - MCV
@@ -39,11 +40,11 @@ subsets:
 #  - eGFR
 #  - TP
 
-  - Thyroid
-  - Whole_Blood
-  - Lung
-  - Brain_Cortex
-  - Liver
+#  - Thyroid
+#  - Whole_Blood
+#  - Lung
+#  - Brain_Cortex
+#  - Liver
 
 features:
 #  - GPN-MSA_absLLR
@@ -84,6 +85,8 @@ feature_sets:
     - GPN-MSA_InnerProducts
   GPN-MSA_InnerProducts:
     - GPN-MSA_InnerProducts
+  GPN-MSA_LLR:
+    - GPN-MSA_LLR
   CADD+GPN-MSA_LLR:
     - CADD
     - GPN-MSA_LLR

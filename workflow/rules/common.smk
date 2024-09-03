@@ -424,7 +424,10 @@ def train_predict_best_feature(V_train, V_test, features):
         for f in features
     ]
     chosen = features[np.argmax(scores)]
-    return V_test[chosen].values
+    res = V_test[chosen].values
+    if metric(V_train.label, V_train[chosen]) < metric(V_train.label, -V_train[chosen]):
+        res = -res
+    return res
 
 
 def train_predict_logistic_regression(V_train, V_test, features):

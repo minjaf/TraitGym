@@ -26,36 +26,38 @@ include: "rules/model.smk"
 
 rule all:
     input:
-        expand(
-            "results/dataset/{dataset}/features/{features}.parquet",
-            dataset=config["datasets"],
-            features=[
-                "Enformer_L2",
-                "Borzoi_L2",
-                #"GPN-MSA_absLLR",
-                #"GPN-MSA_LLR",
-                #"GPN-MSA_InnerProducts",
-                #"CADD",
-            ],
-        )
         #expand(
-        #    "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
+        #    "results/dataset/{dataset}/features/{features}.parquet",
         #    dataset=config["datasets"],
-        #    subset=config["subsets"],
-        #    feature_set=[
-        #        "GPN-MSA",
-        #        "CADD",
+        #    features=[
         #        "Enformer_L2",
         #        "Borzoi_L2",
-
-        #        "Enformer_L2+GPN-MSA+CADD",
+        #        #"GPN-MSA_absLLR",
+        #        #"GPN-MSA_LLR",
+        #        #"GPN-MSA_InnerProducts",
+        #        #"CADD",
         #    ],
-        #    classifier=[
-        #        #"BestFeature",
-        #        "LogisticRegression",
-        #        #"RandomForest",
-        #    ]
         #)
+        expand(
+            #"results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
+            "results/dataset/{dataset}/metrics_by_odd_even_weighted_average/{subset}/{feature_set}.{classifier}.odd_even.csv",
+            dataset=config["datasets"],
+            subset=config["subsets"],
+            feature_set=[
+                #"GPN-MSA",
+                "CADD",
+                "Enformer_L2",
+                "Borzoi_L2",
+                "GPN-MSA_LLR",
+
+                #"Enformer_L2+GPN-MSA+CADD",
+            ],
+            classifier=[
+                "BestFeature",
+                #"LogisticRegression",
+                #"RandomForest",
+            ]
+        )
 
 
 rule all_unsupervised_metrics:
@@ -63,44 +65,13 @@ rule all_unsupervised_metrics:
         expand(
             "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
             dataset=config["datasets"],
-            #subset=config["subsets"],
-            subset=[
-                "all",
-                "nonexonic",
-                "missense_variant",
-                "non_coding_transcript_exon_variant",
-                "3_prime_UTR_variant",
-                "5_prime_UTR_variant",
-                "Height",
-                "MCV",
-                "Mono",
-            ],
+            subset=config["subsets"],
             features=[
                 "Enformer_L2",
                 "Borzoi_L2",
+                "GPN-MSA_LLR",
                 #"GPN-MSA_absLLR",
                 #"GPN-MSA_InnerProducts",
                 "CADD",
             ],
         )
-
-
-rule all_cadd:
-    input:
-        #expand(
-        #    "results/dataset/{dataset}/unsupervised_metrics/{features}.csv",
-        #    dataset=config["datasets"],
-        #    features=[
-        #        "CADD",
-        #    ]
-        #)
-        #expand(
-        #    "results/dataset/gwas_gokcen_{trait}_matched_9/metrics_by_chrom_weighted_average/{feature_set}.{classifier}.chrom.csv",
-        #    trait=traits_high_n, 
-        #    feature_set=[
-        #        "CADD",
-        #    ],
-        #    classifier=[
-        #        "BestFeature",
-        #    ]
-        #)
