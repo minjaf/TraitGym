@@ -21,6 +21,7 @@ include: "rules/features/gpn.smk"
 include: "rules/features/gpn_msa.smk"
 include: "rules/features/grelu.smk"
 include: "rules/features/maf.smk"
+include: "rules/features/nucleotide_transformer.smk"
 include: "rules/model.smk"
 
 
@@ -30,14 +31,16 @@ rule all:
             "results/dataset/{dataset}/features/{features}.parquet",
             dataset=config["datasets"],
             features=[
-                "Enformer_L2",
-                "Borzoi_L2",
+                #"Enformer_L2",
+                #"Borzoi_L2",
                 #"GPN-MSA_absLLR",
                 #"GPN-MSA_LLR",
-                "GPN-MSA_InnerProducts",
+                #"GPN-MSA_InnerProducts",
                 #"CADD",
-                "GPN-MSA_RefEmbed",
-                "GPN-MSA_DeltaEmbed",
+                #"GPN-MSA_RefEmbed",
+                #"GPN-MSA_DeltaEmbed",
+
+                "NucleotideTransformer_InnerProducts",
             ],
         )
 
@@ -45,8 +48,8 @@ rule all:
 rule all_supervised:
     input:
         expand(
-            #"results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
-            "results/dataset/{dataset}/metrics_by_odd_even_weighted_average/{subset}/{feature_set}.{classifier}.odd_even.csv",
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
+            #"results/dataset/{dataset}/metrics_by_odd_even_weighted_average/{subset}/{feature_set}.{classifier}.odd_even.csv",
             dataset=config["datasets"],
             subset=config["subsets"],
             feature_set=[
@@ -59,13 +62,15 @@ rule all_supervised:
 
                 #"Enformer_L2+GPN-MSA+CADD",
 
-                "GPN-MSA_InnerProducts",
-                "GPN-MSA_RefEmbed",
-                "GPN-MSA_DeltaEmbed",
-                "GPN-MSA_Ref+DeltaEmbed",
-                "GPN-MSA_Ref+DeltaEmbed+LLR",
+                "NucleotideTransformer_InnerProducts",
 
-                "OMIM_Ensemble",
+                #"GPN-MSA_InnerProducts",
+                #"GPN-MSA_RefEmbed",
+                #"GPN-MSA_DeltaEmbed",
+                #"GPN-MSA_Ref+DeltaEmbed",
+                #"GPN-MSA_Ref+DeltaEmbed+LLR",
+
+                #"OMIM_Ensemble",
             ],
             classifier=[
                 #"BestFeature",

@@ -87,7 +87,7 @@ rule grelu_aggregate_assay:
     run:
         df = pd.read_parquet(input[0])
         metadata = pd.read_csv(input[1])
-        assays = metadata.assay.unique()
+        assays = metadata.assay.unique().tolist() + ["all"]
         if wildcards.norm_ord == "1":
             norm_ord = 1
         elif wildcards.norm_ord == "2":
@@ -95,9 +95,8 @@ rule grelu_aggregate_assay:
         elif wildcards.norm_ord == "inf":
             norm_ord = np.inf
         for assay in assays:
-            df[assay] = np.linalg.norm(
-                df[metadata[metadata.assay==assay].name], axis=1, ord=norm_ord,
-            )
+            df_assay = df[metadata[metadata.assay==assay].name] if assay != "all" else df
+            df[assay] = np.linalg.norm(df_assay, axis=1, ord=norm_ord)
         df[assays].to_parquet(output[0], index=False)
 
 
