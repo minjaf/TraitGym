@@ -86,6 +86,17 @@ feature_sets:
     - GPN-MSA_InnerProducts
   GPN-MSA_InnerProducts:
     - GPN-MSA_InnerProducts
+  GPN-MSA_RefEmbed:
+    - GPN-MSA_RefEmbed
+  GPN-MSA_DeltaEmbed:
+    - GPN-MSA_DeltaEmbed
+  GPN-MSA_Ref+DeltaEmbed:
+    - GPN-MSA_RefEmbed
+    - GPN-MSA_DeltaEmbed
+  GPN-MSA_Ref+DeltaEmbed+LLR:
+    - GPN-MSA_RefEmbed
+    - GPN-MSA_DeltaEmbed
+    - GPN-MSA_LLR
   GPN-MSA_LLR:
     - GPN-MSA_LLR
   CADD+GPN-MSA_LLR:
@@ -149,6 +160,10 @@ feature_sets:
     - GPN-MSA_InnerProducts
     - CADD
 
+  OMIM_Ensemble:
+    - Enformer_L2
+    - GPN-MSA_LLR
+    - CADD
 
   Ensemble:
   - CADD
