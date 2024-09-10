@@ -15,6 +15,7 @@ from gpn.data import Genome, load_dataset_from_file_or_dir, token_input_id
 
 
 window_size = 5994
+k = 6
 nucleotides = list("ACGT")
 
 
@@ -56,9 +57,8 @@ def run_vep(
     def tokenize(seqs):
         return tokenizer(
             seqs,
-            max_length=tokenizer.model_max_length,
             padding=False,
-            truncation=True,
+            truncation=False,
             return_token_type_ids=False,
             return_attention_mask=False,
             return_special_tokens_mask=False,
@@ -77,6 +77,7 @@ def run_vep(
         )
         seq_fwd = np.array([list(seq.upper()) for seq in seq_fwd], dtype="object")
         seq_rev = np.array([list(seq.upper()) for seq in seq_rev], dtype="object")
+        n_kmers = window_size // k
         assert seq_fwd.shape[1] == window_size
         assert seq_rev.shape[1] == window_size
         ref_fwd = np.array(vs["ref"])
@@ -86,14 +87,26 @@ def run_vep(
         pos_fwd = window_size // 2
         pos_rev = pos_fwd - 1 if window_size % 2 == 0 else pos_fwd
 
+        def handle_undefined(seq):
+            # the goal is to have a fixed length sequence of tokens
+            # the issue is that some sequences have Ns which distort the length
+            # so we replace kmers containing N with a single N, so it maps to a single
+            # unk token
+            res = []
+            for x in seq:
+                kmers = ["".join(x[i*k:(i+1)*k]) for i in range(n_kmers)]
+                kmers = [kmer if set(kmer) <= set(nucleotides) else "N" for kmer in kmers]
+                res.append("".join(kmers))
+            return res
+
         def prepare_output(seq, pos, ref, alt):
             assert (seq[:, pos] == ref).all(), f"{seq[:, pos]}, {ref}"
             seq_ref = seq
             seq_alt = seq.copy()
             seq_alt[:, pos] = alt
             return (
-                tokenize(["".join(x) for x in seq_ref]),
-                tokenize(["".join(x) for x in seq_alt]),
+                np.array(tokenize(handle_undefined(seq_ref))),
+                np.array(tokenize(handle_undefined(seq_alt))),
             )
 
         res = {}

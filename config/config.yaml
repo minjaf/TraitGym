@@ -5,7 +5,7 @@ datasets:
   - gwas_matched_9
 #  - eqtl_matched_1
 #  - omim_subsampled_99
-#  - omim_subsampled_9
+  - omim_subsampled_9
 #  - sat_mut_mpra
 
 subsets:
@@ -65,42 +65,16 @@ features:
   - Borzoi_L2_L2
 
 feature_sets:
-  Baseline:
-  - minus_MAF
-  - minus_TSS_dist
   CADD:
   - CADD
-#    - CADD_Annot
-#    - minus_MAF
-#    - minus_TSS_dist
-  Enformer:
-    - Enformer_L2_L2
-    - minus_MAF
-    - minus_TSS_dist
-  Borzoi:
-    - Borzoi_L2_L2
-    - minus_MAF
-    - minus_TSS_dist
-  GPN-MSA:
+  GPN-MSA_absLLR+InnerProducts:
     - GPN-MSA_absLLR
     - GPN-MSA_InnerProducts
-  GPN-MSA_InnerProducts:
+  GPN-MSA_LLR+InnerProducts:
+    - GPN-MSA_LLR
     - GPN-MSA_InnerProducts
   NucleotideTransformer_InnerProducts:
     - NucleotideTransformer_InnerProducts
-  GPN-MSA_RefEmbed:
-    - GPN-MSA_RefEmbed
-  GPN-MSA_DeltaEmbed:
-    - GPN-MSA_DeltaEmbed
-  GPN-MSA_Ref+DeltaEmbed:
-    - GPN-MSA_RefEmbed
-    - GPN-MSA_DeltaEmbed
-  GPN-MSA_Ref+DeltaEmbed+LLR:
-    - GPN-MSA_RefEmbed
-    - GPN-MSA_DeltaEmbed
-    - GPN-MSA_LLR
-  GPN-MSA_LLR:
-    - GPN-MSA_LLR
   CADD+GPN-MSA_LLR:
     - CADD
     - GPN-MSA_LLR
@@ -116,10 +90,6 @@ feature_sets:
     - phyloP-241m
     - minus_MAF
     - minus_TSS_dist
-#  Enformer_precomputed:
-#    - Enformer_absDelta
-#    - minus_MAF
-#    - minus_TSS_dist
   Enformer_L2:
     - Enformer_L2
   Borzoi_L2:

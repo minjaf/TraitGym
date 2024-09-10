@@ -30,7 +30,7 @@ rule nucleotide_transformer_run_vep_inner_products:
     priority: 20
     shell:
         """
-        python workflow/scripts/run_vep_embeddings_nucleotide_transformer.py \
+        python workflow/scripts/run_vep_inner_products_nucleotide_transformer.py \
         {input} {config[nucleotide_transformer][model_path]} {output} \
         --is_file --dataloader_num_workers 8 --per_device_batch_size 32
         """
