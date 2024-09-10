@@ -13,9 +13,6 @@ from transformers import AutoTokenizer, AutoModel, Trainer, TrainingArguments
 import gpn.model
 from gpn.data import Genome, load_dataset_from_file_or_dir, token_input_id
 
-from pandarallel import pandarallel
-pandarallel.initialize(progress_bar=True)
-
 
 window_size = 5994
 nucleotides = list("ACGT")
