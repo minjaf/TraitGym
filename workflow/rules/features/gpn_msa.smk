@@ -14,17 +14,6 @@ rule gpn_msa_run_vep_llr:
         """
 
 
-rule gpn_msa_abs_llr:
-    input:
-        "results/dataset/{dataset}/features/GPN-MSA_LLR.parquet",
-    output:
-        "results/dataset/{dataset}/features/GPN-MSA_absLLR.parquet",
-    run:
-        df = pd.read_parquet(input[0])
-        df = df.abs()
-        df.to_parquet(output[0], index=False)
-
-
 rule gpn_msa_run_vep_inner_products:
     input:
         "results/dataset/{dataset}/test.parquet",

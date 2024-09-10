@@ -438,19 +438,23 @@ def train_predict_logistic_regression(V_train, V_test, features):
         ('linear', LogisticRegression(
             class_weight="balanced",
             random_state=42,
+            penalty="elasticnet",
+            l1_ratio=0.5,
+            solver="saga",
         ))
     ])
+    Cs = np.logspace(-4, 4, 10)
     param_grid = {
-        'linear__C': np.logspace(-10, 0, 11),
+        'linear__C': Cs,
     }
     clf = GridSearchCV(
         pipeline,
         param_grid,
         scoring="roc_auc" if balanced else "average_precision",
-        cv=GroupKFold(n_splits=min(2, V_train.chrom.nunique())),
+        cv=GroupKFold(),
         n_jobs=-1,
     )
-    clf.fit(V_train[features], V_train.label, groups=V_train.chrom)
+    clf.fit(V_train[features], V_train.label, groups=V_train.match_group)
     print(f"{clf.best_params_=}")
     return clf.predict_proba(V_test[features])[:, 1]
 
@@ -682,3 +686,14 @@ rule cre_flank:
         I = bf.expand(I, pad=500)
         I = bf.merge(I).drop(columns="n_intervals")
         I.to_parquet(output[0], index=False)
+
+
+rule abs_llr:
+    input:
+        "results/dataset/{dataset}/features/{model}_LLR.parquet",
+    output:
+        "results/dataset/{dataset}/features/{model}_absLLR.parquet",
+    run:
+        df = pd.read_parquet(input[0])
+        df = df.abs()
+        df.to_parquet(output[0], index=False)

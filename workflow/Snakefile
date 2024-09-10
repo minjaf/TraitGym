@@ -48,24 +48,22 @@ rule all:
 rule gwas_supervised:
     input:
         expand(
-            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
+            #"results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
+            "results/dataset/{dataset}/metrics_by_odd_even_weighted_average/{subset}/{feature_set}.{classifier}.odd_even.csv",
             dataset=["gwas_matched_9"],
             subset=["all"],
             feature_set=[
-                #"CADD",
-                #"Enformer_L2",
-                #"CADD+GPN-MSA_LLR",
-                #"Borzoi_L2",
+                "CADD",
+                "Enformer_L2",
+                "Borzoi_L2",
                 "GPN-MSA_absLLR+InnerProducts",
 
-                #"Enformer_L2+GPN-MSA+CADD",
+                "NucleotideTransformer_absLLR+InnerProducts",
 
-                "NucleotideTransformer_InnerProducts",
+                "Enformer_L2+GPN-MSA+CADD",
             ],
             classifier=[
-                #"BestFeature",
                 "LogisticRegression",
-                #"RandomForest",
             ]
         )
 
@@ -77,22 +75,19 @@ rule omim_supervised:
             dataset=["omim_subsampled_9"],
             subset=["all"],
             feature_set=[
-                #"CADD",
-                #"Enformer_L2",
-                #"CADD+GPN-MSA_LLR",
-                #"Borzoi_L2",
-                #"GPN-MSA_LLR",
-
-                #"Enformer_L2+GPN-MSA+CADD",
+                "CADD",
+                "Enformer_L2",
+                "CADD+GPN-MSA_LLR",
+                "Borzoi_L2",
 
                 "GPN-MSA_LLR+InnerProducts",
 
-                #"NucleotideTransformer_InnerProducts",
+                "NucleotideTransformer_LLR+InnerProducts",
+
+                "OMIM_Ensemble",
             ],
             classifier=[
-                #"BestFeature",
                 "LogisticRegression",
-                #"RandomForest",
             ]
         )
 

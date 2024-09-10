@@ -73,7 +73,11 @@ feature_sets:
   GPN-MSA_LLR+InnerProducts:
     - GPN-MSA_LLR
     - GPN-MSA_InnerProducts
-  NucleotideTransformer_InnerProducts:
+  NucleotideTransformer_absLLR+InnerProducts:
+    - NucleotideTransformer_absLLR
+    - NucleotideTransformer_InnerProducts
+  NucleotideTransformer_LLR+InnerProducts:
+    - NucleotideTransformer_LLR
     - NucleotideTransformer_InnerProducts
   CADD+GPN-MSA_LLR:
     - CADD
@@ -133,7 +137,8 @@ feature_sets:
     - CADD
 
   OMIM_Ensemble:
-    - Enformer_L2
+    - Enformer_L2_L2
+    - Borzoi_L2_L2
     - GPN-MSA_LLR
     - CADD
 
