@@ -40,7 +40,11 @@ rule all:
                 #"GPN-MSA_RefEmbed",
                 #"GPN-MSA_DeltaEmbed",
 
+                "NucleotideTransformer_LLR",
                 "NucleotideTransformer_InnerProducts",
+
+                "GPN_LLR",
+                "GPN_InnerProducts",
             ],
         )
 
@@ -50,7 +54,7 @@ rule gwas_supervised:
         expand(
             #"results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
             "results/dataset/{dataset}/metrics_by_odd_even_weighted_average/{subset}/{feature_set}.{classifier}.odd_even.csv",
-            dataset=["gwas_matched_9"],
+            dataset=["gwas_matched_9", "eqtl_matched_1"],
             subset=["all"],
             feature_set=[
                 "CADD",
@@ -59,6 +63,7 @@ rule gwas_supervised:
                 "GPN-MSA_absLLR+InnerProducts",
 
                 "NucleotideTransformer_absLLR+InnerProducts",
+                "GPN_absLLR+InnerProducts",
 
                 "Enformer_L2+GPN-MSA+CADD",
             ],
@@ -83,6 +88,7 @@ rule omim_supervised:
                 "GPN-MSA_LLR+InnerProducts",
 
                 "NucleotideTransformer_LLR+InnerProducts",
+                "GPN_LLR+InnerProducts",
 
                 "OMIM_Ensemble",
             ],
@@ -99,12 +105,12 @@ rule all_unsupervised:
             dataset=config["datasets"],
             subset=config["subsets"],
             features=[
-                "Enformer_L2",
-                "Borzoi_L2",
+                #"Enformer_L2",
+                #"Borzoi_L2",
                 "Enformer_L2_L2",
                 "Borzoi_L2_L2",
-                "GPN-MSA_LLR",
-                #"GPN-MSA_absLLR",
+                #"GPN-MSA_LLR",
+                "GPN-MSA_absLLR",
                 #"GPN-MSA_InnerProducts",
                 "CADD",
             ],

@@ -3,7 +3,7 @@ annotation_url: "http://ftp.ensembl.org/pub/release-107/gtf/homo_sapiens/Homo_sa
 
 datasets:
   - gwas_matched_9
-#  - eqtl_matched_1
+  - eqtl_matched_1
 #  - omim_subsampled_99
   - omim_subsampled_9
 #  - sat_mut_mpra
@@ -79,6 +79,12 @@ feature_sets:
   NucleotideTransformer_LLR+InnerProducts:
     - NucleotideTransformer_LLR
     - NucleotideTransformer_InnerProducts
+  GPN_absLLR+InnerProducts:
+    - GPN_absLLR
+    - GPN_InnerProducts
+  GPN_LLR+InnerProducts:
+    - GPN_LLR
+    - GPN_InnerProducts
   CADD+GPN-MSA_LLR:
     - CADD
     - GPN-MSA_LLR
@@ -178,166 +184,6 @@ dataset_eval_models:
     - phyloP-100v.RandomForest.chrom
     - phastCons-100v.RandomForest.chrom
     - phyloP-241m.RandomForest.chrom
-  gonzalobenegas/siraj_eqtl_highpip:
-    - Baseline.LogisticRegression.odd_even
-
-    - Ensemble_precomputed.LogisticRegression.odd_even
-
-    - GPN-MSA.LogisticRegression.odd_even
-    - CADD.LogisticRegression.odd_even
-    - Enformer_precomputed.LogisticRegression.odd_even
-  gonzalobenegas/dsqtl:
-    - Baseline.LogisticRegression.odd_even
-
-    - Ensemble_precomputed.LogisticRegression.odd_even
-
-    - GPN-MSA.LogisticRegression.odd_even
-    - CADD.LogisticRegression.odd_even
-    - Enformer_precomputed.LogisticRegression.odd_even
-  gwas_gokcen_experiment1_Height:
-    - Enformer_L2.LogisticRegression.chrom
-    - Borzoi_L2.LogisticRegression.chrom
-  gwas_gokcen_experiment1_BMD-HT:
-    - Enformer_L2.LogisticRegression.chrom
-    - Borzoi_L2.LogisticRegression.chrom
-
-  gwas_gokcen_merged_nonexonic_matched:
-    - Enformer_L2.LogisticRegression.chrom
-    - GPN-MSA.LogisticRegression.chrom
-
-  gwas_gokcen_merged_cre_matched:
-    - Enformer_L2.LogisticRegression.chrom
-    - Borzoi_L2.LogisticRegression.chrom
-    - GPN-MSA.LogisticRegression.chrom
-    - CADD.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
-    - Borzoi_L2+CADD.LogisticRegression.chrom
-    - CADD+GPN-MSA.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
-  gwas_gokcen_Height_cre_matched:
-    - Enformer_L2.LogisticRegression.chrom
-    - Borzoi_L2.LogisticRegression.chrom
-    - GPN-MSA.LogisticRegression.chrom
-    - CADD.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
-    - Borzoi_L2+CADD.LogisticRegression.chrom
-    - CADD+GPN-MSA.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
-  gwas_gokcen_IBD_cre_matched:
-    - Enformer_L2.LogisticRegression.chrom
-    - Borzoi_L2.LogisticRegression.chrom
-    - GPN-MSA.LogisticRegression.chrom
-    - CADD.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
-    - Borzoi_L2+CADD.LogisticRegression.chrom
-    - CADD+GPN-MSA.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
-  gwas_gokcen_BMD-HT_cre_matched:
-    - Enformer_L2.LogisticRegression.chrom
-    - Borzoi_L2.LogisticRegression.chrom
-    - GPN-MSA.LogisticRegression.chrom
-    - CADD.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
-    - Borzoi_L2+CADD.LogisticRegression.chrom
-    - CADD+GPN-MSA.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
-
-  gwas_gokcen_merged_cre_matched_9:
-    - Enformer_L2.LogisticRegression.chrom
-    - Borzoi_L2.LogisticRegression.chrom
-    - GPN-MSA.LogisticRegression.chrom
-    - CADD.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
-    - Borzoi_L2+CADD.LogisticRegression.chrom
-    - CADD+GPN-MSA.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
-  gwas_gokcen_Height_cre_matched_9:
-    - Enformer_L2.LogisticRegression.chrom
-    - Borzoi_L2.LogisticRegression.chrom
-    - GPN-MSA.LogisticRegression.chrom
-    - CADD.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
-    - Borzoi_L2+CADD.LogisticRegression.chrom
-    - CADD+GPN-MSA.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
-  gwas_gokcen_IBD_cre_matched_9:
-    - Enformer_L2.LogisticRegression.chrom
-    - Borzoi_L2.LogisticRegression.chrom
-    - GPN-MSA.LogisticRegression.chrom
-    - CADD.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
-    - Borzoi_L2+CADD.LogisticRegression.chrom
-    - CADD+GPN-MSA.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
-  gwas_gokcen_BMD-HT_cre_matched_9:
-    - Enformer_L2.LogisticRegression.chrom
-    - Borzoi_L2.LogisticRegression.chrom
-    - GPN-MSA.LogisticRegression.chrom
-    - CADD.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
-    - Borzoi_L2+CADD.LogisticRegression.chrom
-    - CADD+GPN-MSA.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
-  gwas_gokcen_CD_cre_matched_9:
-    - Enformer_L2.LogisticRegression.chrom
-    - Borzoi_L2.LogisticRegression.chrom
-    - GPN-MSA.LogisticRegression.chrom
-    - CADD.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
-    - Borzoi_L2+CADD.LogisticRegression.chrom
-    - CADD+GPN-MSA.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
-  gwas_gokcen_PLT_cre_matched_9:
-    - Enformer_L2.LogisticRegression.chrom
-    - Borzoi_L2.LogisticRegression.chrom
-    - GPN-MSA.LogisticRegression.chrom
-    - CADD.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
-    - Borzoi_L2+CADD.LogisticRegression.chrom
-    - CADD+GPN-MSA.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
-  gwas_gokcen_TG_cre_matched_9:
-    - Enformer_L2.LogisticRegression.chrom
-    - Borzoi_L2.LogisticRegression.chrom
-    - GPN-MSA.LogisticRegression.chrom
-    - CADD.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA.LogisticRegression.chrom
-    - Borzoi_L2+CADD.LogisticRegression.chrom
-    - CADD+GPN-MSA.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
-
-  gwas_gokcen_BMI_matched_9_nonexonic:
-    - Borzoi_L2.LogisticRegression.chrom
-    - GPN-MSA.LogisticRegression.chrom
-    - CADD.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
-  gwas_gokcen_AD_matched_9_nonexonic:
-    - Borzoi_L2.LogisticRegression.chrom
-    - GPN-MSA.LogisticRegression.chrom
-    - CADD.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
-  gwas_gokcen_AD_matched_99_nonexonic:
-    - Borzoi_L2.LogisticRegression.chrom
-    - GPN-MSA.LogisticRegression.chrom
-    - CADD.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
-  gwas_gokcen_Intel_matched_9_nonexonic:
-    - Borzoi_L2.LogisticRegression.chrom
-    - GPN-MSA.LogisticRegression.chrom
-    - CADD.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
-
-  gwas_gokcen_merged_matched_1_nonexonic:
-    - Borzoi_L2.LogisticRegression.chrom
-    - Enformer_L2.LogisticRegression.chrom
-    - GPN-MSA.LogisticRegression.chrom
-    - CADD.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA+CADD.LogisticRegression.chrom
-    - Borzoi_L2+GPN-MSA+CADD.RandomForest.chrom
-
-  gwas_matched_1:
-    - GPN-MSA.LogisticRegression.chrom
-    - CADD.LogisticRegression.chrom
 
 baseline_features:
   gonzalobenegas/dsqtl:
