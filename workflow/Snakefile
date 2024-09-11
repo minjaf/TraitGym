@@ -20,6 +20,7 @@ include: "rules/features/enformer.smk"
 include: "rules/features/gpn.smk"
 include: "rules/features/gpn_msa.smk"
 include: "rules/features/grelu.smk"
+include: "rules/features/hyenadna.smk"
 include: "rules/features/maf.smk"
 include: "rules/features/nucleotide_transformer.smk"
 include: "rules/model.smk"
@@ -45,6 +46,9 @@ rule all:
 
                 "GPN_LLR",
                 "GPN_InnerProducts",
+
+                "HyenaDNA_LLR",
+                "HyenaDNA_InnerProducts",
             ],
         )
 

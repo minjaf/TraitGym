@@ -2,8 +2,8 @@ genome_url: "http://ftp.ensembl.org/pub/release-107/fasta/homo_sapiens/dna/Homo_
 annotation_url: "http://ftp.ensembl.org/pub/release-107/gtf/homo_sapiens/Homo_sapiens.GRCh38.107.chr.gtf.gz"
 
 datasets:
-  - gwas_matched_9
-  - eqtl_matched_1
+#  - gwas_matched_9
+#  - eqtl_matched_1
 #  - omim_subsampled_99
   - omim_subsampled_9
 #  - sat_mut_mpra
@@ -347,3 +347,8 @@ cadd:
 
 nucleotide_transformer:
   model_path: InstaDeepAI/nucleotide-transformer-2.5b-multi-species
+
+hyenadna:
+  #model_path: LongSafari/hyenadna-tiny-1k-seqlen-hf
+  #model_path: LongSafari/hyenadna-large-1m-seqlen-hf
+  model_path: LongSafari/hyenadna-medium-160k-seqlen-hf
