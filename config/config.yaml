@@ -91,6 +91,12 @@ feature_sets:
   HyenaDNA_LLR+InnerProducts:
     - HyenaDNA_LLR
     - HyenaDNA_InnerProducts
+  Caduceus_absLLR+InnerProducts:
+    - Caduceus_absLLR
+    - Caduceus_InnerProducts
+  Caduceus_LLR+InnerProducts:
+    - Caduceus_LLR
+    - Caduceus_InnerProducts
   CADD+GPN-MSA_LLR:
     - CADD
     - GPN-MSA_LLR
@@ -362,4 +368,4 @@ hyenadna:
 caduceus:
   model_path: kuleshov-group/caduceus-ps_seqlen-131k_d_model-256_n_layer-16
   window_size: 131071  # 1 token reserved for the [SEP] at the end
-  per_device_batch_size: 16
+  per_device_batch_size: 32

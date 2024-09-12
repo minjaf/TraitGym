@@ -50,15 +50,19 @@ rule all:
 
                 "HyenaDNA_LLR",
                 "HyenaDNA_InnerProducts",
+
+                "Caduceus_LLR",
+                "Caduceus_InnerProducts",
             ],
         )
 
 
-rule gwas_supervised:
+rule functionality_supervised:
     input:
         expand(
             #"results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
-            "results/dataset/{dataset}/metrics_by_odd_even_weighted_average/{subset}/{feature_set}.{classifier}.odd_even.csv",
+            #"results/dataset/{dataset}/metrics_by_odd_even_weighted_average/{subset}/{feature_set}.{classifier}.odd_even.csv",
+            "results/dataset/{dataset}/metrics/{subset}/{feature_set}.{classifier}.odd_even.csv",
             dataset=["gwas_matched_9", "eqtl_matched_1"],
             subset=["all"],
             feature_set=[
@@ -69,6 +73,7 @@ rule gwas_supervised:
 
                 "NucleotideTransformer_absLLR+InnerProducts",
                 "GPN_absLLR+InnerProducts",
+                "HyenaDNA_absLLR+InnerProducts",
 
                 "Enformer_L2+GPN-MSA+CADD",
             ],
@@ -78,10 +83,11 @@ rule gwas_supervised:
         )
 
 
-rule omim_supervised:
+rule deleteriousness_supervised:
     input:
         expand(
-            "results/dataset/{dataset}/metrics_by_odd_even_weighted_average/{subset}/{feature_set}.{classifier}.odd_even.csv",
+            #"results/dataset/{dataset}/metrics_by_odd_even_weighted_average/{subset}/{feature_set}.{classifier}.odd_even.csv",
+            "results/dataset/{dataset}/metrics/{subset}/{feature_set}.{classifier}.odd_even.csv",
             dataset=["omim_subsampled_9"],
             subset=["all"],
             feature_set=[
@@ -95,6 +101,7 @@ rule omim_supervised:
                 "NucleotideTransformer_LLR+InnerProducts",
                 "GPN_LLR+InnerProducts",
                 "HyenaDNA_LLR+InnerProducts",
+                "Caduceus_LLR+InnerProducts",
 
                 "OMIM_Ensemble",
             ],
@@ -104,20 +111,38 @@ rule omim_supervised:
         )
 
 
-rule all_unsupervised:
+rule functionality_unsupervised:
     input:
         expand(
             "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
-            dataset=config["datasets"],
-            subset=config["subsets"],
+            dataset=["gwas_matched_9", "eqtl_matched_1"],
+            subset=["all"],
             features=[
-                #"Enformer_L2",
-                #"Borzoi_L2",
                 "Enformer_L2_L2",
                 "Borzoi_L2_L2",
-                #"GPN-MSA_LLR",
-                "GPN-MSA_absLLR",
-                #"GPN-MSA_InnerProducts",
                 "CADD",
+                "GPN-MSA_absLLR",
+                "NucleotideTransformer_absLLR",
+                "GPN_absLLR",
+                "HyenaDNA_absLLR",
+            ],
+        )
+
+
+rule deleteriousness_unsupervised:
+    input:
+        expand(
+            "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
+            dataset=["omim_subsampled_9"],
+            subset=["all"],
+            features=[
+                "Enformer_L2_L2",
+                "Borzoi_L2_L2",
+                "CADD",
+                "GPN-MSA_LLR",
+                "NucleotideTransformer_LLR",
+                "GPN_LLR",
+                "HyenaDNA_LLR",
+                "Caduceus_LLR",
             ],
         )

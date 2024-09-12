@@ -185,26 +185,28 @@ rule eval_unsupervised_features:
         res.to_csv(output[0], index=False)
 
 
-#rule get_metrics:
-#    input:
-#        "results/dataset/{dataset}/test.parquet",
-#        "results/dataset/{dataset}/preds/{model}.parquet",
-#    output:
-#        "results/dataset/{dataset}/metrics/{model}.csv",
-#    run:
-#        V = pd.read_parquet(input[0])
-#        V["score"] = pd.read_parquet(input[1])["score"]
-#        balanced = V.label.sum() == len(V) // 2
-#        metric = roc_auc_score if balanced else average_precision_score
-#        metric_name = "AUROC" if balanced else "AUPRC"
-#        res = pd.DataFrame({
-#            "Model": [wildcards.model],
-#            metric_name: [metric(V.label, V.score)]
-#        })
-#        print(res)
-#        res.to_csv(output[0], index=False)
-#
-#
+rule get_metrics:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+        "results/dataset/{dataset}/subset/{subset}.parquet",
+        "results/dataset/{dataset}/preds/{subset}/{model}.parquet",
+    output:
+        "results/dataset/{dataset}/metrics/{subset}/{model}.csv",
+    run:
+        V = pd.read_parquet(input[0])
+        subset = pd.read_parquet(input[1])
+        V = subset.merge(V, on=COORDINATES, how="left")
+        V["score"] = pd.read_parquet(input[2])["score"]
+        balanced = V.label.sum() == len(V) // 2
+        metric = roc_auc_score if balanced else average_precision_score
+        metric_name = "AUROC" if balanced else "AUPRC"
+        res = pd.DataFrame({
+            "Model": [wildcards.model],
+            metric_name: [metric(V.label, V.score)]
+        })
+        res.to_csv(output[0], index=False)
+
+
 #rule merge_metrics:
 #    input:
 #        lambda wildcards: expand(
