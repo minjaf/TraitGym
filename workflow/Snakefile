@@ -146,3 +146,62 @@ rule deleteriousness_unsupervised:
                 "Caduceus_LLR",
             ],
         )
+
+
+rule interpretation_omim:
+    input:
+        expand(
+            "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
+            dataset=["omim_subsampled_9"],
+            subset=[
+                "all",
+                "174500",
+                "306900",
+                "600886",
+            ],
+            features=[
+                "Enformer_L2",
+                "Borzoi_L2",
+                "CADD",
+            ],
+        )
+
+
+rule interpretation_gwas:
+    input:
+        expand(
+            "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
+            dataset=["gwas_matched_9"],
+            subset=[
+                "all",
+                "Height",
+                "MCV",
+                "Mono",
+                "eBMD",
+            ],
+            features=[
+                "Enformer_L2",
+                "Borzoi_L2",
+                "CADD",
+            ],
+        )
+
+
+rule interpretation_eqtl:
+    input:
+        expand(
+            "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
+            dataset=["eqtl_matched_1"],
+            subset=[
+                "all",
+                "Whole_Blood",
+                "Lung",
+                "Brain_Cortex",
+                "Liver",
+            ],
+            features=[
+                "Enformer_L2",
+                "Borzoi_L2",
+                "CADD",
+            ],
+        )
