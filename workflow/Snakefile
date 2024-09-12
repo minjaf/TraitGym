@@ -14,6 +14,7 @@ include: "rules/data/sat_mut_mpra.smk"
 include: "rules/data/siraj.smk"
 include: "rules/features/alphamissense.smk"
 include: "rules/features/cadd.smk"
+include: "rules/features/caduceus.smk"
 include: "rules/features/conservation.smk"
 include: "rules/features/dist.smk"
 include: "rules/features/enformer.smk"
@@ -93,6 +94,7 @@ rule omim_supervised:
 
                 "NucleotideTransformer_LLR+InnerProducts",
                 "GPN_LLR+InnerProducts",
+                "HyenaDNA_LLR+InnerProducts",
 
                 "OMIM_Ensemble",
             ],

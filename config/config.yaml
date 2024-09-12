@@ -2,8 +2,8 @@ genome_url: "http://ftp.ensembl.org/pub/release-107/fasta/homo_sapiens/dna/Homo_
 annotation_url: "http://ftp.ensembl.org/pub/release-107/gtf/homo_sapiens/Homo_sapiens.GRCh38.107.chr.gtf.gz"
 
 datasets:
-#  - gwas_matched_9
-#  - eqtl_matched_1
+  - gwas_matched_9
+  - eqtl_matched_1
 #  - omim_subsampled_99
   - omim_subsampled_9
 #  - sat_mut_mpra
@@ -85,6 +85,12 @@ feature_sets:
   GPN_LLR+InnerProducts:
     - GPN_LLR
     - GPN_InnerProducts
+  HyenaDNA_absLLR+InnerProducts:
+    - HyenaDNA_absLLR
+    - HyenaDNA_InnerProducts
+  HyenaDNA_LLR+InnerProducts:
+    - HyenaDNA_LLR
+    - HyenaDNA_InnerProducts
   CADD+GPN-MSA_LLR:
     - CADD
     - GPN-MSA_LLR
@@ -352,3 +358,8 @@ hyenadna:
   #model_path: LongSafari/hyenadna-tiny-1k-seqlen-hf
   #model_path: LongSafari/hyenadna-large-1m-seqlen-hf
   model_path: LongSafari/hyenadna-medium-160k-seqlen-hf
+
+caduceus:
+  model_path: kuleshov-group/caduceus-ps_seqlen-131k_d_model-256_n_layer-16
+  window_size: 131071  # 1 token reserved for the [SEP] at the end
+  per_device_batch_size: 16
