@@ -76,6 +76,7 @@ rule functionality_supervised:
                 "NucleotideTransformer_absLLR+InnerProducts",
                 "GPN_absLLR+InnerProducts",
                 "HyenaDNA_absLLR+InnerProducts",
+                "Caduceus_absLLR+InnerProducts",
 
                 "Enformer_L2+GPN-MSA+CADD",
                 "Enformer+GPN-MSA+CADD",
