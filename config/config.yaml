@@ -114,11 +114,19 @@ feature_sets:
     - minus_TSS_dist
   Enformer_L2:
     - Enformer_L2
-  Borzoi_L2:
-    - Borzoi_L2
   Enformer_L2_L2:
     - Enformer_L2_L2
+  Enformer:
+    - Enformer_L2
+    - Enformer_L2_L2
+  Enformer_L2_L2:
+    - Enformer_L2_L2
+  Borzoi_L2:
+    - Borzoi_L2
   Borzoi_L2_L2:
+    - Borzoi_L2_L2
+  Borzoi:
+    - Borzoi_L2
     - Borzoi_L2_L2
 
   Borzoi_L2+GPN-MSA:
@@ -147,6 +155,13 @@ feature_sets:
     - GPN-MSA_InnerProducts
     - CADD
 
+  Enformer+GPN-MSA+CADD:
+    - Enformer_L2
+    - Enformer_L2_L2
+    - GPN-MSA_absLLR
+    - GPN-MSA_InnerProducts
+    - CADD
+
   Borzoi_L2+Enformer_L2+GPN-MSA+CADD:
     - Borzoi_L2
     - Enformer_L2
@@ -158,6 +173,15 @@ feature_sets:
     - Enformer_L2_L2
     - Borzoi_L2_L2
     - GPN-MSA_LLR
+    - CADD
+  
+  GWAS_Ensemble:
+    - Enformer_L2
+    - Enformer_L2_L2
+    - Borzoi_L2
+    - Borzoi_L2_L2
+    - GPN-MSA_absLLR
+    - GPN-MSA_InnerProducts
     - CADD
 
   Ensemble:

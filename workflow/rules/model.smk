@@ -151,11 +151,40 @@ rule run_classifier:
 
         for mask_train in tqdm(mask_train_list):
             mask_test = ~mask_train
-            V.loc[mask_test, "score"] = classifier_map[wildcards.classifier](
-                V[mask_train], V[mask_test], all_features
+            V.loc[mask_test, "score"] = train_predict(
+                V[mask_train], V[mask_test], all_features,
+                classifier_map[wildcards.classifier]
             )
 
         V[["score"]].to_parquet(output[0], index=False)
+
+
+rule classifier_coefficients:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+        "results/dataset/{dataset}/subset/{subset}.parquet",
+        lambda wildcards: expand("results/dataset/{{dataset}}/features/{features}.parquet", features=config["feature_sets"][wildcards.feature_set]),
+    output:
+        "results/dataset/{dataset}/coefficients/{subset}/{feature_set}.csv",
+    threads:
+        workflow.cores
+    run:
+        V = pd.read_parquet(input[0])
+        subset = pd.read_parquet(input[1])
+        all_features = []
+        for features, path in zip(config["feature_sets"][wildcards.feature_set], input[2:]):
+            df = pd.read_parquet(path)
+            df.columns = [f"{features}_{col}" for col in df.columns]
+            all_features += df.columns.tolist()
+            V = pd.concat([V, df], axis=1)
+        V = subset.merge(V, on=COORDINATES, how="left")
+        clf = train_logistic_regression(V[all_features], V.label, V.match_group)
+        linear = clf.best_estimator_.named_steps["linear"]
+        res = pd.DataFrame({
+            "feature": all_features,
+            "coef": linear.coef_[0],
+        }).sort_values("coef", ascending=False, key=abs)
+        res.to_csv(output[0], index=False)
 
 
 rule eval_unsupervised_features:

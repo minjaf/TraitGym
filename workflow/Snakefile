@@ -63,19 +63,23 @@ rule functionality_supervised:
             #"results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
             #"results/dataset/{dataset}/metrics_by_odd_even_weighted_average/{subset}/{feature_set}.{classifier}.odd_even.csv",
             "results/dataset/{dataset}/metrics/{subset}/{feature_set}.{classifier}.odd_even.csv",
-            dataset=["gwas_matched_9", "eqtl_matched_1"],
+            dataset=["gwas_matched_9"],#, "eqtl_matched_1"],
             subset=["all"],
             feature_set=[
                 "CADD",
                 "Enformer_L2",
                 "Borzoi_L2",
                 "GPN-MSA_absLLR+InnerProducts",
+                "Enformer",
+                "Borzoi",
 
                 "NucleotideTransformer_absLLR+InnerProducts",
                 "GPN_absLLR+InnerProducts",
                 "HyenaDNA_absLLR+InnerProducts",
 
                 "Enformer_L2+GPN-MSA+CADD",
+                "Enformer+GPN-MSA+CADD",
+                "GWAS_Ensemble",
             ],
             classifier=[
                 "LogisticRegression",
@@ -95,6 +99,8 @@ rule deleteriousness_supervised:
                 "Enformer_L2",
                 "CADD+GPN-MSA_LLR",
                 "Borzoi_L2",
+                "Enformer",
+                "Borzoi",
 
                 "GPN-MSA_LLR+InnerProducts",
 
@@ -164,13 +170,42 @@ rule interpretation_omim:
                 "Borzoi_L2",
                 "CADD",
             ],
-        )
+        ),
+        expand(
+            "results/dataset/{dataset}/coefficients/{subset}/{features}.csv",
+            dataset=["omim_subsampled_9"],
+            subset=[
+                "all",
+                "174500",
+                "306900",
+                "600886",
+            ],
+            features=[
+                "OMIM_Ensemble",
+            ],
+        ),
 
 
 rule interpretation_gwas:
     input:
+        #expand(
+        #    "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
+        #    dataset=["gwas_matched_9"],
+        #    subset=[
+        #        "all",
+        #        "Height",
+        #        "MCV",
+        #        "Mono",
+        #        "eBMD",
+        #    ],
+        #    features=[
+        #        "Enformer_L2",
+        #        "Borzoi_L2",
+        #        "CADD",
+        #    ],
+        #),
         expand(
-            "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
+            "results/dataset/{dataset}/coefficients/{subset}/{features}.csv",
             dataset=["gwas_matched_9"],
             subset=[
                 "all",
@@ -180,11 +215,9 @@ rule interpretation_gwas:
                 "eBMD",
             ],
             features=[
-                "Enformer_L2",
-                "Borzoi_L2",
-                "CADD",
+                "Enformer+GPN-MSA+CADD",
             ],
-        )
+        ),
 
 
 rule interpretation_eqtl:

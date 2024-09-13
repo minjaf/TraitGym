@@ -430,10 +430,21 @@ def train_predict_best_feature(V_train, V_test, features):
     return res
 
 
-def train_predict_logistic_regression(V_train, V_test, features):
-    balanced = V_train.label.sum() == len(V_train) // 2
+def predict(clf, X):
+    return clf.predict_proba(X)[:, 1]
+
+
+def train_predict(V_train, V_test, features, train_f):
+    clf = train_f(V_train[features], V_train.label, V_train.match_group)
+    return predict(clf, V_test[features])
+
+
+def train_logistic_regression(X, y, groups):
+    balanced = y.sum() == len(y) // 2
     pipeline = Pipeline([
-        ('imputer', SimpleImputer(missing_values=np.nan, strategy='mean')),
+        ('imputer', SimpleImputer(
+            missing_values=np.nan, strategy='mean', keep_empty_features=True,
+        )),
         ('scaler', StandardScaler()),
         ('linear', LogisticRegression(
             class_weight="balanced",
@@ -454,9 +465,9 @@ def train_predict_logistic_regression(V_train, V_test, features):
         cv=GroupKFold(),
         n_jobs=-1,
     )
-    clf.fit(V_train[features], V_train.label, groups=V_train.match_group)
+    clf.fit(X, y, groups=groups)
     print(f"{clf.best_params_=}")
-    return clf.predict_proba(V_test[features])[:, 1]
+    return clf
 
 
 def train_predict_ridge_regression(V_train, V_test, features):
@@ -557,13 +568,13 @@ def train_predict_xgboost(V_train, V_test, features):
 
 
 classifier_map = {
-    "BestFeature": train_predict_best_feature,
-    "LogisticRegression": train_predict_logistic_regression,
-    "RandomForest": train_predict_random_forest,
-    "XGBoost": train_predict_xgboost,
-    "PCALogisticRegression": train_predict_pca_logistic_regression,
-    "FeatureSelectionLogisticRegression": train_predict_feature_selection_logistic_regression,
-    "RidgeRegression": train_predict_ridge_regression,
+    "LogisticRegression": train_logistic_regression,
+    #"BestFeature": train_best_feature,
+    #"RandomForest": train_random_forest,
+    #"XGBoost": train_xgboost,
+    #"PCALogisticRegression": train_pca_logistic_regression,
+    #"FeatureSelectionLogisticRegression": train_feature_selection_logistic_regression,
+    #"RidgeRegression": train_ridge_regression,
 }
 
 
