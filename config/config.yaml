@@ -2,10 +2,9 @@ genome_url: "http://ftp.ensembl.org/pub/release-107/fasta/homo_sapiens/dna/Homo_
 annotation_url: "http://ftp.ensembl.org/pub/release-107/gtf/homo_sapiens/Homo_sapiens.GRCh38.107.chr.gtf.gz"
 
 datasets:
-  - gwas_matched_9
+  - omim_matched_9
+#  - gwas_matched_9
 #  - eqtl_matched_1
-#  - omim_subsampled_99
-  - omim_subsampled_9
 #  - sat_mut_mpra
 
 subsets:

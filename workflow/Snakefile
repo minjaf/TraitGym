@@ -33,26 +33,23 @@ rule all:
             "results/dataset/{dataset}/features/{features}.parquet",
             dataset=config["datasets"],
             features=[
-                #"Enformer_L2",
-                #"Borzoi_L2",
-                #"GPN-MSA_absLLR",
-                #"GPN-MSA_LLR",
-                #"GPN-MSA_InnerProducts",
+                "Enformer_L2",
+                "Borzoi_L2",
                 #"CADD",
-                #"GPN-MSA_RefEmbed",
-                #"GPN-MSA_DeltaEmbed",
+                "GPN-MSA_LLR",
+                "GPN-MSA_InnerProducts",
 
-                "NucleotideTransformer_LLR",
-                "NucleotideTransformer_InnerProducts",
+                #"NucleotideTransformer_LLR",
+                #"NucleotideTransformer_InnerProducts",
 
-                "GPN_LLR",
-                "GPN_InnerProducts",
+                #"GPN_LLR",
+                #"GPN_InnerProducts",
 
-                "HyenaDNA_LLR",
-                "HyenaDNA_InnerProducts",
+                #"HyenaDNA_LLR",
+                #"HyenaDNA_InnerProducts",
 
-                "Caduceus_LLR",
-                "Caduceus_InnerProducts",
+                #"Caduceus_LLR",
+                #"Caduceus_InnerProducts",
             ],
         )
 
@@ -93,7 +90,7 @@ rule deleteriousness_supervised:
         expand(
             #"results/dataset/{dataset}/metrics_by_odd_even_weighted_average/{subset}/{feature_set}.{classifier}.odd_even.csv",
             "results/dataset/{dataset}/metrics/{subset}/{feature_set}.{classifier}.odd_even.csv",
-            dataset=["omim_subsampled_9"],
+            dataset=["omim_matched_9"],
             subset=["all"],
             feature_set=[
                 "CADD",
@@ -140,7 +137,7 @@ rule deleteriousness_unsupervised:
     input:
         expand(
             "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
-            dataset=["omim_subsampled_9"],
+            dataset=["omim_matched_9"],
             subset=["all"],
             features=[
                 "Enformer_L2_L2",
@@ -159,7 +156,7 @@ rule interpretation_omim:
     input:
         expand(
             "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
-            dataset=["omim_subsampled_9"],
+            dataset=["omim_matched_9"],
             subset=[
                 "all",
                 "174500",
@@ -174,7 +171,7 @@ rule interpretation_omim:
         ),
         expand(
             "results/dataset/{dataset}/coefficients/{subset}/{features}.csv",
-            dataset=["omim_subsampled_9"],
+            dataset=["omim_matched_9"],
             subset=[
                 "all",
                 "174500",

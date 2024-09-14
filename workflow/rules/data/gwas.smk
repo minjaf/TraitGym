@@ -178,7 +178,7 @@ rule gwas_match:
             "distance": "tss_dist"
         }).drop(columns=["start", "end", "chrom_", "start_", "end_"])
 
-        match_features = ["maf", "tss_dist"]
+        match_features = ["maf", "ld_score", "tss_dist"]
 
         consequences = V[V.label].consequence.unique()
         V_cs = []

@@ -48,30 +48,42 @@ rule omim_dataset:
     input:
         "results/omim/variants.annot_with_cre.parquet",
         "results/gnomad/common.parquet",
+        "results/tss.parquet",
     output:
-        "results/dataset/omim_subsampled_{k,\d+}/test.parquet",
+        "results/dataset/omim_matched_{k,\d+}/test.parquet",
     run:
         k = int(wildcards.k)
         pos = pd.read_parquet(input[0])
         pos["label"] = True
         neg = pd.read_parquet(input[1])
         neg["label"] = False
-        all_pos = []
-        all_neg = []
-        for c in tqdm(pos.consequence.unique()):
-            for chroms in ODD_EVEN_CHROMS:
-                pos_c = pos[(pos.consequence == c) & (pos.chrom.isin(chroms))]
-                neg_c = neg[(neg.consequence == c) & (neg.chrom.isin(chroms))]
-                if len(neg_c) < len(pos_c) * k:
-                    print(f"Subsampling {c}")
-                    pos_c = pos_c.sample(n=len(neg_c) // k, random_state=42)
-                all_pos.append(pos_c)
-                all_neg.append(neg_c.sample(n=len(pos_c) * k, random_state=42))
-        pos = pd.concat(all_pos, ignore_index=True)
-        pos["match_group"] = np.arange(len(pos))
-        neg = pd.concat(all_neg, ignore_index=True)
-        neg["match_group"] = np.repeat(pos.match_group.values, k)
         V = pd.concat([pos, neg], ignore_index=True)
+
+        V["start"] = V.pos - 1
+        V["end"] = V.pos
+        tss = pd.read_parquet(input[2], columns=["chrom", "start", "end"])
+        V = bf.closest(V, tss).rename(columns={
+            "distance": "tss_dist"
+        }).drop(columns=["start", "end", "chrom_", "start_", "end_"])
+
+        match_features = ["tss_dist"]
+
+        consequences = V[V.label].consequence.unique()
+        V_cs = []
+        for c in consequences:
+            print(c)
+            V_c = V[V.consequence == c].copy()
+            for f in match_features:
+                V_c[f"{f}_scaled"] = RobustScaler().fit_transform(V_c[f].values.reshape(-1, 1))
+            print(V_c.label.value_counts())
+            V_c = match_columns_k(V_c, "label", [f"{f}_scaled" for f in match_features], k)
+            V_c["match_group"] = c + "_" + V_c.match_group.astype(str)
+            print(V_c.label.value_counts())
+            print(V_c.groupby("label")[match_features].median())
+            V_c.drop(columns=[f"{f}_scaled" for f in match_features], inplace=True)
+            V_cs.append(V_c)
+        V = pd.concat(V_cs, ignore_index=True)
+
         V = sort_variants(V)
         print(V)
         V.to_parquet(output[0], index=False)
@@ -79,9 +91,9 @@ rule omim_dataset:
 
 rule omim_subset_trait:
     input:
-        "results/dataset/omim_subsampled_{k}/test.parquet",
+        "results/dataset/omim_matched_{k}/test.parquet",
     output:
-        "results/dataset/omim_subsampled_{k}/subset/{t}.parquet",
+        "results/dataset/omim_matched_{k}/subset/{t}.parquet",
     wildcard_constraints:
         t="|".join(omim_traits),
     run:
