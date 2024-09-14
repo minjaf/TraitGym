@@ -435,7 +435,8 @@ def predict(clf, X):
 
 
 def train_predict(V_train, V_test, features, train_f):
-    clf = train_f(V_train[features], V_train.label, V_train.match_group)
+    #clf = train_f(V_train[features], V_train.label, V_train.match_group)
+    clf = train_f(V_train[features], V_train.label, V_train.chrom)
     return predict(clf, V_test[features])
 
 
@@ -449,12 +450,13 @@ def train_logistic_regression(X, y, groups):
         ('linear', LogisticRegression(
             class_weight="balanced",
             random_state=42,
-            penalty="elasticnet",
-            l1_ratio=0.5,
-            solver="saga",
+            #penalty="elasticnet",
+            #l1_ratio=0.5,
+            #penalty="l1",
+            #solver="saga",
         ))
     ])
-    Cs = np.logspace(-4, 4, 10)
+    Cs = np.logspace(-8, 0, 10)
     param_grid = {
         'linear__C': Cs,
     }
@@ -466,7 +468,15 @@ def train_logistic_regression(X, y, groups):
         n_jobs=-1,
     )
     clf.fit(X, y, groups=groups)
+    #print(clf.cv_results_)
     print(f"{clf.best_params_=}")
+    linear = clf.best_estimator_.named_steps["linear"]
+    coef = pd.DataFrame({
+        "feature": X.columns,
+        "coef": linear.coef_[0],
+    }).sort_values("coef", ascending=False, key=abs)
+    print(coef.head(10))
+    #print(f"{(coef.coef != 0).sum()=}")
     return clf
 
 
@@ -707,4 +717,15 @@ rule abs_llr:
     run:
         df = pd.read_parquet(input[0])
         df = df.abs()
+        df.to_parquet(output[0], index=False)
+
+
+rule inner_product:
+    input:
+        "results/dataset/{dataset}/features/{model}_InnerProducts.parquet",
+    output:
+        "results/dataset/{dataset}/features/{model}_InnerProduct.parquet",
+    run:
+        df = pd.read_parquet(input[0])
+        df = df.sum(axis=1).rename("score").to_frame()
         df.to_parquet(output[0], index=False)

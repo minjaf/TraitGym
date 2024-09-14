@@ -187,6 +187,28 @@ rule classifier_coefficients:
         res.to_csv(output[0], index=False)
 
 
+rule unsupervised_pred:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+        "results/dataset/{dataset}/subset/{subset}.parquet",
+        "results/dataset/{dataset}/features/{features}.parquet",
+    output:
+        "results/dataset/{dataset}/preds/{subset}/{features}.{sign,plus|minus}.{feature}.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        subset = pd.read_parquet(input[1])
+        df = (
+            pd.read_parquet(input[2], columns=[wildcards.feature])
+            .rename(columns={wildcards.feature: "score"})
+        )
+        assert df.score.isna().sum() == 0
+        if wildcards.sign == "minus":
+            df.score = -df.score
+        V = pd.concat([V, df], axis=1)
+        V = subset.merge(V, on=COORDINATES, how="left")
+        V[["score"]].to_parquet(output[0], index=False)
+
+
 rule eval_unsupervised_features:
     input:
         "results/dataset/{dataset}/test.parquet",

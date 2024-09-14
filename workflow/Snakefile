@@ -39,64 +39,29 @@ rule all:
                 "GPN-MSA_LLR",
                 "GPN-MSA_InnerProducts",
 
-                #"NucleotideTransformer_LLR",
-                #"NucleotideTransformer_InnerProducts",
+                "NucleotideTransformer_LLR",
+                "NucleotideTransformer_InnerProducts",
 
-                #"GPN_LLR",
-                #"GPN_InnerProducts",
+                "GPN_LLR",
+                "GPN_InnerProducts",
 
-                #"HyenaDNA_LLR",
-                #"HyenaDNA_InnerProducts",
+                "HyenaDNA_LLR",
+                "HyenaDNA_InnerProducts",
 
-                #"Caduceus_LLR",
-                #"Caduceus_InnerProducts",
+                "Caduceus_LLR",
+                "Caduceus_InnerProducts",
             ],
-        )
-
-
-rule functionality_supervised:
-    input:
-        expand(
-            #"results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
-            #"results/dataset/{dataset}/metrics_by_odd_even_weighted_average/{subset}/{feature_set}.{classifier}.odd_even.csv",
-            "results/dataset/{dataset}/metrics/{subset}/{feature_set}.{classifier}.odd_even.csv",
-            dataset=["gwas_matched_9"],#, "eqtl_matched_1"],
-            subset=["all"],
-            feature_set=[
-                "CADD",
-                "Enformer_L2",
-                "Borzoi_L2",
-                "GPN-MSA_absLLR+InnerProducts",
-                "Enformer",
-                "Borzoi",
-
-                "NucleotideTransformer_absLLR+InnerProducts",
-                "GPN_absLLR+InnerProducts",
-                "HyenaDNA_absLLR+InnerProducts",
-                "Caduceus_absLLR+InnerProducts",
-
-                "Enformer_L2+GPN-MSA+CADD",
-                "Enformer+GPN-MSA+CADD",
-                "GWAS_Ensemble",
-            ],
-            classifier=[
-                "LogisticRegression",
-            ]
         )
 
 
 rule deleteriousness_supervised:
     input:
         expand(
-            #"results/dataset/{dataset}/metrics_by_odd_even_weighted_average/{subset}/{feature_set}.{classifier}.odd_even.csv",
-            "results/dataset/{dataset}/metrics/{subset}/{feature_set}.{classifier}.odd_even.csv",
+            "results/dataset/{dataset}/metrics/{subset}/{feature_set}.{classifier}.chrom.csv",
             dataset=["omim_matched_9"],
             subset=["all"],
             feature_set=[
                 "CADD",
-                "Enformer_L2",
-                "CADD+GPN-MSA_LLR",
-                "Borzoi_L2",
                 "Enformer",
                 "Borzoi",
 
@@ -105,14 +70,75 @@ rule deleteriousness_supervised:
                 "NucleotideTransformer_LLR+InnerProducts",
                 "GPN_LLR+InnerProducts",
                 "HyenaDNA_LLR+InnerProducts",
-                "Caduceus_LLR+InnerProducts",
+                #"Caduceus_LLR+InnerProducts",
 
                 "OMIM_Ensemble",
+                "OMIM_Ensemble_v2",
             ],
             classifier=[
                 "LogisticRegression",
             ]
-        )
+        ),
+        expand(
+            "results/dataset/{dataset}/metrics/{subset}/{model}.csv",
+            dataset=["omim_matched_9"],
+            subset=["all"],
+            model=[
+                "CADD.plus.RawScore",
+                "Enformer_L2_L2.plus.all",
+                "Borzoi_L2_L2.plus.all",
+
+                "GPN-MSA_LLR.minus.score",
+                "GPN_LLR.minus.score",
+                "NucleotideTransformer_LLR.minus.score",
+                "HyenaDNA_LLR.minus.score",
+
+                "GPN-MSA_InnerProduct.minus.score",
+                "GPN_InnerProduct.minus.score",
+                "NucleotideTransformer_InnerProduct.minus.score",
+                "HyenaDNA_InnerProduct.minus.score",
+            ],
+        ),
+
+
+rule functionality_supervised:
+    input:
+        expand(
+            "results/dataset/{dataset}/metrics/{subset}/{model}.csv",
+            dataset=["gwas_matched_9"],
+            subset=["all"],
+            model=[
+                "CADD.plus.RawScore",
+                "Enformer_L2_L2.plus.all",
+                "Borzoi_L2_L2.plus.all",
+                "GPN-MSA_absLLR.plus.score",
+                "GPN_absLLR.plus.score",
+                "NucleotideTransformer_absLLR.plus.score",
+                "HyenaDNA_absLLR.plus.score",
+            ],
+        ),
+        expand(
+            "results/dataset/{dataset}/metrics/{subset}/{feature_set}.{classifier}.chrom.csv",
+            dataset=["gwas_matched_9"],
+            subset=["all"],
+            feature_set=[
+                "CADD",
+                "Enformer",
+                "Borzoi",
+                "GPN-MSA_absLLR+InnerProducts",
+
+                "NucleotideTransformer_absLLR+InnerProducts",
+                "GPN_absLLR+InnerProducts",
+                "HyenaDNA_absLLR+InnerProducts",
+                #"Caduceus_absLLR+InnerProducts",
+
+                "Enformer+GPN-MSA+CADD",
+                #"GWAS_Ensemble",
+            ],
+            classifier=[
+                "LogisticRegression",
+            ]
+        ),
 
 
 rule functionality_unsupervised:
