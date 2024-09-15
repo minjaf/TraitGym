@@ -209,6 +209,26 @@ rule unsupervised_pred:
         V[["score"]].to_parquet(output[0], index=False)
 
 
+rule ensemble_rank:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+        "results/dataset/{dataset}/subset/{subset}.parquet",
+        lambda wildcards: expand("results/dataset/{{dataset}}/preds/{{subset}}/{model}.parquet", model=config["model_sets"][wildcards.model_set]),
+    output:
+        "results/dataset/{dataset}/preds/{subset}/ensemble_rank.{model_set}.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        subset = pd.read_parquet(input[1])
+        models = config["model_sets"][wildcards.model_set]
+        for model, path in zip(models, input[2:]):
+            df = pd.read_parquet(path, columns=["score"]).rename(columns={"score": model})
+            V = pd.concat([V, df], axis=1)
+        V = subset.merge(V, on=COORDINATES, how="left")
+        V["score"] = V[models].rank().mean(axis=1)
+        print(V)
+        V[["score"]].to_parquet(output[0], index=False)
+
+
 rule eval_unsupervised_features:
     input:
         "results/dataset/{dataset}/test.parquet",

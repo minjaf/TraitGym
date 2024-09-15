@@ -99,6 +99,14 @@ rule deleteriousness_supervised:
                 "HyenaDNA_InnerProduct.minus.score",
             ],
         ),
+        expand(
+            "results/dataset/{dataset}/metrics/{subset}/ensemble_rank.{model_set}.csv",
+            dataset=["omim_matched_9"],
+            subset=["all"],
+            model_set=[
+                "GPN-MSA_LLR+Enformer",
+            ],
+        ),
 
 
 rule functionality_supervised:
@@ -111,10 +119,16 @@ rule functionality_supervised:
                 "CADD.plus.RawScore",
                 "Enformer_L2_L2.plus.all",
                 "Borzoi_L2_L2.plus.all",
+
                 "GPN-MSA_absLLR.plus.score",
                 "GPN_absLLR.plus.score",
                 "NucleotideTransformer_absLLR.plus.score",
                 "HyenaDNA_absLLR.plus.score",
+
+                "GPN-MSA_InnerProduct.minus.score",
+                "GPN_InnerProduct.minus.score",
+                "NucleotideTransformer_InnerProduct.minus.score",
+                "HyenaDNA_InnerProduct.minus.score",
             ],
         ),
         expand(
@@ -138,6 +152,14 @@ rule functionality_supervised:
             classifier=[
                 "LogisticRegression",
             ]
+        ),
+        expand(
+            "results/dataset/{dataset}/metrics/{subset}/ensemble_rank.{model_set}.csv",
+            dataset=["gwas_matched_9"],
+            subset=["all"],
+            model_set=[
+                "GPN-MSA_absLLR+Enformer",
+            ],
         ),
 
 

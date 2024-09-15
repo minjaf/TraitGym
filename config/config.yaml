@@ -210,6 +210,14 @@ feature_sets:
   - minus_MAF_popmax
   - CADD_Annot
 
+model_sets:
+  GPN-MSA_LLR+Enformer:
+    - Enformer_L2_L2.plus.all
+    - GPN-MSA_LLR.minus.score
+  GPN-MSA_absLLR+Enformer:
+    - Enformer_L2_L2.plus.all
+    - GPN-MSA_absLLR.plus.score
+
 dataset_eval_models:
   gonzalobenegas/siraj_gwas_highpip:
     - Baseline.RandomForest.chrom
