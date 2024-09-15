@@ -1,6 +1,7 @@
 configfile: "config/config.yaml"
 
 include: "rules/common.smk"
+include: "rules/data/clinvar.smk"
 include: "rules/data/gwas.smk"
 #include: "rules/data/insights.smk"
 include: "rules/data/splicing_assay.smk"
@@ -9,6 +10,7 @@ include: "rules/data/dsqtl.smk"
 include: "rules/data/eqtl.smk"
 include: "rules/data/gnomad.smk"
 include: "rules/data/ldscore.smk"
+include: "rules/data/mendelian.smk"
 include: "rules/data/omim.smk"
 include: "rules/data/sat_mut_mpra.smk"
 include: "rules/data/siraj.smk"
@@ -57,56 +59,56 @@ rule all:
 rule deleteriousness_supervised:
     input:
         expand(
-            "results/dataset/{dataset}/metrics/{subset}/{feature_set}.{classifier}.chrom.csv",
-            dataset=["omim_matched_9"],
-            subset=["all"],
-            feature_set=[
-                "CADD",
-                "Enformer",
-                "Borzoi",
-
-                "GPN-MSA_LLR+InnerProducts",
-
-                "NucleotideTransformer_LLR+InnerProducts",
-                "GPN_LLR+InnerProducts",
-                "HyenaDNA_LLR+InnerProducts",
-                #"Caduceus_LLR+InnerProducts",
-
-                "OMIM_Ensemble",
-                "OMIM_Ensemble_v2",
-            ],
-            classifier=[
-                "LogisticRegression",
-            ]
-        ),
-        expand(
             "results/dataset/{dataset}/metrics/{subset}/{model}.csv",
-            dataset=["omim_matched_9"],
-            subset=["all"],
+            dataset=["omim_matched_9", "omim_matched_99"],
+            subset=["all", "nonexonic", "non_missense"],
             model=[
                 "CADD.plus.RawScore",
                 "Enformer_L2_L2.plus.all",
-                "Borzoi_L2_L2.plus.all",
+                #"Borzoi_L2_L2.plus.all",
 
                 "GPN-MSA_LLR.minus.score",
                 "GPN_LLR.minus.score",
-                "NucleotideTransformer_LLR.minus.score",
-                "HyenaDNA_LLR.minus.score",
+                #"NucleotideTransformer_LLR.minus.score",
+                #"HyenaDNA_LLR.minus.score",
 
-                "GPN-MSA_InnerProduct.minus.score",
-                "GPN_InnerProduct.minus.score",
-                "NucleotideTransformer_InnerProduct.minus.score",
-                "HyenaDNA_InnerProduct.minus.score",
+                #"GPN-MSA_InnerProduct.minus.score",
+                #"GPN_InnerProduct.minus.score",
+                #"NucleotideTransformer_InnerProduct.minus.score",
+                #"HyenaDNA_InnerProduct.minus.score",
             ],
         ),
-        expand(
-            "results/dataset/{dataset}/metrics/{subset}/ensemble_rank.{model_set}.csv",
-            dataset=["omim_matched_9"],
-            subset=["all"],
-            model_set=[
-                "GPN-MSA_LLR+Enformer",
-            ],
-        ),
+        #expand(
+        #    "results/dataset/{dataset}/metrics/{subset}/{feature_set}.{classifier}.chrom.csv",
+        #    dataset=["omim_matched_9"],
+        #    subset=["all", "nonexonic"],
+        #    feature_set=[
+        #        "CADD",
+        #        "Enformer",
+        #        "Borzoi",
+
+        #        "GPN-MSA_LLR+InnerProducts",
+
+        #        "NucleotideTransformer_LLR+InnerProducts",
+        #        "GPN_LLR+InnerProducts",
+        #        "HyenaDNA_LLR+InnerProducts",
+        #        #"Caduceus_LLR+InnerProducts",
+
+        #        "OMIM_Ensemble",
+        #        "OMIM_Ensemble_v2",
+        #    ],
+        #    classifier=[
+        #        "LogisticRegression",
+        #    ]
+        #),
+        #expand(
+        #    "results/dataset/{dataset}/metrics/{subset}/ensemble_rank.{model_set}.csv",
+        #    dataset=["omim_matched_9"],
+        #    subset=["all"],
+        #    model_set=[
+        #        "GPN-MSA_LLR+Enformer",
+        #    ],
+        #),
 
 
 rule functionality_supervised:
@@ -114,7 +116,7 @@ rule functionality_supervised:
         expand(
             "results/dataset/{dataset}/metrics/{subset}/{model}.csv",
             dataset=["gwas_matched_9"],
-            subset=["all"],
+            subset=["all", "nonexonic"],
             model=[
                 "CADD.plus.RawScore",
                 "Enformer_L2_L2.plus.all",
@@ -134,7 +136,7 @@ rule functionality_supervised:
         expand(
             "results/dataset/{dataset}/metrics/{subset}/{feature_set}.{classifier}.chrom.csv",
             dataset=["gwas_matched_9"],
-            subset=["all"],
+            subset=["all", "nonexonic"],
             feature_set=[
                 "CADD",
                 "Enformer",

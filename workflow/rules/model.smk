@@ -8,6 +8,17 @@ rule dataset_subset_all:
         V[COORDINATES].to_parquet(output[0], index=False)
 
 
+rule dataset_subset_non_missense:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+    output:
+        "results/dataset/{dataset}/subset/non_missense.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        V = V[V.consequence != "missense_variant"]
+        V[COORDINATES].to_parquet(output[0], index=False)
+
+
 rule dataset_subset_nonexonic:
     input:
         "results/dataset/{dataset}/test.parquet",

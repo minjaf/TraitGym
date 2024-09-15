@@ -1,6 +1,8 @@
 genome_url: "http://ftp.ensembl.org/pub/release-107/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa.gz"
 annotation_url: "http://ftp.ensembl.org/pub/release-107/gtf/homo_sapiens/Homo_sapiens.GRCh38.107.chr.gtf.gz"
 
+clinvar_release: 20240909
+
 datasets:
   - omim_matched_9
   - gwas_matched_9
