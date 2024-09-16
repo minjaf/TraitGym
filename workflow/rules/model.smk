@@ -212,11 +212,11 @@ rule unsupervised_pred:
             pd.read_parquet(input[2], columns=[wildcards.feature])
             .rename(columns={wildcards.feature: "score"})
         )
-        assert df.score.isna().sum() == 0
         if wildcards.sign == "minus":
             df.score = -df.score
         V = pd.concat([V, df], axis=1)
         V = subset.merge(V, on=COORDINATES, how="left")
+        assert V.score.isna().sum() == 0
         V[["score"]].to_parquet(output[0], index=False)
 
 
@@ -283,8 +283,10 @@ rule get_metrics:
         metric = roc_auc_score if balanced else average_precision_score
         metric_name = "AUROC" if balanced else "AUPRC"
         res = pd.DataFrame({
-            "Model": [wildcards.model],
-            metric_name: [metric(V.label, V.score)]
+            "model": [wildcards.model],
+            "metric": [metric_name],
+            "score": [metric(V.label, V.score)],
+            "se": [block_bootstrap_se(metric, V, "label", "score", "chrom")],
         })
         res.to_csv(output[0], index=False)
 

@@ -151,6 +151,20 @@ rule functionality_supervised:
         ),
 
 
+rule eval_alphamissense:
+    input:
+        expand(
+            "results/dataset/{dataset}/metrics/{subset}/{model}.csv",
+            dataset=["gwas_matched_9"],
+            subset=["defined_alphamissense"],
+            model=[
+                "AlphaMissense.plus.score",
+                "CADD.plus.RawScore",
+                "GPN-MSA_absLLR.plus.score",
+            ],
+        ),
+
+
 rule functionality_unsupervised:
     input:
         expand(

@@ -729,3 +729,37 @@ rule inner_product:
         df = pd.read_parquet(input[0])
         df = df.sum(axis=1).rename("score").to_frame()
         df.to_parquet(output[0], index=False)
+
+
+rule dataset_subset_defined_alphamissense:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+        "results/dataset/{dataset}/features/AlphaMissense.parquet",
+    output:
+        "results/dataset/{dataset}/subset/defined_alphamissense.parquet",
+    run:
+        V = pd.concat([pd.read_parquet(input[0]), pd.read_parquet(input[1])], axis=1)
+        target_size = len(V[V.match_group==V.match_group.iloc[0]])
+        V = V[V.consequence=="missense_variant"]
+        V = V.dropna(subset="score")
+        match_group_size = V.match_group.value_counts() 
+        match_groups = match_group_size[match_group_size == target_size].index
+        V = V[V.match_group.isin(match_groups)]
+        print(V)
+        V[COORDINATES].to_parquet(output[0], index=False)
+
+
+def block_bootstrap_se(metric, df, y_true_col, y_pred_col, block_col, n_bootstraps=1000):
+    df = pl.DataFrame(df)
+    all_blocks = df[block_col].unique().sort()
+    df_blocks = {
+        block: df.filter(pl.col(block_col)==block).select([y_pred_col, y_true_col])
+        for block in all_blocks
+    }
+    bootstraps = []
+    for i in range(n_bootstraps):
+        boot_blocks = all_blocks.sample(len(all_blocks), with_replacement=True, seed=i)
+        df_boot = pl.concat([df_blocks[block] for block in boot_blocks])
+        bootstraps.append(metric(df_boot[y_true_col], df_boot[y_pred_col]))
+    bootstraps = pl.Series(bootstraps)
+    return bootstraps.std()
