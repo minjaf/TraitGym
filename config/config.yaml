@@ -4,13 +4,13 @@ annotation_url: "http://ftp.ensembl.org/pub/release-107/gtf/homo_sapiens/Homo_sa
 clinvar_release: 20240909
 
 datasets:
-  - omim_matched_9
+  - mendelian_matched_9
   - gwas_matched_9
-#  - eqtl_matched_1
-#  - sat_mut_mpra
 
 subsets:
   - all
+  - missense_variant
+  - non_missense
 
 #  - nonexonic
 #  - missense_variant

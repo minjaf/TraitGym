@@ -5,6 +5,7 @@ rule gpn_msa_run_vep_llr:
         "results/dataset/{dataset}/features/GPN-MSA_LLR.parquet",
     threads:
         workflow.cores
+    priority: 103
     shell:
         """
         python \
@@ -21,6 +22,7 @@ rule gpn_msa_run_vep_inner_products:
         "results/dataset/{dataset}/features/GPN-MSA_InnerProducts.parquet",
     threads:
         workflow.cores
+    priority: 103
     shell:
         """
         python \

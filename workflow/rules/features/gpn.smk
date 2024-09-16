@@ -6,6 +6,7 @@ rule gpn_run_vep_llr:
         "results/dataset/{dataset}/features/GPN_LLR.parquet",
     threads:
         workflow.cores
+    priority: 102
     shell:
         """
         python \
@@ -23,6 +24,7 @@ rule gpn_run_vep_inner_products:
         "results/dataset/{dataset}/features/GPN_InnerProducts.parquet",
     threads:
         workflow.cores
+    priority: 102
     shell:
         """
         python \
