@@ -40,6 +40,7 @@ rule all:
                 "CADD",
                 "GPN-MSA_LLR",
                 "GPN-MSA_InnerProducts",
+                "GPN-MSA_Influence",
 
                 "NucleotideTransformer_LLR",
                 "NucleotideTransformer_InnerProducts",
@@ -149,6 +150,59 @@ rule functionality_supervised:
                 "LogisticRegression",
             ]
         ),
+
+
+rule vep_select_omim_traits:
+    input:
+        expand(
+            "results/dataset/{dataset}/metrics/{subset}/{model}.csv",
+            dataset=["mendelian_matched_9"],
+            subset=[f"non_missense_AND_{trait}" for trait in select_omim_traits],
+            model=[
+                "CADD.plus.RawScore",
+                "Enformer_L2_L2.plus.all",
+                "GPN-MSA_LLR.minus.score",
+                "GPN_LLR.minus.score",
+
+                #"GPN-MSA_InnerProduct.minus.score",
+                #"GPN-MSA_Influence.plus.score",
+                #"GPN_InnerProduct.minus.score",
+            ],
+        ),
+
+
+rule vep_select_gwas_traits:
+    input:
+        expand(
+            "results/dataset/{dataset}/metrics/{subset}/{model}.csv",
+            dataset=["gwas_matched_9"],
+            subset=[f"non_missense_AND_{trait}" for trait in select_gwas_traits],
+            model=[
+                "CADD.plus.RawScore",
+                "Enformer_L2_L2.plus.all",
+                "GPN-MSA_absLLR.plus.score",
+                "GPN_absLLR.plus.score",
+
+                #"GPN-MSA_InnerProduct.minus.score",
+                #"GPN-MSA_Influence.plus.score",
+                #"GPN_InnerProduct.minus.score",
+            ],
+        ),
+        #expand(
+        #    "results/dataset/{dataset}/metrics/{subset}/{feature_set}.{classifier}.chrom.csv",
+        #    dataset=["gwas_matched_9"],
+        #    subset=[f"non_missense_AND_{trait}" for trait in select_gwas_traits],
+        #    feature_set=[
+        #        "CADD",
+        #        "Enformer",
+        #        "GPN-MSA_absLLR+InnerProducts",
+        #        "GPN_absLLR+InnerProducts",
+        #        "Enformer+GPN-MSA+CADD",
+        #    ],
+        #    classifier=[
+        #        "LogisticRegression",
+        #    ]
+        #),
 
 
 rule eval_alphamissense:

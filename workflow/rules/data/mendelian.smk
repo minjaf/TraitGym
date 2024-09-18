@@ -59,3 +59,20 @@ rule mendelian_dataset:
         V = sort_variants(V)
         print(V)
         V.to_parquet(output[0], index=False)
+
+
+rule mendelian_subset_trait:
+    input:
+        "results/dataset/mendelian_matched_{k}/test.parquet",
+    output:
+        "results/dataset/mendelian_matched_{k}/subset/{t}.parquet",
+    wildcard_constraints:
+        t="|".join(select_omim_traits),
+    run:
+        V = pd.read_parquet(input[0])
+        target_size = 1 + int(wildcards.k)
+        V = V[(~V.label) | ((V.source=="OMIM") & (V.OMIM == f"MIM {wildcards.t}"))]
+        match_group_size = V.match_group.value_counts() 
+        match_groups = match_group_size[match_group_size == target_size].index
+        V = V[V.match_group.isin(match_groups)]
+        V[COORDINATES].to_parquet(output[0], index=False)

@@ -48,7 +48,14 @@ other_consequences = [
     "5_prime_UTR_variant",
 ]
 
-traits_high_n = pd.read_csv("config/traits_n30.csv").query('count >= 50').trait
+select_gwas_traits = (
+    pd.read_csv("config/gwas/independent_traits_filtered.csv", header=None)
+    .values.ravel()
+)
+select_omim_traits = (
+    pd.read_csv("config/omim/filtered_traits.txt", header=None, dtype=str)
+    .values.ravel()
+)
 
 tissues = pd.read_csv("config/gtex_tissues.txt", header=None).values.ravel()
 
@@ -763,3 +770,17 @@ def block_bootstrap_se(metric, df, y_true_col, y_pred_col, block_col, n_bootstra
         bootstraps.append(metric(df_boot[y_true_col], df_boot[y_pred_col]))
     bootstraps = pl.Series(bootstraps)
     return bootstraps.std()
+
+
+rule dataset_subset_intersect:
+    input:
+        "results/dataset/{dataset}/subset/{s1}.parquet",
+        "results/dataset/{dataset}/subset/{s2}.parquet",
+    output:
+        "results/dataset/{dataset}/subset/{s1}_AND_{s2}.parquet",
+    run:
+        (
+            pl.read_parquet(input[0])
+            .join(pl.read_parquet(input[1]), how="inner", on=COORDINATES)
+            .sort(COORDINATES).write_parquet(output[0])
+        )

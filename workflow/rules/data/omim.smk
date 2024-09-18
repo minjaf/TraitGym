@@ -5,11 +5,11 @@
 
 
 # just a subset we'll use for interpretation
-omim_traits = [
-    "174500",
-    "306900",
-    "600886",
-]
+#omim_traits = [
+#    "174500",
+#    "306900",
+#    "600886",
+#]
 
 
 rule omim_download:
@@ -89,18 +89,19 @@ rule omim_dataset:
         V.to_parquet(output[0], index=False)
 
 
-rule omim_subset_trait:
-    input:
-        "results/dataset/omim_matched_{k}/test.parquet",
-    output:
-        "results/dataset/omim_matched_{k}/subset/{t}.parquet",
-    wildcard_constraints:
-        t="|".join(omim_traits),
-    run:
-        V = pd.read_parquet(input[0])
-        target_size = 1 + int(wildcards.k)
-        V = V[(~V.label) | (V.OMIM == f"MIM {wildcards.t}")]
-        match_group_size = V.match_group.value_counts() 
-        match_groups = match_group_size[match_group_size == target_size].index
-        V = V[V.match_group.isin(match_groups)]
-        V[COORDINATES].to_parquet(output[0], index=False)
+#rule omim_subset_trait:
+#    input:
+#        "results/dataset/omim_matched_{k}/test.parquet",
+#    output:
+#        "results/dataset/omim_matched_{k}/subset/{t}.parquet",
+#    wildcard_constraints:
+#        t="|".join(omim_traits),
+#    run:
+#        V = pd.read_parquet(input[0])
+#        target_size = 1 + int(wildcards.k)
+#        V = V[(~V.label) | (V.OMIM == f"MIM {wildcards.t}")]
+#        match_group_size = V.match_group.value_counts() 
+#        match_groups = match_group_size[match_group_size == target_size].index
+#        V = V[V.match_group.isin(match_groups)]
+#        V[COORDINATES].to_parquet(output[0], index=False)
+#
