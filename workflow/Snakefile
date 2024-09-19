@@ -249,87 +249,40 @@ rule deleteriousness_unsupervised:
         )
 
 
-rule interpretation_omim:
+rule interpretation_cadd:
     input:
         expand(
             "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
-            dataset=["omim_matched_9"],
+            dataset=config["datasets"],
+            subset=config["consequence_subsets"] + ["missense_variant"],
+            features=["CADD"],
+        ),
+
+
+rule interpretation_enformer_borzoi:
+    input:
+        expand(
+            "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
+            dataset=["mendelian_matched_9"],
             subset=[
-                "all",
-                "174500",
-                "306900",
-                "600886",
+                "non_missense_AND_306900",
+                "non_missense_AND_143890",
             ],
             features=[
                 "Enformer_L2",
                 "Borzoi_L2",
-                "CADD",
             ],
         ),
         expand(
-            "results/dataset/{dataset}/coefficients/{subset}/{features}.csv",
-            dataset=["omim_matched_9"],
-            subset=[
-                "all",
-                "174500",
-                "306900",
-                "600886",
-            ],
-            features=[
-                "OMIM_Ensemble",
-            ],
-        ),
-
-
-rule interpretation_gwas:
-    input:
-        #expand(
-        #    "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
-        #    dataset=["gwas_matched_9"],
-        #    subset=[
-        #        "all",
-        #        "Height",
-        #        "MCV",
-        #        "Mono",
-        #        "eBMD",
-        #    ],
-        #    features=[
-        #        "Enformer_L2",
-        #        "Borzoi_L2",
-        #        "CADD",
-        #    ],
-        #),
-        expand(
-            "results/dataset/{dataset}/coefficients/{subset}/{features}.csv",
+            "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
             dataset=["gwas_matched_9"],
             subset=[
-                "all",
-                "Height",
-                "MCV",
-                "Mono",
-                "eBMD",
-            ],
-            features=[
-                "Enformer+GPN-MSA+CADD",
-            ],
-        ),
-
-
-rule interpretation_eqtl:
-    input:
-        expand(
-            "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
-            dataset=["eqtl_matched_1"],
-            subset=[
-                "all",
-                "Whole_Blood",
-                "Lung",
-                "Brain_Cortex",
-                "Liver",
+                "non_missense_AND_Mono",
+                "non_missense_AND_SHBG",
+                "non_missense_AND_Ca",
             ],
             features=[
                 "Enformer_L2",
                 "Borzoi_L2",
-                "CADD",
             ],
-        )
+        ),

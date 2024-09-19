@@ -13,7 +13,7 @@ subsets:
   - non_missense
 
 consequence_subsets:
-  - nonexonic
+#  - nonexonic
 #  - missense_variant
   - non_coding_transcript_exon_variant
   - 3_prime_UTR_variant
