@@ -772,6 +772,73 @@ def block_bootstrap_se(metric, df, y_true_col, y_pred_col, block_col, n_bootstra
     return bootstraps.std()
 
 
+rule dataset_subset_all:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+    output:
+        "results/dataset/{dataset}/subset/all.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        V[COORDINATES].to_parquet(output[0], index=False)
+
+
+rule dataset_subset_non_missense:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+    output:
+        "results/dataset/{dataset}/subset/non_missense.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        V = V[V.consequence != "missense_variant"]
+        V[COORDINATES].to_parquet(output[0], index=False)
+
+
+rule dataset_subset_nonexonic:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+    output:
+        "results/dataset/{dataset}/subset/nonexonic.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        V = V[V.consequence.isin(NON_EXONIC + cre_classes + cre_flank_classes)]
+        V[COORDINATES].to_parquet(output[0], index=False)
+
+
+rule dataset_subset_consequence:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+    output:
+        "results/dataset/{dataset}/subset/{c}.parquet",
+    wildcard_constraints:
+        c="|".join(other_consequences),
+    run:
+        V = pd.read_parquet(input[0])
+        V = V[V.consequence == wildcards.c]
+        V[COORDINATES].to_parquet(output[0], index=False)
+
+
+rule dataset_subset_proximal:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+    output:
+        "results/dataset/{dataset}/subset/proximal.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        V = V[V.tss_dist <= 1_000]
+        V[COORDINATES].to_parquet(output[0], index=False)
+    
+
+rule dataset_subset_distal:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+    output:
+        "results/dataset/{dataset}/subset/distal.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        V = V[V.tss_dist > 1_000]
+        V[COORDINATES].to_parquet(output[0], index=False)
+
+
 rule dataset_subset_intersect:
     input:
         "results/dataset/{dataset}/subset/{s1}.parquet",

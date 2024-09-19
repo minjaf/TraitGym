@@ -157,10 +157,14 @@ rule vep_select_omim_traits:
         expand(
             "results/dataset/{dataset}/metrics/{subset}/{model}.csv",
             dataset=["mendelian_matched_9"],
-            subset=[f"non_missense_AND_{trait}" for trait in select_omim_traits],
+            subset=(
+                [f"non_missense_AND_{trait}" for trait in select_omim_traits]
+                + config["consequence_subsets"]
+            ),
             model=[
                 "CADD.plus.RawScore",
                 "Enformer_L2_L2.plus.all",
+                "Borzoi_L2_L2.plus.all",
                 "GPN-MSA_LLR.minus.score",
                 "GPN_LLR.minus.score",
 
@@ -176,10 +180,14 @@ rule vep_select_gwas_traits:
         expand(
             "results/dataset/{dataset}/metrics/{subset}/{model}.csv",
             dataset=["gwas_matched_9"],
-            subset=[f"non_missense_AND_{trait}" for trait in select_gwas_traits],
+            subset=(
+                [f"non_missense_AND_{trait}" for trait in select_gwas_traits]
+                + config["consequence_subsets"]
+            ),
             model=[
                 "CADD.plus.RawScore",
                 "Enformer_L2_L2.plus.all",
+                "Borzoi_L2_L2.plus.all",
                 "GPN-MSA_absLLR.plus.score",
                 "GPN_absLLR.plus.score",
 
@@ -188,21 +196,6 @@ rule vep_select_gwas_traits:
                 #"GPN_InnerProduct.minus.score",
             ],
         ),
-        #expand(
-        #    "results/dataset/{dataset}/metrics/{subset}/{feature_set}.{classifier}.chrom.csv",
-        #    dataset=["gwas_matched_9"],
-        #    subset=[f"non_missense_AND_{trait}" for trait in select_gwas_traits],
-        #    feature_set=[
-        #        "CADD",
-        #        "Enformer",
-        #        "GPN-MSA_absLLR+InnerProducts",
-        #        "GPN_absLLR+InnerProducts",
-        #        "Enformer+GPN-MSA+CADD",
-        #    ],
-        #    classifier=[
-        #        "LogisticRegression",
-        #    ]
-        #),
 
 
 rule eval_alphamissense:
