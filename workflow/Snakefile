@@ -150,6 +150,21 @@ rule functionality_supervised:
                 "LogisticRegression",
             ]
         ),
+        expand(
+            "results/dataset/{dataset}/metrics/{subset}/{feature_set}.{classifier}.chrom.csv",
+            dataset=["gwas_matched_9"],
+            subset=config["consequence_subsets"],
+            feature_set=[
+                "CADD",
+                "Enformer",
+                "Borzoi",
+                "GPN-MSA_absLLR+InnerProducts",
+                "GPN_absLLR+InnerProducts",
+            ],
+            classifier=[
+                "LogisticRegression",
+            ]
+        ),
 
 
 rule vep_select_omim_traits:
