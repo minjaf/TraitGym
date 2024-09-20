@@ -158,7 +158,7 @@ rule vep_select_omim_traits:
             "results/dataset/{dataset}/metrics/{subset}/{model}.csv",
             dataset=["mendelian_matched_9"],
             subset=(
-                [f"non_missense_AND_{trait}" for trait in select_omim_traits]
+                [f"non_coding_AND_{trait}" for trait in select_omim_traits]
                 + config["consequence_subsets"]
             ),
             model=[
@@ -181,7 +181,7 @@ rule vep_select_gwas_traits:
             "results/dataset/{dataset}/metrics/{subset}/{model}.csv",
             dataset=["gwas_matched_9"],
             subset=(
-                [f"non_missense_AND_{trait}" for trait in select_gwas_traits]
+                [f"non_coding_AND_{trait}" for trait in select_gwas_traits]
                 + config["consequence_subsets"]
             ),
             model=[
@@ -196,57 +196,6 @@ rule vep_select_gwas_traits:
                 #"GPN_InnerProduct.minus.score",
             ],
         ),
-
-
-rule eval_alphamissense:
-    input:
-        expand(
-            "results/dataset/{dataset}/metrics/{subset}/{model}.csv",
-            dataset=["gwas_matched_9"],
-            subset=["defined_alphamissense"],
-            model=[
-                "AlphaMissense.plus.score",
-                "CADD.plus.RawScore",
-                "GPN-MSA_absLLR.plus.score",
-            ],
-        ),
-
-
-rule functionality_unsupervised:
-    input:
-        expand(
-            "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
-            dataset=["gwas_matched_9", "eqtl_matched_1"],
-            subset=["all"],
-            features=[
-                "Enformer_L2_L2",
-                "Borzoi_L2_L2",
-                "CADD",
-                "GPN-MSA_absLLR",
-                "NucleotideTransformer_absLLR",
-                "GPN_absLLR",
-                "HyenaDNA_absLLR",
-            ],
-        )
-
-
-rule deleteriousness_unsupervised:
-    input:
-        expand(
-            "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
-            dataset=["omim_matched_9"],
-            subset=["all"],
-            features=[
-                "Enformer_L2_L2",
-                "Borzoi_L2_L2",
-                "CADD",
-                "GPN-MSA_LLR",
-                "NucleotideTransformer_LLR",
-                "GPN_LLR",
-                "HyenaDNA_LLR",
-                "Caduceus_LLR",
-            ],
-        )
 
 
 rule interpretation_cadd:
@@ -265,8 +214,8 @@ rule interpretation_enformer_borzoi:
             "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
             dataset=["mendelian_matched_9"],
             subset=[
-                "non_missense_AND_306900",
-                "non_missense_AND_143890",
+                "non_coding_AND_306900",
+                "non_coding_AND_143890",
             ],
             features=[
                 "Enformer_L2",
@@ -277,9 +226,8 @@ rule interpretation_enformer_borzoi:
             "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
             dataset=["gwas_matched_9"],
             subset=[
-                "non_missense_AND_Mono",
-                "non_missense_AND_SHBG",
-                "non_missense_AND_Ca",
+                "non_coding_AND_Mono",
+                "non_coding_AND_HbA1c",
             ],
             features=[
                 "Enformer_L2",

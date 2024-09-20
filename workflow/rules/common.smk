@@ -793,6 +793,23 @@ rule dataset_subset_non_missense:
         V[COORDINATES].to_parquet(output[0], index=False)
 
 
+rule dataset_subset_non_coding:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+    output:
+        "results/dataset/{dataset}/subset/non_coding.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        # these are the ones that appear in our datasets
+        exclude = [
+            "missense_variant",
+            "synonymous_variant",
+            "stop_gained",
+        ]
+        V = V[~V.consequence.isin(exclude)]
+        V[COORDINATES].to_parquet(output[0], index=False)
+
+
 rule dataset_subset_nonexonic:
     input:
         "results/dataset/{dataset}/test.parquet",

@@ -9,8 +9,7 @@ datasets:
 
 subsets:
   - all
-  - missense_variant
-  - non_missense
+  - non_coding
 
 consequence_subsets:
 #  - nonexonic
