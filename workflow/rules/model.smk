@@ -291,8 +291,10 @@ rule get_metrics_by_chrom_weighted_average:
         metric = res.columns[-1]
         res["weight"] = res.n / res.n.sum()
         res = pd.DataFrame({
-            "Model": [wildcards.model],
-            metric: [(res[metric] * res.weight).sum()]
+            "model": [wildcards.model],
+            "metric": [metric],
+            "score": [(res[metric] * res.weight).sum()],
+            "se": [0],  # temporary
         })
         res.to_csv(output[0], index=False)
 

@@ -60,7 +60,8 @@ rule all:
 rule deleteriousness_supervised:
     input:
         expand(
-            "results/dataset/{dataset}/metrics/{subset}/{model}.csv",
+            #"results/dataset/{dataset}/metrics/{subset}/{model}.csv",
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
             dataset=["mendelian_matched_9"],
             subset=config["subsets"],
             model=[
@@ -82,7 +83,8 @@ rule deleteriousness_supervised:
             ],
         ),
         expand(
-            "results/dataset/{dataset}/metrics/{subset}/{feature_set}.{classifier}.chrom.csv",
+            #"results/dataset/{dataset}/metrics/{subset}/{feature_set}.{classifier}.chrom.csv",
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
             dataset=["mendelian_matched_9"],
             subset=config["subsets"],
             feature_set=[
@@ -108,7 +110,8 @@ rule deleteriousness_supervised:
 rule functionality_supervised:
     input:
         expand(
-            "results/dataset/{dataset}/metrics/{subset}/{model}.csv",
+            #"results/dataset/{dataset}/metrics/{subset}/{model}.csv",
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
             dataset=["gwas_matched_9"],
             subset=config["subsets"],
             model=[
@@ -130,7 +133,8 @@ rule functionality_supervised:
             ],
         ),
         expand(
-            "results/dataset/{dataset}/metrics/{subset}/{feature_set}.{classifier}.chrom.csv",
+            #"results/dataset/{dataset}/metrics/{subset}/{feature_set}.{classifier}.chrom.csv",
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
             dataset=["gwas_matched_9"],
             subset=config["subsets"],
             feature_set=[
@@ -151,7 +155,7 @@ rule functionality_supervised:
             ]
         ),
         expand(
-            "results/dataset/{dataset}/metrics/{subset}/{feature_set}.{classifier}.chrom.csv",
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
             dataset=["gwas_matched_9"],
             subset=config["consequence_subsets"],
             feature_set=[
@@ -170,7 +174,8 @@ rule functionality_supervised:
 rule vep_select_omim_traits:
     input:
         expand(
-            "results/dataset/{dataset}/metrics/{subset}/{model}.csv",
+            #"results/dataset/{dataset}/metrics/{subset}/{model}.csv",
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
             dataset=["mendelian_matched_9"],
             subset=(
                 [f"non_coding_AND_{trait}" for trait in select_omim_traits]
@@ -193,7 +198,8 @@ rule vep_select_omim_traits:
 rule vep_select_gwas_traits:
     input:
         expand(
-            "results/dataset/{dataset}/metrics/{subset}/{model}.csv",
+            #"results/dataset/{dataset}/metrics/{subset}/{model}.csv",
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
             dataset=["gwas_matched_9"],
             subset=(
                 [f"non_coding_AND_{trait}" for trait in select_gwas_traits]
