@@ -287,16 +287,21 @@ rule get_metrics_by_chrom_weighted_average:
     output:
         "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
     run:
-        res = pd.read_csv(input[0], dtype={"chrom": str})
+        res = pl.read_csv(input[0])
         metric = res.columns[-1]
-        res["weight"] = res.n / res.n.sum()
-        res = pd.DataFrame({
+
+        def stat(df):
+            x = df[metric]
+            weight = df["n"] / df["n"].sum()
+            return (x * weight).sum()
+
+        res = pl.DataFrame({
             "model": [wildcards.model],
             "metric": [metric],
-            "score": [(res[metric] * res.weight).sum()],
-            "se": [0],  # temporary
+            "score": [stat(res)],
+            "se": [bootstrap_se(res, stat)],
         })
-        res.to_csv(output[0], index=False)
+        res.write_csv(output[0])
 
 
 #rule merge_metrics_by_chrom:

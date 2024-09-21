@@ -756,6 +756,16 @@ rule dataset_subset_defined_alphamissense:
         V[COORDINATES].to_parquet(output[0], index=False)
 
 
+def bootstrap_se(df, stat, n_bootstraps=1000):
+    return (
+        pl.Series([
+            stat(df.sample(len(df), with_replacement=True, seed=i))
+            for i in range(n_bootstraps)]
+        )
+        .std()
+    )
+
+
 def block_bootstrap_se(metric, df, y_true_col, y_pred_col, block_col, n_bootstraps=1000):
     df = pl.DataFrame(df)
     all_blocks = df[block_col].unique().sort()
