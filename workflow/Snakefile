@@ -105,6 +105,21 @@ rule deleteriousness_supervised:
                 "LogisticRegression",
             ]
         ),
+        expand(
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
+            dataset=["mendelian_matched_9"],
+            subset=config["consequence_subsets"],
+            feature_set=[
+                "CADD",
+                "Enformer",
+                "Borzoi",
+                "GPN-MSA_LLR+InnerProducts",
+                "GPN_LLR+InnerProducts",
+            ],
+            classifier=[
+                "LogisticRegression",
+            ]
+        ),
 
 
 rule functionality_supervised:
