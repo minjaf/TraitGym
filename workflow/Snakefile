@@ -201,7 +201,7 @@ rule vep_select_omim_traits:
                 "Enformer_L2_L2.plus.all",
                 "Borzoi_L2_L2.plus.all",
                 "GPN-MSA_LLR.minus.score",
-                "GPN_LLR.minus.score",
+                #"GPN_LLR.minus.score",
 
                 #"GPN-MSA_InnerProduct.minus.score",
                 #"GPN-MSA_Influence.plus.score",
@@ -225,12 +225,28 @@ rule vep_select_gwas_traits:
                 "Enformer_L2_L2.plus.all",
                 "Borzoi_L2_L2.plus.all",
                 "GPN-MSA_absLLR.plus.score",
-                "GPN_absLLR.plus.score",
+                #"GPN_absLLR.plus.score",
 
                 #"GPN-MSA_InnerProduct.minus.score",
                 #"GPN-MSA_Influence.plus.score",
                 #"GPN_InnerProduct.minus.score",
             ],
+        ),
+        expand(
+            #"results/dataset/{dataset}/metrics/{subset}/{feature_set}.{classifier}.chrom.csv",
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
+            dataset=["gwas_matched_9"],
+            subset=[f"non_coding_AND_{trait}" for trait in select_gwas_traits_n30],
+            feature_set=[
+                "CADD",
+                "Enformer",
+                "Borzoi",
+                "GPN-MSA_absLLR+InnerProducts",
+                #"GPN_absLLR+InnerProducts",
+            ],
+            classifier=[
+                "LogisticRegression",
+            ]
         ),
 
 
