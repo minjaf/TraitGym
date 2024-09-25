@@ -446,7 +446,6 @@ def predict(clf, X):
 
 
 def train_predict(V_train, V_test, features, train_f):
-    #clf = train_f(V_train[features], V_train.label, V_train.match_group)
     clf = train_f(V_train[features], V_train.label, V_train.chrom)
     return predict(clf, V_test[features])
 
@@ -461,10 +460,6 @@ def train_logistic_regression(X, y, groups):
         ('linear', LogisticRegression(
             class_weight="balanced",
             random_state=42,
-            #penalty="elasticnet",
-            #l1_ratio=0.5,
-            #penalty="l1",
-            #solver="saga",
         ))
     ])
     Cs = np.logspace(-8, 0, 10)
@@ -479,7 +474,6 @@ def train_logistic_regression(X, y, groups):
         n_jobs=-1,
     )
     clf.fit(X, y, groups=groups)
-    #print(clf.cv_results_)
     print(f"{clf.best_params_=}")
     linear = clf.best_estimator_.named_steps["linear"]
     coef = pd.DataFrame({
@@ -487,7 +481,43 @@ def train_logistic_regression(X, y, groups):
         "coef": linear.coef_[0],
     }).sort_values("coef", ascending=False, key=abs)
     print(coef.head(10))
-    #print(f"{(coef.coef != 0).sum()=}")
+    return clf
+
+
+def train_lasso_logistic_regression(X, y, groups):
+    balanced = y.sum() == len(y) // 2
+    pipeline = Pipeline([
+        ('imputer', SimpleImputer(
+            missing_values=np.nan, strategy='mean', keep_empty_features=True,
+        )),
+        ('scaler', StandardScaler()),
+        ('linear', LogisticRegression(
+            class_weight="balanced",
+            random_state=42,
+            penalty="l1",
+            solver="saga",
+            max_iter=1000,
+        ))
+    ])
+    Cs = np.logspace(-4, 4, 20)
+    param_grid = {
+        'linear__C': Cs,
+    }
+    clf = GridSearchCV(
+        pipeline,
+        param_grid,
+        scoring="roc_auc" if balanced else "average_precision",
+        cv=GroupKFold(),
+        n_jobs=-1,
+    )
+    clf.fit(X, y, groups=groups)
+    print(f"{clf.best_params_=}")
+    linear = clf.best_estimator_.named_steps["linear"]
+    coef = pd.DataFrame({
+        "feature": X.columns,
+        "coef": linear.coef_[0],
+    }).sort_values("coef", ascending=False, key=abs)
+    print(coef.head(10))
     return clf
 
 

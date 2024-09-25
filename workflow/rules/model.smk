@@ -91,6 +91,7 @@ rule classifier_coefficients:
     threads:
         workflow.cores
     run:
+        2 + 2
         V = pd.read_parquet(input[0])
         subset = pd.read_parquet(input[1])
         all_features = []
@@ -100,7 +101,7 @@ rule classifier_coefficients:
             all_features += df.columns.tolist()
             V = pd.concat([V, df], axis=1)
         V = subset.merge(V, on=COORDINATES, how="left")
-        clf = train_logistic_regression(V[all_features], V.label, V.match_group)
+        clf = train_lasso_logistic_regression(V[all_features], V.label, V.chrom)
         linear = clf.best_estimator_.named_steps["linear"]
         res = pd.DataFrame({
             "feature": all_features,

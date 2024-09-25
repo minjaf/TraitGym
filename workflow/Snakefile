@@ -40,7 +40,54 @@ rule all:
                 "CADD",
                 "GPN-MSA_LLR",
                 "GPN-MSA_InnerProducts",
-                "GPN-MSA_Influence",
+
+                "NucleotideTransformer_LLR",
+                "NucleotideTransformer_InnerProducts",
+
+                "GPN_LLR",
+                "GPN_InnerProducts",
+
+                "HyenaDNA_LLR",
+                "HyenaDNA_InnerProducts",
+
+                "Caduceus_LLR",
+                "Caduceus_InnerProducts",
+            ],
+        )
+
+
+rule half1:
+    input:
+        expand(
+            "results/dataset/{dataset}/features/{features}.parquet",
+            dataset=config["datasets"],
+            features=[
+                "Enformer_L2",
+                "Borzoi_L2",
+
+                "NucleotideTransformer_LLR",
+                "NucleotideTransformer_InnerProducts",
+
+                "GPN_LLR",
+                "GPN_InnerProducts",
+
+                "HyenaDNA_LLR",
+                "HyenaDNA_InnerProducts",
+
+                "Caduceus_LLR",
+                "Caduceus_InnerProducts",
+            ],
+        )
+
+
+rule half2:
+    input:
+        expand(
+            "results/dataset/{dataset}/features/{features}.parquet",
+            dataset=config["datasets"],
+            features=[
+                "Enformer_L2",
+                "Borzoi_L2",
 
                 "NucleotideTransformer_LLR",
                 "NucleotideTransformer_InnerProducts",
@@ -255,9 +302,15 @@ rule interpretation_cadd:
         expand(
             "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
             dataset=config["datasets"],
-            subset=config["consequence_subsets"] + ["missense_variant"],
+            subset=["non_coding"],
             features=["CADD"],
         ),
+        expand(
+            "results/dataset/{dataset}/coefficients/{subset}/{feature_set}.csv",
+            dataset=config["datasets"],
+            subset=["non_coding"],
+            feature_set=["CADD"],
+        )
 
 
 rule interpretation_enformer_borzoi:

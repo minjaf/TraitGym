@@ -17,7 +17,7 @@ rule merge_clinvar_omim:
 
 rule mendelian_dataset:
     input:
-        "results/mendelian/variants.parquet",
+        "results/mendelian/variants.annot_MAF.parquet",
         "results/gnomad/common.parquet",
         "results/tss.parquet",
     output:
@@ -25,11 +25,15 @@ rule mendelian_dataset:
     run:
         k = int(wildcards.k)
         pos = pd.read_parquet(input[0])
+        pos.maf = pos.maf.fillna(0)
+        pos = pos[pos.maf < 0.1 / 100]
+        pos = pos.drop(columns=["maf"])
         pos["label"] = True
         neg = pd.read_parquet(input[1])
         neg["label"] = False
         neg["source"] = "gnomAD"
         V = pd.concat([pos, neg], ignore_index=True)
+        assert len(V) == len(V.drop_duplicates(COORDINATES))
 
         V["start"] = V.pos - 1
         V["end"] = V.pos
