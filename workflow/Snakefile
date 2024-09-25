@@ -266,8 +266,11 @@ rule interpretation_enformer_borzoi:
             "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
             dataset=["mendelian_matched_9"],
             subset=[
+                "non_coding_AND_613985",
                 "non_coding_AND_306900",
                 "non_coding_AND_143890",
+                "non_coding_AND_614743",
+                "non_coding_AND_250250",
             ],
             features=[
                 "Enformer_L2",
@@ -278,8 +281,12 @@ rule interpretation_enformer_borzoi:
             "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
             dataset=["gwas_matched_9"],
             subset=[
+                "non_coding_AND_Height",
                 "non_coding_AND_Mono",
                 "non_coding_AND_HbA1c",
+                "non_coding_AND_HDLC",
+                "non_coding_AND_Alb",
+                "non_coding_AND_DVT",
             ],
             features=[
                 "Enformer_L2",
