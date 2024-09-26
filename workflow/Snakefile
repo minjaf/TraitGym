@@ -56,7 +56,47 @@ rule all:
         )
 
 
-rule deleteriousness_supervised:
+rule general_supervised:
+    input:
+        expand(
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
+            dataset=config["datasets"],
+            subset=config["subsets"],
+            feature_set=[
+                "CADD",
+                "Enformer",
+                "Borzoi",
+                "GPN-MSA",
+                "GPN",
+                "NucleotideTransformer",
+                "HyenaDNA",
+                "Caduceus",
+
+                "CADD+GPN-MSA",
+                "CADD+Borzoi",
+                "GPN-MSA+Borzoi",
+                "CADD+GPN-MSA+Borzoi",
+            ],
+            classifier=[
+                "LogisticRegression",
+            ]
+        ),
+        expand(
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
+            dataset=config["datasets"],
+            subset=config["consequence_subsets"],
+            feature_set=[
+                "CADD",
+                "Borzoi",
+                "GPN-MSA",
+            ],
+            classifier=[
+                "LogisticRegression",
+            ]
+        ),
+
+
+rule deleteriousness_unsupervised:
     input:
         expand(
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
@@ -80,46 +120,9 @@ rule deleteriousness_supervised:
                 "Caduceus_InnerProduct.minus.score",
             ],
         ),
-        expand(
-            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
-            dataset=["mendelian_matched_9"],
-            subset=config["subsets"],
-            feature_set=[
-                "CADD",
-                "Enformer",
-                "Borzoi",
-
-                "GPN-MSA_LLR+InnerProducts",
-                "GPN_LLR+InnerProducts",
-                "NucleotideTransformer_LLR+InnerProducts",
-                "HyenaDNA_LLR+InnerProducts",
-                "Caduceus_LLR+InnerProducts",
-
-                #"OMIM_Ensemble",
-                #"OMIM_Ensemble_v2",
-                "CADD+GPN-MSA+Borzoi",
-            ],
-            classifier=[
-                "LogisticRegression",
-            ]
-        ),
-        expand(
-            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
-            dataset=["mendelian_matched_9"],
-            subset=config["consequence_subsets"],
-            feature_set=[
-                "CADD",
-                "Enformer",
-                "Borzoi",
-                "GPN-MSA_LLR+InnerProducts",
-            ],
-            classifier=[
-                "LogisticRegression",
-            ]
-        ),
 
 
-rule functionality_supervised:
+rule functionality_unsupervised:
     input:
         expand(
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
@@ -143,49 +146,11 @@ rule functionality_supervised:
                 "Caduceus_InnerProduct.minus.score",
             ],
         ),
-        expand(
-            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
-            dataset=["gwas_matched_9"],
-            subset=config["subsets"],
-            feature_set=[
-                "CADD",
-                "Enformer",
-                "Borzoi",
-
-                "GPN-MSA_absLLR+InnerProducts",
-                "NucleotideTransformer_absLLR+InnerProducts",
-                "GPN_absLLR+InnerProducts",
-                "HyenaDNA_absLLR+InnerProducts",
-                "Caduceus_absLLR+InnerProducts",
-
-                #"Enformer+GPN-MSA+CADD",
-                "CADD+GPN-MSA+Borzoi",
-            ],
-            classifier=[
-                "LogisticRegression",
-            ]
-        ),
-        expand(
-            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
-            dataset=["gwas_matched_9"],
-            subset=config["consequence_subsets"],
-            feature_set=[
-                "CADD",
-                "Enformer",
-                "Borzoi",
-                "GPN-MSA_absLLR+InnerProducts",
-                "GPN_absLLR+InnerProducts",
-            ],
-            classifier=[
-                "LogisticRegression",
-            ]
-        ),
 
 
 rule vep_select_omim_traits:
     input:
         expand(
-            #"results/dataset/{dataset}/metrics/{subset}/{model}.csv",
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
             dataset=["mendelian_matched_9"],
             subset=(
@@ -194,14 +159,8 @@ rule vep_select_omim_traits:
             ),
             model=[
                 "CADD.plus.RawScore",
-                "Enformer_L2_L2.plus.all",
                 "Borzoi_L2_L2.plus.all",
                 "GPN-MSA_LLR.minus.score",
-                #"GPN_LLR.minus.score",
-
-                #"GPN-MSA_InnerProduct.minus.score",
-                #"GPN-MSA_Influence.plus.score",
-                #"GPN_InnerProduct.minus.score",
             ],
         ),
 
@@ -209,7 +168,6 @@ rule vep_select_omim_traits:
 rule vep_select_gwas_traits:
     input:
         expand(
-            #"results/dataset/{dataset}/metrics/{subset}/{model}.csv",
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
             dataset=["gwas_matched_9"],
             subset=(
@@ -218,27 +176,18 @@ rule vep_select_gwas_traits:
             ),
             model=[
                 "CADD.plus.RawScore",
-                "Enformer_L2_L2.plus.all",
                 "Borzoi_L2_L2.plus.all",
                 "GPN-MSA_absLLR.plus.score",
-                #"GPN_absLLR.plus.score",
-
-                #"GPN-MSA_InnerProduct.minus.score",
-                #"GPN-MSA_Influence.plus.score",
-                #"GPN_InnerProduct.minus.score",
             ],
         ),
         expand(
-            #"results/dataset/{dataset}/metrics/{subset}/{feature_set}.{classifier}.chrom.csv",
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
             dataset=["gwas_matched_9"],
             subset=[f"non_coding_AND_{trait}" for trait in select_gwas_traits_n30],
             feature_set=[
                 "CADD",
-                "Enformer",
                 "Borzoi",
-                "GPN-MSA_absLLR+InnerProducts",
-                #"GPN_absLLR+InnerProducts",
+                "GPN-MSA",
             ],
             classifier=[
                 "LogisticRegression",

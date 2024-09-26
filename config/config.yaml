@@ -39,51 +39,59 @@ features:
 
 feature_sets:
   CADD:
-  - CADD
-  GPN-MSA_absLLR+InnerProducts:
+    - CADD
+  GPN-MSA:
+    - GPN-MSA_LLR
     - GPN-MSA_absLLR
     - GPN-MSA_InnerProducts
-  GPN-MSA_LLR+InnerProducts:
-    - GPN-MSA_LLR
-    - GPN-MSA_InnerProducts
-  NucleotideTransformer_absLLR+InnerProducts:
+  NucleotideTransformer:
+    - NucleotideTransformer_LLR
     - NucleotideTransformer_absLLR
     - NucleotideTransformer_InnerProducts
-  NucleotideTransformer_LLR+InnerProducts:
-    - NucleotideTransformer_LLR
-    - NucleotideTransformer_InnerProducts
-  GPN_absLLR+InnerProducts:
+  GPN:
+    - GPN_LLR
     - GPN_absLLR
     - GPN_InnerProducts
-  GPN_LLR+InnerProducts:
-    - GPN_LLR
-    - GPN_InnerProducts
-  HyenaDNA_absLLR+InnerProducts:
+  HyenaDNA:
+    - HyenaDNA_LLR
     - HyenaDNA_absLLR
     - HyenaDNA_InnerProducts
-  HyenaDNA_LLR+InnerProducts:
-    - HyenaDNA_LLR
-    - HyenaDNA_InnerProducts
-  Caduceus_absLLR+InnerProducts:
+  Caduceus:
+    - Caduceus_LLR
     - Caduceus_absLLR
     - Caduceus_InnerProducts
-  Caduceus_LLR+InnerProducts:
-    - Caduceus_LLR
-    - Caduceus_InnerProducts
+  Enformer:
+    - Enformer_L2
+    - Enformer_L2_L2
+  Borzoi:
+    - Borzoi_L2
+    - Borzoi_L2_L2
 
   Enformer_L2:
     - Enformer_L2
   Enformer_L2_L2:
-    - Enformer_L2_L2
-  Enformer:
-    - Enformer_L2
     - Enformer_L2_L2
 
   Borzoi_L2:
     - Borzoi_L2
   Borzoi_L2_L2:
     - Borzoi_L2_L2
-  Borzoi:
+
+  CADD+GPN-MSA:
+    - CADD
+    - GPN-MSA_LLR
+    - GPN-MSA_absLLR
+    - GPN-MSA_InnerProducts
+
+  CADD+Borzoi:
+    - CADD
+    - Borzoi_L2
+    - Borzoi_L2_L2
+
+  GPN-MSA+Borzoi:
+    - GPN-MSA_LLR
+    - GPN-MSA_absLLR
+    - GPN-MSA_InnerProducts
     - Borzoi_L2
     - Borzoi_L2_L2
 
