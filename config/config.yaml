@@ -70,21 +70,7 @@ feature_sets:
   Caduceus_LLR+InnerProducts:
     - Caduceus_LLR
     - Caduceus_InnerProducts
-  CADD+GPN-MSA_LLR:
-    - CADD
-    - GPN-MSA_LLR
-  phyloP-100v:
-    - phyloP-100v
-    - minus_MAF
-    - minus_TSS_dist
-  phastCons-100v:
-    - phastCons-100v
-    - minus_MAF
-    - minus_TSS_dist
-  phyloP-241m:
-    - phyloP-241m
-    - minus_MAF
-    - minus_TSS_dist
+
   Enformer_L2:
     - Enformer_L2
   Enformer_L2_L2:
@@ -92,8 +78,7 @@ feature_sets:
   Enformer:
     - Enformer_L2
     - Enformer_L2_L2
-  Enformer_L2_L2:
-    - Enformer_L2_L2
+
   Borzoi_L2:
     - Borzoi_L2
   Borzoi_L2_L2:
@@ -102,117 +87,18 @@ feature_sets:
     - Borzoi_L2
     - Borzoi_L2_L2
 
-  Borzoi_L2+GPN-MSA:
-    - Borzoi_L2
-    - GPN-MSA_absLLR
-    - GPN-MSA_InnerProducts
-
-  Borzoi_L2+CADD:
-    - Borzoi_L2
+  CADD+GPN-MSA+Borzoi:
     - CADD
-
-  CADD+GPN-MSA:
-    - CADD
-    - GPN-MSA_absLLR
-    - GPN-MSA_InnerProducts
-
-  Borzoi_L2+GPN-MSA+CADD:
-    - Borzoi_L2
-    - GPN-MSA_absLLR
-    - GPN-MSA_InnerProducts
-    - CADD
-
-  Enformer_L2+GPN-MSA+CADD:
-    - Enformer_L2
-    - GPN-MSA_absLLR
-    - GPN-MSA_InnerProducts
-    - CADD
-
-  Enformer+GPN-MSA+CADD:
-    - Enformer_L2
-    - Enformer_L2_L2
-    - GPN-MSA_absLLR
-    - GPN-MSA_InnerProducts
-    - CADD
-
-  Borzoi_L2+Enformer_L2+GPN-MSA+CADD:
-    - Borzoi_L2
-    - Enformer_L2
-    - GPN-MSA_absLLR
-    - GPN-MSA_InnerProducts
-    - CADD
-
-  OMIM_Ensemble:
-    - Enformer_L2
-    - Enformer_L2_L2
     - GPN-MSA_LLR
-    - CADD
+    - GPN-MSA_absLLR
+    - GPN-MSA_InnerProducts
+    - Borzoi_L2
+    - Borzoi_L2_L2
 
   OMIM_Ensemble_v2:
     - Borzoi_L2_L2
     - GPN-MSA_LLR
     - CADD
-  
-  GWAS_Ensemble:
-    - Enformer_L2
-    - Enformer_L2_L2
-    - Borzoi_L2
-    - Borzoi_L2_L2
-    - GPN-MSA_absLLR
-    - GPN-MSA_InnerProducts
-    - CADD
-
-  Ensemble:
-  - CADD
-  - Borzoi_L2
-  - GPN-MSA_absLLR
-  - phyloP-100v
-  - phastCons-100v
-  - phyloP-241m
-  - minus_TSS_dist
-  - minus_MAF
-  - minus_MAF_popmax
-  Ensemble_precomputed:
-  - GPN-MSA_absLLR
-  - GPN-MSA_InnerProducts
-  - Enformer_absDelta
-  - phyloP-100v
-  - phastCons-100v
-  - phyloP-241m
-  - minus_TSS_dist
-  - minus_MAF
-  - minus_MAF_popmax
-  - CADD_Annot
-
-model_sets:
-  GPN-MSA_LLR+Enformer:
-    - Enformer_L2_L2.plus.all
-    - GPN-MSA_LLR.minus.score
-  GPN-MSA_absLLR+Enformer:
-    - Enformer_L2_L2.plus.all
-    - GPN-MSA_absLLR.plus.score
-
-dataset_eval_models:
-  gonzalobenegas/siraj_gwas_highpip:
-    - Baseline.RandomForest.chrom
-
-    - Ensemble.RandomForest.chrom
-    #- Ensemble.XGBoost.chrom
-
-    - CADD.RandomForest.chrom
-    - Enformer.RandomForest.chrom
-    - Borzoi.RandomForest.chrom
-    - GPN-MSA.RandomForest.chrom
-    - phyloP-100v.RandomForest.chrom
-    - phastCons-100v.RandomForest.chrom
-    - phyloP-241m.RandomForest.chrom
-
-baseline_features:
-  gonzalobenegas/dsqtl:
-    - Enformer_absDelta
-  gonzalobenegas/siraj_gwas_highpip: []
-  gonzalobenegas/siraj_eqtl_highpip:
-    - Enformer_absDelta
 
 gpn_msa:
   model_path: "songlab/gpn-msa-sapiens"

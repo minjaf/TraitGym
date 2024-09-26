@@ -56,34 +56,6 @@ rule all:
         )
 
 
-rule half1:
-    input:
-        expand(
-            "results/dataset/{dataset}/features/{features}.parquet",
-            dataset=config["datasets"],
-            features=[
-                "NucleotideTransformer_LLR",
-                "NucleotideTransformer_InnerProducts",
-                "HyenaDNA_LLR",
-                "HyenaDNA_InnerProducts",
-            ],
-        )
-
-
-rule half2:
-    input:
-        expand(
-            "results/dataset/{dataset}/features/{features}.parquet",
-            dataset=config["datasets"],
-            features=[
-                "GPN_LLR",
-                "GPN_InnerProducts",
-                "Caduceus_LLR",
-                "Caduceus_InnerProducts",
-            ],
-        )
-
-
 rule deleteriousness_supervised:
     input:
         expand(
@@ -97,15 +69,15 @@ rule deleteriousness_supervised:
 
                 "GPN-MSA_LLR.minus.score",
                 "GPN_LLR.minus.score",
-                #"NucleotideTransformer_LLR.minus.score",
-                #"HyenaDNA_LLR.minus.score",
-                #"Caduceus_LLR.minus.score",
+                "NucleotideTransformer_LLR.minus.score",
+                "HyenaDNA_LLR.minus.score",
+                "Caduceus_LLR.minus.score",
 
                 "GPN-MSA_InnerProduct.minus.score",
                 "GPN_InnerProduct.minus.score",
-                #"NucleotideTransformer_InnerProduct.minus.score",
-                #"HyenaDNA_InnerProduct.minus.score",
-                #"Caduceus_InnerProduct.minus.score",
+                "NucleotideTransformer_InnerProduct.minus.score",
+                "HyenaDNA_InnerProduct.minus.score",
+                "Caduceus_InnerProduct.minus.score",
             ],
         ),
         expand(
@@ -119,12 +91,13 @@ rule deleteriousness_supervised:
 
                 "GPN-MSA_LLR+InnerProducts",
                 "GPN_LLR+InnerProducts",
-                #"NucleotideTransformer_LLR+InnerProducts",
-                #"HyenaDNA_LLR+InnerProducts",
-                #"Caduceus_LLR+InnerProducts",
+                "NucleotideTransformer_LLR+InnerProducts",
+                "HyenaDNA_LLR+InnerProducts",
+                "Caduceus_LLR+InnerProducts",
 
                 #"OMIM_Ensemble",
-                "OMIM_Ensemble_v2",
+                #"OMIM_Ensemble_v2",
+                "CADD+GPN-MSA+Borzoi",
             ],
             classifier=[
                 "LogisticRegression",
@@ -185,7 +158,8 @@ rule functionality_supervised:
                 "HyenaDNA_absLLR+InnerProducts",
                 "Caduceus_absLLR+InnerProducts",
 
-                "Enformer+GPN-MSA+CADD",
+                #"Enformer+GPN-MSA+CADD",
+                "CADD+GPN-MSA+Borzoi",
             ],
             classifier=[
                 "LogisticRegression",
@@ -319,5 +293,14 @@ rule interpretation_enformer_borzoi:
             features=[
                 "Enformer_L2",
                 "Borzoi_L2",
+            ],
+        ),
+        expand(
+            "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
+            dataset=config["datasets"],
+            subset=["non_coding"] + config["consequence_subsets"],
+            features=[
+                "Enformer_L2_L2",
+                "Borzoi_L2_L2",
             ],
         ),
