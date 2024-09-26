@@ -62,20 +62,10 @@ rule half1:
             "results/dataset/{dataset}/features/{features}.parquet",
             dataset=config["datasets"],
             features=[
-                "Enformer_L2",
-                "Borzoi_L2",
-
                 "NucleotideTransformer_LLR",
                 "NucleotideTransformer_InnerProducts",
-
-                "GPN_LLR",
-                "GPN_InnerProducts",
-
                 "HyenaDNA_LLR",
                 "HyenaDNA_InnerProducts",
-
-                "Caduceus_LLR",
-                "Caduceus_InnerProducts",
             ],
         )
 
@@ -86,18 +76,8 @@ rule half2:
             "results/dataset/{dataset}/features/{features}.parquet",
             dataset=config["datasets"],
             features=[
-                "Enformer_L2",
-                "Borzoi_L2",
-
-                "NucleotideTransformer_LLR",
-                "NucleotideTransformer_InnerProducts",
-
                 "GPN_LLR",
                 "GPN_InnerProducts",
-
-                "HyenaDNA_LLR",
-                "HyenaDNA_InnerProducts",
-
                 "Caduceus_LLR",
                 "Caduceus_InnerProducts",
             ],
@@ -107,7 +87,6 @@ rule half2:
 rule deleteriousness_supervised:
     input:
         expand(
-            #"results/dataset/{dataset}/metrics/{subset}/{model}.csv",
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
             dataset=["mendelian_matched_9"],
             subset=config["subsets"],
@@ -118,19 +97,18 @@ rule deleteriousness_supervised:
 
                 "GPN-MSA_LLR.minus.score",
                 "GPN_LLR.minus.score",
-                "NucleotideTransformer_LLR.minus.score",
-                "HyenaDNA_LLR.minus.score",
-                "Caduceus_LLR.minus.score",
+                #"NucleotideTransformer_LLR.minus.score",
+                #"HyenaDNA_LLR.minus.score",
+                #"Caduceus_LLR.minus.score",
 
                 "GPN-MSA_InnerProduct.minus.score",
                 "GPN_InnerProduct.minus.score",
-                "NucleotideTransformer_InnerProduct.minus.score",
-                "HyenaDNA_InnerProduct.minus.score",
-                "Caduceus_InnerProduct.minus.score",
+                #"NucleotideTransformer_InnerProduct.minus.score",
+                #"HyenaDNA_InnerProduct.minus.score",
+                #"Caduceus_InnerProduct.minus.score",
             ],
         ),
         expand(
-            #"results/dataset/{dataset}/metrics/{subset}/{feature_set}.{classifier}.chrom.csv",
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
             dataset=["mendelian_matched_9"],
             subset=config["subsets"],
@@ -140,10 +118,10 @@ rule deleteriousness_supervised:
                 "Borzoi",
 
                 "GPN-MSA_LLR+InnerProducts",
-                "NucleotideTransformer_LLR+InnerProducts",
                 "GPN_LLR+InnerProducts",
-                "HyenaDNA_LLR+InnerProducts",
-                "Caduceus_LLR+InnerProducts",
+                #"NucleotideTransformer_LLR+InnerProducts",
+                #"HyenaDNA_LLR+InnerProducts",
+                #"Caduceus_LLR+InnerProducts",
 
                 #"OMIM_Ensemble",
                 "OMIM_Ensemble_v2",
@@ -161,7 +139,6 @@ rule deleteriousness_supervised:
                 "Enformer",
                 "Borzoi",
                 "GPN-MSA_LLR+InnerProducts",
-                "GPN_LLR+InnerProducts",
             ],
             classifier=[
                 "LogisticRegression",
@@ -172,7 +149,6 @@ rule deleteriousness_supervised:
 rule functionality_supervised:
     input:
         expand(
-            #"results/dataset/{dataset}/metrics/{subset}/{model}.csv",
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
             dataset=["gwas_matched_9"],
             subset=config["subsets"],
@@ -195,7 +171,6 @@ rule functionality_supervised:
             ],
         ),
         expand(
-            #"results/dataset/{dataset}/metrics/{subset}/{feature_set}.{classifier}.chrom.csv",
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
             dataset=["gwas_matched_9"],
             subset=config["subsets"],
