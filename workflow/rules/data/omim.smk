@@ -4,14 +4,6 @@
 # American Journal of Human Genetics 99.3 (2016): 595-606.
 
 
-# just a subset we'll use for interpretation
-#omim_traits = [
-#    "174500",
-#    "306900",
-#    "600886",
-#]
-
-
 rule omim_download:
     output:
         temp("results/omim/variants.xslx"),
@@ -44,20 +36,25 @@ rule omim_process:
         V.to_parquet(output[0], index=False)
 
 
-rule omim_dataset:
+rule mendelian_dataset:
     input:
-        "results/omim/variants.annot_with_cre.parquet",
+        "results/omim/variants.annot_with_cre.annot_MAF.parquet",
         "results/gnomad/common.parquet",
         "results/tss.parquet",
     output:
-        "results/dataset/omim_matched_{k,\d+}/test.parquet",
+        "results/dataset/mendelian_traits_matched_{k,\d+}/test.parquet",
     run:
         k = int(wildcards.k)
         pos = pd.read_parquet(input[0])
+        pos.maf = pos.maf.fillna(0)
+        pos = pos[pos.maf < 0.1 / 100]
+        pos = pos.drop(columns=["maf"])
         pos["label"] = True
         neg = pd.read_parquet(input[1])
         neg["label"] = False
         V = pd.concat([pos, neg], ignore_index=True)
+        V = V[V.consequence.isin(TARGET_CONSEQUENCES)]
+        assert len(V) == len(V.drop_duplicates(COORDINATES))
 
         V["start"] = V.pos - 1
         V["end"] = V.pos
@@ -89,19 +86,18 @@ rule omim_dataset:
         V.to_parquet(output[0], index=False)
 
 
-#rule omim_subset_trait:
-#    input:
-#        "results/dataset/omim_matched_{k}/test.parquet",
-#    output:
-#        "results/dataset/omim_matched_{k}/subset/{t}.parquet",
-#    wildcard_constraints:
-#        t="|".join(omim_traits),
-#    run:
-#        V = pd.read_parquet(input[0])
-#        target_size = 1 + int(wildcards.k)
-#        V = V[(~V.label) | (V.OMIM == f"MIM {wildcards.t}")]
-#        match_group_size = V.match_group.value_counts() 
-#        match_groups = match_group_size[match_group_size == target_size].index
-#        V = V[V.match_group.isin(match_groups)]
-#        V[COORDINATES].to_parquet(output[0], index=False)
-#
+rule mendelian_traits_subset_trait:
+    input:
+        "results/dataset/mendelian_traits_matched_{k}/test.parquet",
+    output:
+        "results/dataset/mendelian_traits_matched_{k}/subset/{t}.parquet",
+    wildcard_constraints:
+        t="|".join(select_omim_traits),
+    run:
+        V = pd.read_parquet(input[0])
+        target_size = 1 + int(wildcards.k)
+        V = V[(~V.label) | (V.OMIM == f"MIM {wildcards.t}")]
+        match_group_size = V.match_group.value_counts() 
+        match_groups = match_group_size[match_group_size == target_size].index
+        V = V[V.match_group.isin(match_groups)]
+        V[COORDINATES].to_parquet(output[0], index=False)

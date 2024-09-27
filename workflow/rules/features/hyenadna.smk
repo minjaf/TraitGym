@@ -9,7 +9,7 @@ rule hyenadna_run_vep_llr:
         "results/dataset/{dataset}/features/HyenaDNA_LLR.parquet",
     threads:
         workflow.cores
-    priority: 20
+    priority: 19
     shell:
         """
         python workflow/scripts/run_vep_llr_hyenadna.py \
@@ -26,7 +26,7 @@ rule hyenadna_run_vep_inner_products:
         "results/dataset/{dataset}/features/HyenaDNA_InnerProducts.parquet",
     threads:
         workflow.cores
-    priority: 20
+    priority: 19
     shell:
         """
         python workflow/scripts/run_vep_inner_products_hyenadna.py \

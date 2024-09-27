@@ -57,15 +57,15 @@ TARGET_CONSEQUENCES = (
 
 select_gwas_traits = (
     pd.read_csv("config/gwas/independent_traits_filtered.csv", header=None)
-    .values.ravel()
+    .values.ravel().tolist()
 )
 select_gwas_traits_n30 = (
     pd.read_csv("config/gwas/independent_traits_filtered_n30.csv", header=None)
-    .values.ravel()
+    .values.ravel().tolist()
 )
 select_omim_traits = (
     pd.read_csv("config/omim/filtered_traits.txt", header=None, dtype=str)
-    .values.ravel()
+    .values.ravel().tolist()
 )
 
 tissues = pd.read_csv("config/gtex_tissues.txt", header=None).values.ravel()

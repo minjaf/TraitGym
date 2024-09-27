@@ -151,7 +151,7 @@ rule gwas_match:
         "results/ldscore/UKBB.EUR.ldscore.annot_with_cre.parquet",
         "results/tss.parquet",
     output:
-        "results/dataset/gwas_matched_{k,\d+}/test.parquet",
+        "results/dataset/complex_traits_matched_{k,\d+}/test.parquet",
     run:
         k = int(wildcards.k)
         V = (
@@ -168,6 +168,8 @@ rule gwas_match:
 
         annot = pd.read_parquet(input[1])
         V = V.merge(annot, on=COORDINATES, how="inner")
+
+        V = V[V.consequence.isin(TARGET_CONSEQUENCES)]
 
         V["start"] = V.pos - 1
         V["end"] = V.pos

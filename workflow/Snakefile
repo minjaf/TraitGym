@@ -1,7 +1,7 @@
 configfile: "config/config.yaml"
 
 include: "rules/common.smk"
-include: "rules/data/clinvar.smk"
+#include: "rules/data/clinvar.smk"
 include: "rules/data/gwas.smk"
 #include: "rules/data/insights.smk"
 include: "rules/data/splicing_assay.smk"
@@ -10,7 +10,7 @@ include: "rules/data/dsqtl.smk"
 include: "rules/data/eqtl.smk"
 include: "rules/data/gnomad.smk"
 include: "rules/data/ldscore.smk"
-include: "rules/data/mendelian.smk"
+#include: "rules/data/mendelian.smk"
 include: "rules/data/omim.smk"
 include: "rules/data/sat_mut_mpra.smk"
 include: "rules/data/siraj.smk"
@@ -56,12 +56,54 @@ rule all:
         )
 
 
+rule half1:
+    input:
+        expand(
+            "results/dataset/{dataset}/features/{features}.parquet",
+            dataset=config["datasets"],
+            features=[
+                #"NucleotideTransformer_LLR",
+                #"NucleotideTransformer_InnerProducts",
+
+                "GPN_LLR",
+                "GPN_InnerProducts",
+
+                #"HyenaDNA_LLR",
+                #"HyenaDNA_InnerProducts",
+
+                "Caduceus_LLR",
+                "Caduceus_InnerProducts",
+            ],
+        )
+
+
+rule half2:
+    input:
+        expand(
+            "results/dataset/{dataset}/features/{features}.parquet",
+            dataset=config["datasets"],
+            features=[
+                "NucleotideTransformer_LLR",
+                "NucleotideTransformer_InnerProducts",
+
+                #"GPN_LLR",
+                #"GPN_InnerProducts",
+
+                "HyenaDNA_LLR",
+                "HyenaDNA_InnerProducts",
+
+                #"Caduceus_LLR",
+                #"Caduceus_InnerProducts",
+            ],
+        )
+
+
 rule general_supervised:
     input:
         expand(
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
             dataset=config["datasets"],
-            subset=config["subsets"],
+            subset=["all"],
             feature_set=[
                 "CADD",
                 "Enformer",
@@ -96,12 +138,12 @@ rule general_supervised:
         ),
 
 
-rule deleteriousness_unsupervised:
+rule mendelian_traits_unsupervised:
     input:
         expand(
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
-            dataset=["mendelian_matched_9"],
-            subset=config["subsets"],
+            dataset=["mendelian_traits_matched_9"],
+            subset=["all"],
             model=[
                 "CADD.plus.RawScore",
                 "Enformer_L2_L2.plus.all",
@@ -122,12 +164,12 @@ rule deleteriousness_unsupervised:
         ),
 
 
-rule functionality_unsupervised:
+rule complex_traits_unsupervised:
     input:
         expand(
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
-            dataset=["gwas_matched_9"],
-            subset=config["subsets"],
+            dataset=["complex_traits_matched_9"],
+            subset=["all"],
             model=[
                 "CADD.plus.RawScore",
                 "Enformer_L2_L2.plus.all",
@@ -148,15 +190,12 @@ rule functionality_unsupervised:
         ),
 
 
-rule vep_select_omim_traits:
+rule select_mendelian_traits:
     input:
         expand(
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
-            dataset=["mendelian_matched_9"],
-            subset=(
-                [f"non_coding_AND_{trait}" for trait in select_omim_traits]
-                + config["consequence_subsets"]
-            ),
+            dataset=["mendelian_traits_matched_9"],
+            subset=select_omim_traits+ config["consequence_subsets"],
             model=[
                 "CADD.plus.RawScore",
                 "Borzoi_L2_L2.plus.all",
@@ -165,15 +204,12 @@ rule vep_select_omim_traits:
         ),
 
 
-rule vep_select_gwas_traits:
+rule select_complex_traits:
     input:
         expand(
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
-            dataset=["gwas_matched_9"],
-            subset=(
-                [f"non_coding_AND_{trait}" for trait in select_gwas_traits]
-                + config["consequence_subsets"]
-            ),
+            dataset=["complex_traits_matched_9"],
+            subset=select_gwas_traits + config["consequence_subsets"],
             model=[
                 "CADD.plus.RawScore",
                 "Borzoi_L2_L2.plus.all",
@@ -182,8 +218,8 @@ rule vep_select_gwas_traits:
         ),
         expand(
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
-            dataset=["gwas_matched_9"],
-            subset=[f"non_coding_AND_{trait}" for trait in select_gwas_traits_n30],
+            dataset=["complex_traits_matched_9"],
+            subset=select_gwas_traits_n30,
             feature_set=[
                 "CADD",
                 "Borzoi",
@@ -200,57 +236,40 @@ rule interpretation_cadd:
         expand(
             "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
             dataset=config["datasets"],
-            subset=["non_coding"],
+            subset=["all"],
             features=["CADD"],
         ),
-        expand(
-            "results/dataset/{dataset}/coefficients/{subset}/{feature_set}.csv",
-            dataset=config["datasets"],
-            subset=["non_coding"],
-            feature_set=["CADD"],
-        )
 
 
-rule interpretation_enformer_borzoi:
+rule interpretation_borzoi:
     input:
         expand(
             "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
-            dataset=["mendelian_matched_9"],
+            dataset=["mendelian_traits_matched_9"],
             subset=[
-                "non_coding_AND_613985",
-                "non_coding_AND_306900",
-                "non_coding_AND_143890",
-                "non_coding_AND_614743",
-                "non_coding_AND_250250",
+                "613985",
+                "306900",
+                "143890",
+                "614743",
+                "250250",
             ],
             features=[
-                "Enformer_L2",
                 "Borzoi_L2",
             ],
         ),
         expand(
             "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
-            dataset=["gwas_matched_9"],
+            dataset=["complex_traits_matched_9"],
             subset=[
-                "non_coding_AND_Height",
-                "non_coding_AND_Mono",
-                "non_coding_AND_HbA1c",
-                "non_coding_AND_HDLC",
-                "non_coding_AND_Alb",
-                "non_coding_AND_DVT",
+                "Height",
+                "Mono",
+                "HbA1c",
+                "HDLC",
+                "Alb",
+                "DVT",
             ],
             features=[
-                "Enformer_L2",
                 "Borzoi_L2",
-            ],
-        ),
-        expand(
-            "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
-            dataset=config["datasets"],
-            subset=["non_coding"] + config["consequence_subsets"],
-            features=[
-                "Enformer_L2_L2",
-                "Borzoi_L2_L2",
             ],
         ),
         expand(

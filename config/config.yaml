@@ -4,17 +4,10 @@ annotation_url: "http://ftp.ensembl.org/pub/release-107/gtf/homo_sapiens/Homo_sa
 clinvar_release: 20240909
 
 datasets:
-  - mendelian_matched_9
-  - gwas_matched_9
-
-subsets:
-#  - all
-#  - non_coding
-  - non_coding_v2
+  - mendelian_traits_matched_9
+  - complex_traits_matched_9
 
 consequence_subsets:
-#  - nonexonic
-#  - missense_variant
   - non_coding_transcript_exon_variant
   - 3_prime_UTR_variant
   - 5_prime_UTR_variant
