@@ -8,8 +8,9 @@ datasets:
   - gwas_matched_9
 
 subsets:
-  - all
-  - non_coding
+#  - all
+#  - non_coding
+  - non_coding_v2
 
 consequence_subsets:
 #  - nonexonic

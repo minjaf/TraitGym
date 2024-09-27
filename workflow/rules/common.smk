@@ -48,6 +48,13 @@ other_consequences = [
     "5_prime_UTR_variant",
 ]
 
+TARGET_CONSEQUENCES = (
+    NON_EXONIC +
+    cre_classes +
+    cre_flank_classes +
+    ["5_prime_UTR_variant", "3_prime_UTR_variant", "non_coding_transcript_exon_variant"]
+)
+
 select_gwas_traits = (
     pd.read_csv("config/gwas/independent_traits_filtered.csv", header=None)
     .values.ravel()
@@ -851,6 +858,22 @@ rule dataset_subset_non_coding:
             "stop_gained",
         ]
         V = V[~V.consequence.isin(exclude)]
+        V[COORDINATES].to_parquet(output[0], index=False)
+
+
+rule dataset_subset_non_coding_v2:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+    output:
+        "results/dataset/{dataset}/subset/non_coding_v2.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        include = NON_EXONIC + cre_classes + cre_flank_classes + [
+            "5_prime_UTR_variant",
+            "3_prime_UTR_variant",
+            "non_coding_transcript_exon_variant",
+        ]
+        V = V[V.consequence.isin(include)]
         V[COORDINATES].to_parquet(output[0], index=False)
 
 
