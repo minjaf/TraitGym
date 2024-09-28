@@ -82,13 +82,15 @@ rule general_supervised:
             ]
         ),
         expand(
-            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.subset_from_all.csv",
             dataset=config["datasets"],
             subset=config["consequence_subsets"],
             feature_set=[
-                #"CADD",
-                #"Borzoi",
+                "CADD",
+                "Borzoi",
                 "GPN-MSA",
+                "CADD+GPN-MSA+Borzoi",
+                "CADD+GPN-MSA_LLR+Borzoi_L2_L2",
             ],
             classifier=[
                 "LogisticRegression",
@@ -139,12 +141,27 @@ rule select_mendelian_traits:
         expand(
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
             dataset=["mendelian_traits_matched_9"],
-            subset=select_omim_traits+ config["consequence_subsets"],
+            subset=select_omim_traits + config["consequence_subsets"],
             model=[
                 "CADD.plus.RawScore",
                 "Borzoi_L2_L2.plus.all",
                 "GPN-MSA_LLR.minus.score",
             ],
+        ),
+        expand(
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.subset_from_all.csv",
+            dataset=["mendelian_traits_matched_9"],
+            subset=select_omim_traits,
+            feature_set=[
+                "CADD",
+                "Borzoi",
+                "GPN-MSA",
+                "CADD+GPN-MSA+Borzoi",
+                "CADD+GPN-MSA_LLR+Borzoi_L2_L2",
+            ],
+            classifier=[
+                "LogisticRegression",
+            ]
         ),
 
 
@@ -161,18 +178,33 @@ rule select_complex_traits:
             ],
         ),
         expand(
-            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.subset_from_all.csv",
             dataset=["complex_traits_matched_9"],
-            subset=select_gwas_traits_n30,
+            subset=select_gwas_traits,
             feature_set=[
                 "CADD",
                 "Borzoi",
                 "GPN-MSA",
+                "CADD+GPN-MSA+Borzoi",
             ],
             classifier=[
                 "LogisticRegression",
             ]
         ),
+        #expand(
+        #    "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
+        #    dataset=["complex_traits_matched_9"],
+        #    subset=["Height", "Mono"],
+        #    feature_set=[
+        #        "CADD",
+        #        "Borzoi",
+        #        "GPN-MSA",
+        #        "CADD+GPN-MSA+Borzoi",
+        #    ],
+        #    classifier=[
+        #        "LogisticRegression",
+        #    ]
+        #),
 
 
 rule interpretation_cadd:
@@ -228,7 +260,7 @@ rule ensemble_light:
     input:
         expand(
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
-            dataset=["mendelian_traits_matched_9"],
+            dataset=config["datasets"],
             subset=["all"],
             feature_set=[
                 "CADD+GPN-MSA_LLR",
@@ -239,3 +271,4 @@ rule ensemble_light:
                 "LogisticRegression",
             ]
         ),
+

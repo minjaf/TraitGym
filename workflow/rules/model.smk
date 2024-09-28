@@ -45,26 +45,20 @@ rule run_classifier:
         V[["score"]].to_parquet(output[0], index=False)
 
 
-#rule subset_classifier:
-#    input:
-#        "results/dataset/{dataset}/test.parquet",
-#        "results/dataset/{dataset}/preds/all/{model}.parquet",
-#        "results/dataset/{dataset}/subset/{subset}.parquet",
-#    output:
-#        "results/dataset/{dataset}/preds/{subset}/{features}.{sign,plus|minus}.{feature}.parquet",
-#    run:
-#        V = pd.read_parquet(input[0])
-#        subset = pd.read_parquet(input[1])
-#        df = (
-#            pd.read_parquet(input[2], columns=[wildcards.feature])
-#            .rename(columns={wildcards.feature: "score"})
-#        )
-#        if wildcards.sign == "minus":
-#            df.score = -df.score
-#        V = pd.concat([V, df], axis=1)
-#        V = subset.merge(V, on=COORDINATES, how="left")
-#        assert V.score.isna().sum() == 0
-#        V[["score"]].to_parquet(output[0], index=False)
+rule subset_classifier:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+        "results/dataset/{dataset}/subset/{subset}.parquet",
+        "results/dataset/{dataset}/preds/all/{model}.parquet",
+    output:
+        "results/dataset/{dataset}/preds/{subset}/{model}.subset_from_all.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        subset = pd.read_parquet(input[1])
+        df = pd.read_parquet(input[2])
+        V = pd.concat([V, df], axis=1)
+        V = subset.merge(V, on=COORDINATES, how="left")
+        V[["score"]].to_parquet(output[0], index=False)
 
 
 rule unsupervised_pred:
