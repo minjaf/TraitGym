@@ -1,39 +1,3 @@
-rule dataset_subset_trait:
-    input:
-        "results/dataset/{dataset}/test.parquet",
-    output:
-        "results/dataset/{dataset}/subset/{trait}.parquet",
-    wildcard_constraints:
-        trait="|".join(select_gwas_traits),
-    run:
-        V = pd.read_parquet(input[0])
-        V.trait = V.trait.str.split(",")
-        target_size = len(V[V.match_group==V.match_group.iloc[0]])
-        V = V[(~V.label) | (V.trait.apply(lambda x: wildcards.trait in x))]
-        match_group_size = V.match_group.value_counts() 
-        match_groups = match_group_size[match_group_size == target_size].index
-        V = V[V.match_group.isin(match_groups)]
-        V[COORDINATES].to_parquet(output[0], index=False)
-
-
-rule dataset_subset_tissue:
-    input:
-        "results/dataset/{dataset}/test.parquet",
-    output:
-        "results/dataset/{dataset}/subset/{tissue}.parquet",
-    wildcard_constraints:
-        tissue="|".join(tissues),
-    run:
-        V = pd.read_parquet(input[0])
-        V.tissue = V.tissue.str.split(",")
-        target_size = len(V[V.match_group==V.match_group.iloc[0]])
-        V = V[(~V.label) | (V.tissue.apply(lambda x: wildcards.tissue in x))]
-        match_group_size = V.match_group.value_counts() 
-        match_groups = match_group_size[match_group_size == target_size].index
-        V = V[V.match_group.isin(match_groups)]
-        V[COORDINATES].to_parquet(output[0], index=False)
-
-
 rule run_classifier:
     input:
         "results/dataset/{dataset}/test.parquet",
@@ -81,6 +45,80 @@ rule run_classifier:
         V[["score"]].to_parquet(output[0], index=False)
 
 
+#rule subset_classifier:
+#    input:
+#        "results/dataset/{dataset}/test.parquet",
+#        "results/dataset/{dataset}/preds/all/{model}.parquet",
+#        "results/dataset/{dataset}/subset/{subset}.parquet",
+#    output:
+#        "results/dataset/{dataset}/preds/{subset}/{features}.{sign,plus|minus}.{feature}.parquet",
+#    run:
+#        V = pd.read_parquet(input[0])
+#        subset = pd.read_parquet(input[1])
+#        df = (
+#            pd.read_parquet(input[2], columns=[wildcards.feature])
+#            .rename(columns={wildcards.feature: "score"})
+#        )
+#        if wildcards.sign == "minus":
+#            df.score = -df.score
+#        V = pd.concat([V, df], axis=1)
+#        V = subset.merge(V, on=COORDINATES, how="left")
+#        assert V.score.isna().sum() == 0
+#        V[["score"]].to_parquet(output[0], index=False)
+
+
+rule unsupervised_pred:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+        "results/dataset/{dataset}/subset/{subset}.parquet",
+        "results/dataset/{dataset}/features/{features}.parquet",
+    output:
+        "results/dataset/{dataset}/preds/{subset}/{features}.{sign,plus|minus}.{feature}.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        subset = pd.read_parquet(input[1])
+        df = (
+            pd.read_parquet(input[2], columns=[wildcards.feature])
+            .rename(columns={wildcards.feature: "score"})
+        )
+        if wildcards.sign == "minus":
+            df.score = -df.score
+        V = pd.concat([V, df], axis=1)
+        V = subset.merge(V, on=COORDINATES, how="left")
+        assert V.score.isna().sum() == 0
+        V[["score"]].to_parquet(output[0], index=False)
+
+
+rule eval_unsupervised_features:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+        "results/dataset/{dataset}/subset/{subset}.parquet",
+        "results/dataset/{dataset}/features/{features}.parquet",
+    output:
+        "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
+    run:
+        V = pd.read_parquet(input[0])
+        subset = pd.read_parquet(input[1])
+        df = pd.read_parquet(input[2])
+        features = df.columns
+        df = df.fillna(df.mean())
+        V = pd.concat([V, df], axis=1)
+        V = subset.merge(V, on=COORDINATES, how="left")
+        balanced = V.label.sum() == len(V) // 2
+        metric = roc_auc_score if balanced else average_precision_score
+        metric_name = "AUROC" if balanced else "AUPRC"
+        res = []
+        for f in tqdm(features):
+            score_plus = metric(V.label, V[f])
+            score_minus = metric(V.label, -V[f])
+            score = max(score_plus, score_minus)
+            sign = "plus" if score_plus > score_minus else "minus"
+            res.append([score, f, sign])
+        res = pd.DataFrame(res, columns=[metric_name, "feature", "sign"])
+        res = res.sort_values(metric_name, ascending=False)
+        res.to_csv(output[0], index=False)
+
+
 rule classifier_coefficients:
     input:
         "results/dataset/{dataset}/test.parquet",
@@ -107,75 +145,6 @@ rule classifier_coefficients:
             "feature": all_features,
             "coef": linear.coef_[0],
         }).sort_values("coef", ascending=False, key=abs)
-        res.to_csv(output[0], index=False)
-
-
-rule unsupervised_pred:
-    input:
-        "results/dataset/{dataset}/test.parquet",
-        "results/dataset/{dataset}/subset/{subset}.parquet",
-        "results/dataset/{dataset}/features/{features}.parquet",
-    output:
-        "results/dataset/{dataset}/preds/{subset}/{features}.{sign,plus|minus}.{feature}.parquet",
-    run:
-        V = pd.read_parquet(input[0])
-        subset = pd.read_parquet(input[1])
-        df = (
-            pd.read_parquet(input[2], columns=[wildcards.feature])
-            .rename(columns={wildcards.feature: "score"})
-        )
-        if wildcards.sign == "minus":
-            df.score = -df.score
-        V = pd.concat([V, df], axis=1)
-        V = subset.merge(V, on=COORDINATES, how="left")
-        assert V.score.isna().sum() == 0
-        V[["score"]].to_parquet(output[0], index=False)
-
-
-rule ensemble_rank:
-    input:
-        "results/dataset/{dataset}/test.parquet",
-        "results/dataset/{dataset}/subset/{subset}.parquet",
-        lambda wildcards: expand("results/dataset/{{dataset}}/preds/{{subset}}/{model}.parquet", model=config["model_sets"][wildcards.model_set]),
-    output:
-        "results/dataset/{dataset}/preds/{subset}/ensemble_rank.{model_set}.parquet",
-    run:
-        V = pd.read_parquet(input[0])
-        subset = pd.read_parquet(input[1])
-        models = config["model_sets"][wildcards.model_set]
-        for model, path in zip(models, input[2:]):
-            df = pd.read_parquet(path, columns=["score"]).rename(columns={"score": model})
-            V = pd.concat([V, df], axis=1)
-        V = subset.merge(V, on=COORDINATES, how="left")
-        V["score"] = V[models].rank().mean(axis=1)
-        print(V)
-        V[["score"]].to_parquet(output[0], index=False)
-
-
-rule eval_unsupervised_features:
-    input:
-        "results/dataset/{dataset}/test.parquet",
-        "results/dataset/{dataset}/subset/{subset}.parquet",
-        "results/dataset/{dataset}/features/{features}.parquet",
-    output:
-        "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
-    run:
-        V = pd.read_parquet(input[0])
-        subset = pd.read_parquet(input[1])
-        df = pd.read_parquet(input[2])
-        features = df.columns
-        df = df.fillna(df.mean())
-        V = pd.concat([V, df], axis=1)
-        V = subset.merge(V, on=COORDINATES, how="left")
-        balanced = V.label.sum() == len(V) // 2
-        metric = roc_auc_score if balanced else average_precision_score
-        metric_name = "AUROC" if balanced else "AUPRC"
-        res = []
-        for f in tqdm(features):
-            score = max(metric(V.label, V[f]), metric(V.label, -V[f]))
-            res.append([score, f])
-        res = pd.DataFrame(res, columns=[metric_name, "feature"])
-        res = res.sort_values(metric_name, ascending=False)
         res.to_csv(output[0], index=False)
 
 

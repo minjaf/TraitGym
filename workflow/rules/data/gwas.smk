@@ -200,3 +200,21 @@ rule gwas_match:
         V = sort_variants(V)
         print(V)
         V.to_parquet(output[0], index=False)
+
+
+rule dataset_subset_trait:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+    output:
+        "results/dataset/{dataset}/subset/{trait}.parquet",
+    wildcard_constraints:
+        trait="|".join(select_gwas_traits),
+    run:
+        V = pd.read_parquet(input[0])
+        V.trait = V.trait.str.split(",")
+        target_size = len(V[V.match_group==V.match_group.iloc[0]])
+        V = V[(~V.label) | (V.trait.apply(lambda x: wildcards.trait in x))]
+        match_group_size = V.match_group.value_counts() 
+        match_groups = match_group_size[match_group_size == target_size].index
+        V = V[V.match_group.isin(match_groups)]
+        V[COORDINATES].to_parquet(output[0], index=False)

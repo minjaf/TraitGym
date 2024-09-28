@@ -71,6 +71,7 @@ feature_sets:
   Borzoi_L2_L2:
     - Borzoi_L2_L2
 
+  # heavy ensembles
   CADD+GPN-MSA:
     - CADD
     - GPN-MSA_LLR
@@ -97,10 +98,21 @@ feature_sets:
     - Borzoi_L2
     - Borzoi_L2_L2
 
-  OMIM_Ensemble_v2:
-    - Borzoi_L2_L2
-    - GPN-MSA_LLR
+  # light ensembles
+  CADD+GPN-MSA_LLR:
     - CADD
+    - GPN-MSA_LLR
+    - GPN-MSA_absLLR
+
+  CADD+Borzoi_L2_L2:
+    - CADD
+    - Borzoi_L2_L2
+
+  CADD+GPN-MSA_LLR+Borzoi_L2_L2:
+    - CADD
+    - GPN-MSA_LLR
+    - GPN-MSA_absLLR
+    - Borzoi_L2_L2
 
 gpn_msa:
   model_path: "songlab/gpn-msa-sapiens"

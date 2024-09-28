@@ -56,48 +56,6 @@ rule all:
         )
 
 
-rule half1:
-    input:
-        expand(
-            "results/dataset/{dataset}/features/{features}.parquet",
-            dataset=config["datasets"],
-            features=[
-                #"NucleotideTransformer_LLR",
-                #"NucleotideTransformer_InnerProducts",
-
-                "GPN_LLR",
-                "GPN_InnerProducts",
-
-                #"HyenaDNA_LLR",
-                #"HyenaDNA_InnerProducts",
-
-                "Caduceus_LLR",
-                "Caduceus_InnerProducts",
-            ],
-        )
-
-
-rule half2:
-    input:
-        expand(
-            "results/dataset/{dataset}/features/{features}.parquet",
-            dataset=config["datasets"],
-            features=[
-                "NucleotideTransformer_LLR",
-                "NucleotideTransformer_InnerProducts",
-
-                #"GPN_LLR",
-                #"GPN_InnerProducts",
-
-                "HyenaDNA_LLR",
-                "HyenaDNA_InnerProducts",
-
-                #"Caduceus_LLR",
-                #"Caduceus_InnerProducts",
-            ],
-        )
-
-
 rule general_supervised:
     input:
         expand(
@@ -109,10 +67,10 @@ rule general_supervised:
                 "Enformer",
                 "Borzoi",
                 "GPN-MSA",
-                #"GPN",
-                #"NucleotideTransformer",
-                #"HyenaDNA",
-                #"Caduceus",
+                "GPN",
+                "NucleotideTransformer",
+                "HyenaDNA",
+                "Caduceus",
 
                 "CADD+GPN-MSA",
                 "CADD+Borzoi",
@@ -148,18 +106,11 @@ rule mendelian_traits_unsupervised:
                 "CADD.plus.RawScore",
                 "Enformer_L2_L2.plus.all",
                 "Borzoi_L2_L2.plus.all",
-
                 "GPN-MSA_LLR.minus.score",
-                #"GPN_LLR.minus.score",
-                #"NucleotideTransformer_LLR.minus.score",
-                #"HyenaDNA_LLR.minus.score",
-                #"Caduceus_LLR.minus.score",
-
-                #"GPN-MSA_InnerProduct.minus.score",
-                #"GPN_InnerProduct.minus.score",
-                #"NucleotideTransformer_InnerProduct.minus.score",
-                #"HyenaDNA_InnerProduct.minus.score",
-                #"Caduceus_InnerProduct.minus.score",
+                "GPN_LLR.minus.score",
+                "NucleotideTransformer_LLR.minus.score",
+                "HyenaDNA_LLR.minus.score",
+                "Caduceus_LLR.minus.score",
             ],
         ),
 
@@ -174,18 +125,11 @@ rule complex_traits_unsupervised:
                 "CADD.plus.RawScore",
                 "Enformer_L2_L2.plus.all",
                 "Borzoi_L2_L2.plus.all",
-
                 "GPN-MSA_absLLR.plus.score",
-                #"GPN_absLLR.plus.score",
-                #"NucleotideTransformer_absLLR.plus.score",
-                #"HyenaDNA_absLLR.plus.score",
-                #"Caduceus_absLLR.plus.score",
-
-                #"GPN-MSA_InnerProduct.minus.score",
-                #"GPN_InnerProduct.minus.score",
-                #"NucleotideTransformer_InnerProduct.minus.score",
-                #"HyenaDNA_InnerProduct.minus.score",
-                #"Caduceus_InnerProduct.minus.score",
+                "GPN_absLLR.plus.score",
+                "NucleotideTransformer_absLLR.plus.score",
+                "HyenaDNA_absLLR.plus.score",
+                "Caduceus_absLLR.plus.score",
             ],
         ),
 
@@ -277,4 +221,21 @@ rule interpretation_borzoi:
             dataset=config["datasets"],
             subset=config["consequence_subsets"],
             assay=["RNA", "CAGE", "ATAC", "DNASE", "CHIP"],
+        ),
+
+
+rule ensemble_light:
+    input:
+        expand(
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
+            dataset=["mendelian_traits_matched_9"],
+            subset=["all"],
+            feature_set=[
+                "CADD+GPN-MSA_LLR",
+                "CADD+Borzoi_L2_L2",
+                "CADD+GPN-MSA_LLR+Borzoi_L2_L2",
+            ],
+            classifier=[
+                "LogisticRegression",
+            ]
         ),
