@@ -109,10 +109,10 @@ rule general_supervised:
                 "Enformer",
                 "Borzoi",
                 "GPN-MSA",
-                "GPN",
-                "NucleotideTransformer",
-                "HyenaDNA",
-                "Caduceus",
+                #"GPN",
+                #"NucleotideTransformer",
+                #"HyenaDNA",
+                #"Caduceus",
 
                 "CADD+GPN-MSA",
                 "CADD+Borzoi",
@@ -128,8 +128,8 @@ rule general_supervised:
             dataset=config["datasets"],
             subset=config["consequence_subsets"],
             feature_set=[
-                "CADD",
-                "Borzoi",
+                #"CADD",
+                #"Borzoi",
                 "GPN-MSA",
             ],
             classifier=[
