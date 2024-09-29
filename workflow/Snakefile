@@ -251,7 +251,7 @@ rule interpretation_borzoi:
         expand(
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/Borzoi_L2_L2.plus.{assay}.csv",
             dataset=config["datasets"],
-            subset=config["consequence_subsets"],
+            subset=config["consequence_subsets"] + ["all"],
             assay=["RNA", "CAGE", "ATAC", "DNASE", "CHIP"],
         ),
 
