@@ -218,3 +218,75 @@ rule dataset_subset_trait:
         match_groups = match_group_size[match_group_size == target_size].index
         V = V[V.match_group.isin(match_groups)]
         V[COORDINATES].to_parquet(output[0], index=False)
+
+
+rule dataset_subset_disease:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+    output:
+        "results/dataset/{dataset}/subset/disease.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        V.trait = V.trait.str.split(",").apply(set)
+        target_size = len(V[V.match_group==V.match_group.iloc[0]])
+
+        y = set(config["complex_traits_disease"])
+
+        V = V[(~V.label) | (V.trait.apply(lambda x: len(x & y) > 0))]
+        match_group_size = V.match_group.value_counts() 
+        match_groups = match_group_size[match_group_size == target_size].index
+        V = V[V.match_group.isin(match_groups)]
+        print(V)
+        V[COORDINATES].to_parquet(output[0], index=False)
+
+
+rule dataset_subset_non_disease:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+    output:
+        "results/dataset/{dataset}/subset/non_disease.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        V.trait = V.trait.str.split(",").apply(set)
+        target_size = len(V[V.match_group==V.match_group.iloc[0]])
+
+        y = set(config["complex_traits_disease"])
+
+        V = V[(~V.label) | (V.trait.apply(lambda x: len(x & y) == 0))]
+        match_group_size = V.match_group.value_counts() 
+        match_groups = match_group_size[match_group_size == target_size].index
+        V = V[V.match_group.isin(match_groups)]
+        print(V)
+        V[COORDINATES].to_parquet(output[0], index=False)
+
+
+rule complex_traits_all_dataset:
+    input:
+        "results/gwas/processed.parquet",
+        "results/ldscore/UKBB.EUR.ldscore.annot_with_cre.parquet",
+    output:
+        "results/dataset/complex_traits_all/test.parquet",
+    run:
+        V = (
+            pl.read_parquet(input[0])
+            .with_columns(
+                pl.when(pl.col("pip") > 0.9).then(True)
+                .when(pl.col("pip") < 0.01).then(False)
+                .otherwise(None)
+                .alias("label")
+            )
+            .drop_nulls()
+            .to_pandas()
+        )
+
+        annot = pd.read_parquet(input[1])
+        V = V.merge(annot, on=COORDINATES, how="inner")
+
+        V = V[V.maf > 5 / 100]
+        V = V[V.consequence.isin(TARGET_CONSEQUENCES)]
+        V_pos = V[V.label]
+        V = V[V.consequence.isin(V_pos.consequence.unique())]
+        V = V[V.chrom.isin(V_pos.chrom.unique())]
+        V = sort_variants(V)
+        print(V)
+        V.to_parquet(output[0], index=False)

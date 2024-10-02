@@ -31,6 +31,29 @@ features:
   - Enformer_L2_L2
   - Borzoi_L2_L2
 
+complex_traits_disease:
+  - AFib
+  - AID_Combined
+  - Alzheimer_LTFH
+  - Asthma
+  - Blood_Clot_Lung
+  - BrC
+  - CAD
+  - CRC
+  - Cholelithiasis
+  - Depression_GP
+  - DVT
+  - Fibroblastic_Disorders
+  - Glaucoma_Combined
+  - Hypothyroidism
+  - IBD
+  - Inguinal_Hernia
+  - Insomnia
+  - Migraine_Self
+  - PrC
+  - T2D
+  - T2D_BMI
+
 feature_sets:
   CADD:
     - CADD

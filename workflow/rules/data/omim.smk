@@ -101,3 +101,27 @@ rule mendelian_traits_subset_trait:
         match_groups = match_group_size[match_group_size == target_size].index
         V = V[V.match_group.isin(match_groups)]
         V[COORDINATES].to_parquet(output[0], index=False)
+
+
+rule mendelian_all_dataset:
+    input:
+        "results/omim/variants.annot_with_cre.annot_MAF.parquet",
+        "results/gnomad/common.parquet",
+    output:
+        "results/dataset/mendelian_traits_all/test.parquet",
+    run:
+        pos = pd.read_parquet(input[0])
+        pos.maf = pos.maf.fillna(0)
+        pos = pos[pos.maf < 0.1 / 100]
+        pos = pos.drop(columns=["maf"])
+        pos = pos[pos.consequence.isin(TARGET_CONSEQUENCES)]
+        pos["label"] = True
+        neg = pd.read_parquet(input[1])
+        neg = neg[neg.chrom.isin(pos.chrom.unique())]
+        neg = neg[neg.consequence.isin(pos.consequence.unique())]
+        neg["label"] = False
+        V = pd.concat([pos, neg], ignore_index=True)
+        assert len(V) == len(V.drop_duplicates(COORDINATES))
+        V = sort_variants(V)
+        print(V)
+        V.to_parquet(output[0], index=False)
