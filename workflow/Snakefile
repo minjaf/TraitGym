@@ -170,7 +170,12 @@ rule select_complex_traits:
         expand(
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
             dataset=["complex_traits_matched_9"],
-            subset=select_gwas_traits + config["consequence_subsets"] + ["disease", "non_disease"],
+            subset=(
+                select_gwas_traits +
+                config["consequence_subsets"] +
+                ["disease", "non_disease"] +
+                config["maf_subsets"]
+            ),
             model=[
                 "CADD.plus.RawScore",
                 "Borzoi_L2_L2.plus.all",
@@ -180,7 +185,11 @@ rule select_complex_traits:
         expand(
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.subset_from_all.csv",
             dataset=["complex_traits_matched_9"],
-            subset=select_gwas_traits + ["disease", "non_disease"],
+            subset=(
+                select_gwas_traits +
+                ["disease", "non_disease"] +
+                config["maf_subsets"]
+            ),
             feature_set=[
                 "CADD",
                 "Borzoi",

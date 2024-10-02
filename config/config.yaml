@@ -14,6 +14,16 @@ consequence_subsets:
   - nonexonic_AND_proximal
   - nonexonic_AND_distal
 
+maf_subsets:
+#  - maf_0_0.01
+#  - maf_0.01_0.05
+#  - maf_0.05_0.1
+  - maf_0.0_0.1
+  - maf_0.1_0.2
+  - maf_0.2_0.3
+  - maf_0.3_0.4
+  - maf_0.4_0.5
+
 features:
 #  - GPN-MSA_absLLR
 #  - GPN-MSA_InnerProducts

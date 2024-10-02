@@ -260,6 +260,27 @@ rule dataset_subset_non_disease:
         V[COORDINATES].to_parquet(output[0], index=False)
 
 
+rule dataset_subset_maf:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+    output:
+        "results/dataset/{dataset}/subset/maf_{a}_{b}.parquet",
+    wildcard_constraints:
+        trait="|".join(select_gwas_traits),
+    run:
+        V = pd.read_parquet(input[0])
+        V.trait = V.trait.str.split(",")
+        target_size = len(V[V.match_group==V.match_group.iloc[0]])
+        a = float(wildcards.a)
+        b = float(wildcards.b)
+        V = V[(~V.label) | (V.maf.between(a, b, inclusive="left"))]
+        match_group_size = V.match_group.value_counts() 
+        match_groups = match_group_size[match_group_size == target_size].index
+        V = V[V.match_group.isin(match_groups)]
+        print(V)
+        V[COORDINATES].to_parquet(output[0], index=False)
+
+
 rule complex_traits_all_dataset:
     input:
         "results/gwas/processed.parquet",
