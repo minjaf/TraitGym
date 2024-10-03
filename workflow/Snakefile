@@ -286,11 +286,34 @@ rule extra_unsupervised:
     input:
         expand(
             "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
-            dataset=["mendelian_traits_all", "complex_traits_all"],
-            subset=["all"],
+            dataset=[
+                "complex_traits_all",
+            ],
+            subset=[
+                "all",
+                "maf_0.05_0.1",
+                "maf_0.1_0.2",
+                "maf_0.2_0.3",
+                "maf_0.3_0.4",
+                "maf_0.4_0.5",
+            ],
             features=[
                 "CADD",
-                "GPN-MSA_LLR",
                 "GPN-MSA_absLLR",
             ],
         ),
+        #expand(
+        #    "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
+        #    dataset=[
+        #        "mendelian_traits_all",
+        #    ],
+        #    subset=["all"],
+        #    features=[
+        #        "CADD",
+        #        "GPN-MSA_LLR",
+        #        "GPN-MSA_absLLR",
+
+        #        "GPN_LLR",
+        #        "GPN_absLLR",
+        #    ],
+        #),

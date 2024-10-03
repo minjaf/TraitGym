@@ -923,6 +923,19 @@ rule dataset_subset_distal:
         V[COORDINATES].to_parquet(output[0], index=False)
 
 
+rule dataset_subset_maf:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+    output:
+        "results/dataset/{dataset}/subset/maf_{a}_{b}.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        a = float(wildcards.a)
+        b = float(wildcards.b)
+        V = V[V.maf.between(a, b, inclusive="left")]
+        V[COORDINATES].to_parquet(output[0], index=False)
+
+
 rule dataset_subset_intersect:
     input:
         "results/dataset/{dataset}/subset/{s1}.parquet",

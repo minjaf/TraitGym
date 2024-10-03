@@ -260,17 +260,17 @@ rule dataset_subset_non_disease:
         V[COORDINATES].to_parquet(output[0], index=False)
 
 
-rule dataset_subset_maf:
+ruleorder: dataset_subset_maf > complex_traits_matched_subset_maf
+
+
+rule complex_traits_matched_subset_maf:
     input:
-        "results/dataset/{dataset}/test.parquet",
+        "results/dataset/complex_traits_match_{k}/test.parquet",
     output:
-        "results/dataset/{dataset}/subset/maf_{a}_{b}.parquet",
-    wildcard_constraints:
-        trait="|".join(select_gwas_traits),
+        "results/dataset/complex_traits_match_{k}/subset/maf_{a}_{b}.parquet",
     run:
         V = pd.read_parquet(input[0])
-        V.trait = V.trait.str.split(",")
-        target_size = len(V[V.match_group==V.match_group.iloc[0]])
+        target_size = 1 + int(wildcards.k)
         a = float(wildcards.a)
         b = float(wildcards.b)
         V = V[(~V.label) | (V.maf.between(a, b, inclusive="left"))]
@@ -303,7 +303,6 @@ rule complex_traits_all_dataset:
         annot = pd.read_parquet(input[1])
         V = V.merge(annot, on=COORDINATES, how="inner")
 
-        V = V[V.maf > 5 / 100]
         V = V[V.consequence.isin(TARGET_CONSEQUENCES)]
         V_pos = V[V.label]
         V = V[V.consequence.isin(V_pos.consequence.unique())]
