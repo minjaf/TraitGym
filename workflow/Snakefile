@@ -52,6 +52,9 @@ rule all:
 
                 "Caduceus_LLR",
                 "Caduceus_InnerProducts",
+
+                "GPN_v2_all_256_256_512_17_512_checkpoint_10000_LLR",
+                "GPN_v2_v3_512_17_512_checkpoint_10000_LLR",
             ],
         )
 
@@ -113,6 +116,9 @@ rule mendelian_traits_unsupervised:
                 "NucleotideTransformer_LLR.minus.score",
                 "HyenaDNA_LLR.minus.score",
                 "Caduceus_LLR.minus.score",
+
+                "GPN_v2_all_256_256_512_17_512_checkpoint_10000_LLR.minus.score",
+                "GPN_v2_v3_512_17_512_checkpoint_10000_LLR.minus.score",
             ],
         ),
 
@@ -318,4 +324,59 @@ rule extra_unsupervised:
                 "GPN-MSA_LLR",
                 "GPN_LLR",
             ],
+        ),
+
+
+gpn_models = [
+    #"v2_v3_512_17_512",
+
+    "v2_all_256_256_512_17_512",
+    "v2_all_256_256_512_25_768",
+]
+
+gpn_checkpoints = [
+    10000,
+    50000,
+    100000,
+]
+
+rule gpn_experiments:
+    input:
+        expand(
+            "results/dataset/{dataset}/features/GPN_{model}_checkpoint_{checkpoint}_{feature}.parquet",
+            dataset=config["datasets"],
+            model=gpn_models,
+            checkpoint=gpn_checkpoints,
+            feature=[ 
+                "LLR",
+                "InnerProducts",
+            ],
+        ),
+        expand(
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/GPN_{model}_checkpoint_{checkpoint}_LLR.minus.score.csv",
+            dataset=["mendelian_traits_matched_9"],
+            subset=["all"] + config["consequence_subsets"],
+            model=gpn_models,
+            checkpoint=gpn_checkpoints,
+        ),
+        expand(
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/GPN_{model}_checkpoint_{checkpoint}_absLLR.plus.score.csv",
+            dataset=["complex_traits_matched_9"],
+            subset=["all"] + config["consequence_subsets"],
+            model=gpn_models,
+            checkpoint=gpn_checkpoints,
+        ),
+        expand(
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/GPN_{model}_checkpoint_{checkpoint}.LogisticRegression.chrom.csv",
+            dataset=config["datasets"],
+            subset=["all"],
+            model=gpn_models,
+            checkpoint=gpn_checkpoints,
+        ),
+        expand(
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/GPN_{model}_checkpoint_{checkpoint}.LogisticRegression.chrom.subset_from_all.csv",
+            dataset=config["datasets"],
+            subset=config["consequence_subsets"],
+            model=gpn_models,
+            checkpoint=gpn_checkpoints,
         ),

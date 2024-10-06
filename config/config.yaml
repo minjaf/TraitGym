@@ -147,6 +147,41 @@ feature_sets:
     - GPN-MSA_absLLR
     - Borzoi_L2_L2
 
+  GPN_v2_v3_512_17_512_checkpoint_10000:
+    - GPN_v2_v3_512_17_512_checkpoint_10000_LLR
+    - GPN_v2_v3_512_17_512_checkpoint_10000_absLLR
+    - GPN_v2_v3_512_17_512_checkpoint_10000_InnerProducts
+
+  GPN_v2_all_256_256_512_17_512_checkpoint_10000:
+    - GPN_v2_all_256_256_512_17_512_checkpoint_10000_LLR
+    - GPN_v2_all_256_256_512_17_512_checkpoint_10000_absLLR
+    - GPN_v2_all_256_256_512_17_512_checkpoint_10000_InnerProducts
+
+  GPN_v2_all_256_256_512_17_512_checkpoint_50000:
+    - GPN_v2_all_256_256_512_17_512_checkpoint_50000_LLR
+    - GPN_v2_all_256_256_512_17_512_checkpoint_50000_absLLR
+    - GPN_v2_all_256_256_512_17_512_checkpoint_50000_InnerProducts
+
+  GPN_v2_all_256_256_512_17_512_checkpoint_100000:
+    - GPN_v2_all_256_256_512_17_512_checkpoint_100000_LLR
+    - GPN_v2_all_256_256_512_17_512_checkpoint_100000_absLLR
+    - GPN_v2_all_256_256_512_17_512_checkpoint_100000_InnerProducts
+
+  GPN_v2_all_256_256_512_25_768_checkpoint_10000:
+    - GPN_v2_all_256_256_512_25_768_checkpoint_10000_LLR
+    - GPN_v2_all_256_256_512_25_768_checkpoint_10000_absLLR
+    - GPN_v2_all_256_256_512_25_768_checkpoint_10000_InnerProducts
+
+  GPN_v2_all_256_256_512_25_768_checkpoint_50000:
+    - GPN_v2_all_256_256_512_25_768_checkpoint_50000_LLR
+    - GPN_v2_all_256_256_512_25_768_checkpoint_50000_absLLR
+    - GPN_v2_all_256_256_512_25_768_checkpoint_50000_InnerProducts
+
+  GPN_v2_all_256_256_512_25_768_checkpoint_100000:
+    - GPN_v2_all_256_256_512_25_768_checkpoint_100000_LLR
+    - GPN_v2_all_256_256_512_25_768_checkpoint_100000_absLLR
+    - GPN_v2_all_256_256_512_25_768_checkpoint_100000_InnerProducts
+
 gpn_msa:
   model_path: "songlab/gpn-msa-sapiens"
   msa_path: "/accounts/projects/yss/gbenegas/projects/gpn/analysis/human/results/msa/multiz100way/89/all.zarr"
@@ -156,6 +191,31 @@ gpn:
   #model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/512/512/512_17_512/checkpoint-100000
   model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/256/256/512_25_768/checkpoint-100000
   window_size: 512
+  per_device_batch_size: 2048
+  v2_all_256_256_512_17_512_checkpoint_10000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/256/256/512_17_512/checkpoint-10000
+  v2_all_256_256_512_17_512_checkpoint_20000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/256/256/512_17_512/checkpoint-20000
+  v2_all_256_256_512_17_512_checkpoint_30000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/256/256/512_17_512/checkpoint-30000
+  v2_all_256_256_512_17_512_checkpoint_50000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/256/256/512_17_512/checkpoint-50000
+  v2_all_256_256_512_17_512_checkpoint_100000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/256/256/512_17_512/checkpoint-100000
+
+  v2_v3_512_17_512_checkpoint_10000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_v3/512_17_512/checkpoint-10000
+  v2_v3_512_17_512_checkpoint_20000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_v3/512_17_512/checkpoint-20000
+  v2_v3_512_17_512_checkpoint_30000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_v3/512_17_512/checkpoint-30000
+
+  v2_all_256_256_512_25_768_checkpoint_10000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/256/256/512_25_768/checkpoint-10000
+  v2_all_256_256_512_25_768_checkpoint_50000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/256/256/512_25_768/checkpoint-50000
+  v2_all_256_256_512_25_768_checkpoint_100000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/256/256/512_25_768/checkpoint-100000
 
 cadd:
   url: https://krishna.gs.washington.edu/download/CADD/v1.7/GRCh38/whole_genome_SNVs_inclAnno.tsv.gz
