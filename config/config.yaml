@@ -147,6 +147,11 @@ feature_sets:
     - GPN-MSA_absLLR
     - Borzoi_L2_L2
 
+  GPN_v2_v3_patched_512_17_512_checkpoint_10000:
+    - GPN_v2_v3_patched_512_17_512_checkpoint_10000_LLR
+    - GPN_v2_v3_patched_512_17_512_checkpoint_10000_absLLR
+    - GPN_v2_v3_patched_512_17_512_checkpoint_10000_InnerProducts
+
   GPN_v2_v3_512_17_512_checkpoint_10000:
     - GPN_v2_v3_512_17_512_checkpoint_10000_LLR
     - GPN_v2_v3_512_17_512_checkpoint_10000_absLLR
@@ -182,6 +187,54 @@ feature_sets:
     - GPN_v2_all_256_256_512_25_768_checkpoint_100000_absLLR
     - GPN_v2_all_256_256_512_25_768_checkpoint_100000_InnerProducts
 
+  GPN_v2_bytenet_v4_512_16_256_checkpoint_10000:
+    - GPN_v2_bytenet_v4_512_16_256_checkpoint_10000_LLR
+    - GPN_v2_bytenet_v4_512_16_256_checkpoint_10000_absLLR
+    - GPN_v2_bytenet_v4_512_16_256_checkpoint_10000_InnerProducts
+  GPN_v2_bytenet_v5_512_16_256_checkpoint_10000:
+    - GPN_v2_bytenet_v5_512_16_256_checkpoint_10000_LLR
+    - GPN_v2_bytenet_v5_512_16_256_checkpoint_10000_absLLR
+    - GPN_v2_bytenet_v5_512_16_256_checkpoint_10000_InnerProducts
+  GPN_v2_bytenet_v6_512_16_256_checkpoint_10000:
+    - GPN_v2_bytenet_v6_512_16_256_checkpoint_10000_LLR
+    - GPN_v2_bytenet_v6_512_16_256_checkpoint_10000_absLLR
+    - GPN_v2_bytenet_v6_512_16_256_checkpoint_10000_InnerProducts
+  GPN_v2_bytenet_v7_512_16_256_checkpoint_10000:
+    - GPN_v2_bytenet_v7_512_16_256_checkpoint_10000_LLR
+    - GPN_v2_bytenet_v7_512_16_256_checkpoint_10000_absLLR
+    - GPN_v2_bytenet_v7_512_16_256_checkpoint_10000_InnerProducts
+  GPN_v2_bytenet_v8_512_16_256_checkpoint_10000:
+    - GPN_v2_bytenet_v8_512_16_256_checkpoint_10000_LLR
+    - GPN_v2_bytenet_v8_512_16_256_checkpoint_10000_absLLR
+    - GPN_v2_bytenet_v8_512_16_256_checkpoint_10000_InnerProducts
+
+  GPN_v2_bytenet_v6_256_16_256_checkpoint_10000:
+    - GPN_v2_bytenet_v6_256_16_256_checkpoint_10000_LLR
+    - GPN_v2_bytenet_v6_256_16_256_checkpoint_10000_absLLR
+    - GPN_v2_bytenet_v6_256_16_256_checkpoint_10000_InnerProducts
+
+  GPN_v4_v6_512_16_256_checkpoint_10000:
+    - GPN_v4_v6_512_16_256_checkpoint_10000_LLR
+    - GPN_v4_v6_512_16_256_checkpoint_10000_absLLR
+    - GPN_v4_v6_512_16_256_checkpoint_10000_InnerProducts
+  GPN_v4_v6_512_16_256_checkpoint_20000:
+    - GPN_v4_v6_512_16_256_checkpoint_20000_LLR
+    - GPN_v4_v6_512_16_256_checkpoint_20000_absLLR
+    - GPN_v4_v6_512_16_256_checkpoint_20000_InnerProducts
+  GPN_v4_v6_512_16_256_checkpoint_30000:
+    - GPN_v4_v6_512_16_256_checkpoint_30000_LLR
+    - GPN_v4_v6_512_16_256_checkpoint_30000_absLLR
+    - GPN_v4_v6_512_16_256_checkpoint_30000_InnerProducts
+
+  GPN_v4_v6_512_32_512_checkpoint_10000:
+    - GPN_v4_v6_512_32_512_checkpoint_10000_LLR
+    - GPN_v4_v6_512_32_512_checkpoint_10000_absLLR
+    - GPN_v4_v6_512_32_512_checkpoint_10000_InnerProducts
+  GPN_v4_v6_512_64_1024_checkpoint_10000:
+    - GPN_v4_v6_512_64_1024_checkpoint_10000_LLR
+    - GPN_v4_v6_512_64_1024_checkpoint_10000_absLLR
+    - GPN_v4_v6_512_64_1024_checkpoint_10000_InnerProducts
+
 gpn_msa:
   model_path: "songlab/gpn-msa-sapiens"
   msa_path: "/accounts/projects/yss/gbenegas/projects/gpn/analysis/human/results/msa/multiz100way/89/all.zarr"
@@ -203,6 +256,9 @@ gpn:
   v2_all_256_256_512_17_512_checkpoint_100000:
     model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/256/256/512_17_512/checkpoint-100000
 
+  v2_v3_patched_512_17_512_checkpoint_10000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_v3/512_17_512/checkpoint-10000
+
   v2_v3_512_17_512_checkpoint_10000:
     model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_v3/512_17_512/checkpoint-10000
   v2_v3_512_17_512_checkpoint_20000:
@@ -216,6 +272,32 @@ gpn:
     model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/256/256/512_25_768/checkpoint-50000
   v2_all_256_256_512_25_768_checkpoint_100000:
     model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/256/256/512_25_768/checkpoint-100000
+
+  v2_bytenet_v4_512_16_256_checkpoint_10000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_bytenet_v4/512_16_256/checkpoint-10000
+  v2_bytenet_v5_512_16_256_checkpoint_10000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_bytenet_v5/512_16_256/checkpoint-10000
+  v2_bytenet_v6_512_16_256_checkpoint_10000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_bytenet_v6/512_16_256/checkpoint-10000
+  v2_bytenet_v7_512_16_256_checkpoint_10000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_bytenet_v7/512_16_256/checkpoint-10000
+  v2_bytenet_v8_512_16_256_checkpoint_10000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_bytenet_v8/512_16_256/checkpoint-10000
+
+  v2_bytenet_v6_256_16_256_checkpoint_10000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_bytenet_v6/256_16_256/checkpoint-10000
+
+  v4_v6_512_16_256_checkpoint_10000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v4_v6/512_16_256/checkpoint-10000
+  v4_v6_512_16_256_checkpoint_20000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v4_v6/512_16_256/checkpoint-20000
+  v4_v6_512_16_256_checkpoint_30000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v4_v6/512_16_256/checkpoint-30000
+
+  v4_v6_512_32_512_checkpoint_10000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v4_v6/512_32_512/checkpoint-10000
+  v4_v6_512_64_1024_checkpoint_10000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v4_v6/512_64_1024/checkpoint-10000
 
 cadd:
   url: https://krishna.gs.washington.edu/download/CADD/v1.7/GRCh38/whole_genome_SNVs_inclAnno.tsv.gz
