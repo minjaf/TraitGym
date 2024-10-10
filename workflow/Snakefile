@@ -402,6 +402,28 @@ rule gpn_experiments:
                 "Influence.plus.score",
             ],
         ),
+        expand(
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
+            dataset=["mendelian_traits_matched_9"],
+            subset=["all"] + config["consequence_subsets"],
+            model=[
+                "GPN-MSA_LLR.minus.score",
+                "GPN-MSA_InnerProduct.minus.score",
+                "GPN-MSA_EuclideanDistance.plus.score",
+                "GPN-MSA_Influence.plus.score",
+            ],
+        ),
+        expand(
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
+            dataset=["complex_traits_matched_9"],
+            subset=["all"] + config["consequence_subsets"],
+            model=[
+                "GPN-MSA_absLLR.plus.score",
+                "GPN-MSA_InnerProduct.minus.score",
+                "GPN-MSA_EuclideanDistance.plus.score",
+                "GPN-MSA_Influence.plus.score",
+            ],
+        ),
         #expand(
         #    "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/GPN_{model}_checkpoint_{checkpoint}.LogisticRegression.chrom.csv",
         #    dataset=config["datasets"],
