@@ -341,18 +341,19 @@ gpn_models = [
 
     #"v4_v6_512_16_256",
     #"v4_v6_512_32_512",
-    #"v4_v6_512_64_1024",
+    "v4_v6_512_64_1024",
 
-    "v2_all_256_256_512_17_512",
-    "v2_all_256_256_512_25_768",
+    #"v2_all_256_256_512_17_512",
+    #"v2_all_256_256_512_25_768",
 ]
 
 gpn_checkpoints = [
-    10000,
+    #10000,
     #20000,
     #30000,
-    50000,
-    100000,
+    #50000,
+    #100000,
+    150000,
 ]
 
 rule gpn_experiments:
@@ -367,7 +368,7 @@ rule gpn_experiments:
                 "LLR",
                 "InnerProducts",
                 "EuclideanDistance",
-                "MeanEuclideanDistance",
+                #"MeanEuclideanDistance",
             ],
         ),
         expand(
@@ -403,38 +404,40 @@ rule gpn_experiments:
             ],
         ),
         expand(
-            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
-            dataset=["mendelian_traits_matched_9"],
-            subset=["all"] + config["consequence_subsets"],
-            model=[
-                "GPN-MSA_LLR.minus.score",
-                "GPN-MSA_InnerProduct.minus.score",
-                "GPN-MSA_EuclideanDistance.plus.score",
-                "GPN-MSA_Influence.plus.score",
-            ],
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/GPN_{model}_checkpoint_{checkpoint}.LogisticRegression.chrom.csv",
+            dataset=config["datasets"],
+            subset=["all"],
+            model=gpn_models,
+            checkpoint=gpn_checkpoints,
         ),
         expand(
-            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
-            dataset=["complex_traits_matched_9"],
-            subset=["all"] + config["consequence_subsets"],
-            model=[
-                "GPN-MSA_absLLR.plus.score",
-                "GPN-MSA_InnerProduct.minus.score",
-                "GPN-MSA_EuclideanDistance.plus.score",
-                "GPN-MSA_Influence.plus.score",
-            ],
+            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/GPN_{model}_checkpoint_{checkpoint}.LogisticRegression.chrom.subset_from_all.csv",
+            dataset=config["datasets"],
+            subset=config["consequence_subsets"],
+            model=gpn_models,
+            checkpoint=gpn_checkpoints,
         ),
+
+
         #expand(
-        #    "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/GPN_{model}_checkpoint_{checkpoint}.LogisticRegression.chrom.csv",
-        #    dataset=config["datasets"],
-        #    subset=["all"],
-        #    model=gpn_models,
-        #    checkpoint=gpn_checkpoints,
+        #    "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
+        #    dataset=["mendelian_traits_matched_9"],
+        #    subset=["all"] + config["consequence_subsets"],
+        #    model=[
+        #        "GPN-MSA_LLR.minus.score",
+        #        "GPN-MSA_InnerProduct.minus.score",
+        #        "GPN-MSA_EuclideanDistance.plus.score",
+        #        "GPN-MSA_Influence.plus.score",
+        #    ],
         #),
         #expand(
-        #    "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/GPN_{model}_checkpoint_{checkpoint}.LogisticRegression.chrom.subset_from_all.csv",
-        #    dataset=config["datasets"],
-        #    subset=config["consequence_subsets"],
-        #    model=gpn_models,
-        #    checkpoint=gpn_checkpoints,
+        #    "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
+        #    dataset=["complex_traits_matched_9"],
+        #    subset=["all"] + config["consequence_subsets"],
+        #    model=[
+        #        "GPN-MSA_absLLR.plus.score",
+        #        "GPN-MSA_InnerProduct.minus.score",
+        #        "GPN-MSA_EuclideanDistance.plus.score",
+        #        "GPN-MSA_Influence.plus.score",
+        #    ],
         #),
