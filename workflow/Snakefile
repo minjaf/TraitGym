@@ -348,11 +348,11 @@ gpn_models = [
 ]
 
 gpn_checkpoints = [
-    #10000,
+    10000,
     #20000,
     #30000,
-    #50000,
-    #100000,
+    50000,
+    100000,
     150000,
 ]
 
@@ -403,20 +403,20 @@ rule gpn_experiments:
                 "Influence.plus.score",
             ],
         ),
-        expand(
-            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/GPN_{model}_checkpoint_{checkpoint}.LogisticRegression.chrom.csv",
-            dataset=config["datasets"],
-            subset=["all"],
-            model=gpn_models,
-            checkpoint=gpn_checkpoints,
-        ),
-        expand(
-            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/GPN_{model}_checkpoint_{checkpoint}.LogisticRegression.chrom.subset_from_all.csv",
-            dataset=config["datasets"],
-            subset=config["consequence_subsets"],
-            model=gpn_models,
-            checkpoint=gpn_checkpoints,
-        ),
+        #expand(
+        #    "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/GPN_{model}_checkpoint_{checkpoint}.LogisticRegression.chrom.csv",
+        #    dataset=config["datasets"],
+        #    subset=["all"],
+        #    model=gpn_models,
+        #    checkpoint=gpn_checkpoints,
+        #),
+        #expand(
+        #    "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/GPN_{model}_checkpoint_{checkpoint}.LogisticRegression.chrom.subset_from_all.csv",
+        #    dataset=config["datasets"],
+        #    subset=config["consequence_subsets"],
+        #    model=gpn_models,
+        #    checkpoint=gpn_checkpoints,
+        #),
 
 
         #expand(
