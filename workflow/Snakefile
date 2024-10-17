@@ -26,6 +26,7 @@ include: "rules/features/grelu.smk"
 include: "rules/features/hyenadna.smk"
 include: "rules/features/maf.smk"
 include: "rules/features/nucleotide_transformer.smk"
+include: "rules/features/sei.smk"
 include: "rules/model.smk"
 
 
@@ -117,8 +118,10 @@ rule mendelian_traits_unsupervised:
                 "HyenaDNA_LLR.minus.score",
                 "Caduceus_LLR.minus.score",
 
-                "GPN_v2_all_256_256_512_17_512_checkpoint_10000_LLR.minus.score",
-                "GPN_v2_v3_512_17_512_checkpoint_10000_LLR.minus.score",
+                #"GPN_v2_all_256_256_512_17_512_checkpoint_10000_LLR.minus.score",
+                #"GPN_v2_v3_512_17_512_checkpoint_10000_LLR.minus.score",
+
+                "Sei.plus.seqclass_max_absdiff",
             ],
         ),
 

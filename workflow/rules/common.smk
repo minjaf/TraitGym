@@ -948,3 +948,31 @@ rule dataset_subset_intersect:
             .join(pl.read_parquet(input[1]), how="inner", on=COORDINATES)
             .sort(COORDINATES).write_parquet(output[0])
         )
+
+
+# for Sei, experimental
+rule dataset_to_vcf:
+    input:
+        "results/dataset/{dataset}/test.parquet"
+    output:
+        "results/vcf/{dataset}.vcf",
+    run:
+        V = pd.read_parquet(input[0])
+        V.chrom = "chr" + V.chrom
+        V["id"] = "."
+        V[["chrom", "pos", "id", "ref", "alt"]].to_csv(
+            output[0], sep="\t", index=False, header=False,
+        )
+
+
+rule dataset_to_vcf_gz:
+    input:
+        "results/dataset/{dataset}/test.parquet"
+    output:
+        "results/vcf/{dataset}.vcf.gz",
+    run:
+        V = pd.read_parquet(input[0])
+        V["id"] = "."
+        V[["chrom", "pos", "id", "ref", "alt"]].to_csv(
+            output[0], sep="\t", index=False, header=False,
+        )
