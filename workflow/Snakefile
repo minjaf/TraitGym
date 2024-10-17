@@ -75,6 +75,7 @@ rule general_supervised:
                 "NucleotideTransformer",
                 "HyenaDNA",
                 "Caduceus",
+                "Sei",
 
                 "CADD+GPN-MSA",
                 "CADD+Borzoi",
@@ -141,6 +142,7 @@ rule complex_traits_unsupervised:
                 "NucleotideTransformer_absLLR.plus.score",
                 "HyenaDNA_absLLR.plus.score",
                 "Caduceus_absLLR.plus.score",
+                "Sei.plus.seqclass_max_absdiff",
             ],
         ),
 

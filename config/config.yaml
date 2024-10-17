@@ -67,6 +67,8 @@ complex_traits_disease:
 feature_sets:
   CADD:
     - CADD
+  Sei:
+    - Sei
   GPN-MSA:
     - GPN-MSA_LLR
     - GPN-MSA_absLLR

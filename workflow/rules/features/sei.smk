@@ -1,3 +1,8 @@
+# first, upload a vcf to https://hb.flatironinstitute.org/sei
+# download results
+# extract the sequence class scores file
+
+
 rule sei_process:
     input:
         "results/dataset/{dataset}/test.parquet",
