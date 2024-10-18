@@ -8,6 +8,7 @@ include: "rules/data/splicing_assay.smk"
 include: "rules/data/caqtl.smk"
 include: "rules/data/dsqtl.smk"
 include: "rules/data/eqtl.smk"
+include: "rules/data/hgmd.smk"
 include: "rules/data/gnomad.smk"
 include: "rules/data/ldscore.smk"
 #include: "rules/data/mendelian.smk"
@@ -360,6 +361,7 @@ gpn_checkpoints = [
     100000,
     150000,
     200000,
+    250000,
 ]
 
 rule gpn_experiments:
