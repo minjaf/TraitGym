@@ -245,6 +245,32 @@ rule get_metrics_by_chrom:
         res.to_csv(output[0], index=False)
 
 
+rule get_metrics_by_chrom_v2:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+        "results/dataset/{dataset}/subset/{subset}.parquet",
+        "results/dataset/{dataset}/preds/{subset}/{model}.parquet",
+    output:
+        "results/dataset/{dataset}/metrics_by_chrom_v2/{subset}/{model}.csv",
+    run:
+        V = pd.read_parquet(input[0])
+        subset = pd.read_parquet(input[1])
+        V = subset.merge(V, on=COORDINATES, how="left")
+        V["score"] = pd.read_parquet(input[2])["score"]
+        balanced = V.label.sum() == len(V) // 2
+        metric = roc_auc_score if balanced else average_precision_score
+        metric_name = "AUROC" if balanced else "AUPRC"
+        res = []
+        for chrom in V.chrom.unique():
+            V_chrom = V[V.chrom == chrom]
+            if chrom == "10":
+                print(V_chrom)
+                print(V_chrom["label"].value_counts())
+            res.append([chrom, len(V_chrom), wildcards.model, metric(V_chrom.label, V_chrom.score)])
+        res = pd.DataFrame(res, columns=["chrom", "n", "Model", metric_name])
+        res.to_csv(output[0], index=False)
+
+
 rule get_metrics_by_chrom_weighted_average:
     input:
         "results/dataset/{dataset}/metrics_by_chrom/{subset}/{model}.csv",

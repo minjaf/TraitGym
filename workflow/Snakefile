@@ -449,3 +449,40 @@ rule gpn_experiments:
         #        "GPN-MSA_Influence.plus.score",
         #    ],
         #),
+
+
+radii = [
+    256,
+    512,
+    1024,
+    2048,
+]
+
+gpn_radius_checkpoints = [
+    10000,
+    50000,
+    100000,
+]
+
+rule gpn_radius_experiments:
+    input:
+        expand(
+            "results/dataset/mendelian_traits_matched_9/metrics_by_chrom_weighted_average/{subset}/GPN_v2_all_{radius}_{radius}_512_17_512_checkpoint_{checkpoint}_{score}.csv",
+            subset=["all", "nonexonic_AND_proximal"],
+            radius=radii,
+            checkpoint=gpn_radius_checkpoints,
+            score=[
+                "LLR.minus.score",
+                "EuclideanDistance.plus.score",
+            ],
+        ),
+        expand(
+            "results/dataset/complex_traits_matched_9/metrics_by_chrom_weighted_average/{subset}/GPN_v2_all_{radius}_{radius}_512_17_512_checkpoint_{checkpoint}_{score}.csv",
+            subset=["all", "nonexonic_AND_proximal"],
+            radius=radii,
+            checkpoint=gpn_radius_checkpoints,
+            score=[
+                "absLLR.plus.score",
+                "EuclideanDistance.plus.score",
+            ],
+        ),

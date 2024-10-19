@@ -278,6 +278,27 @@ gpn:
   v2_all_256_256_512_17_512_checkpoint_100000:
     model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/256/256/512_17_512/checkpoint-100000
 
+  v2_all_512_512_512_17_512_checkpoint_10000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/512/512/512_17_512/checkpoint-10000
+  v2_all_512_512_512_17_512_checkpoint_50000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/512/512/512_17_512/checkpoint-50000
+  v2_all_512_512_512_17_512_checkpoint_100000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/512/512/512_17_512/checkpoint-100000
+
+  v2_all_1024_1024_512_17_512_checkpoint_10000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/1024/1024/512_17_512/checkpoint-10000
+  v2_all_1024_1024_512_17_512_checkpoint_50000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/1024/1024/512_17_512/checkpoint-50000
+  v2_all_1024_1024_512_17_512_checkpoint_100000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/1024/1024/512_17_512/checkpoint-100000
+
+  v2_all_2048_2048_512_17_512_checkpoint_10000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/2048/2048/512_17_512/checkpoint-10000
+  v2_all_2048_2048_512_17_512_checkpoint_50000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/2048/2048/512_17_512/checkpoint-50000
+  v2_all_2048_2048_512_17_512_checkpoint_100000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_all/2048/2048/512_17_512/checkpoint-100000
+
   v2_v3_patched_512_17_512_checkpoint_10000:
     model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v2_v3/512_17_512/checkpoint-10000
 

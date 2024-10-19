@@ -1,1 +1,1 @@
-# functionality-prediction-datasets
+# TraitGym
