@@ -185,8 +185,8 @@ rule select_complex_traits:
             subset=(
                 select_gwas_traits +
                 config["consequence_subsets"] +
-                ["disease", "non_disease"] +
-                config["maf_subsets"]
+                ["disease", "non_disease"]# +
+                #config["maf_subsets"]
             ),
             model=[
                 "CADD.plus.RawScore",
@@ -194,24 +194,24 @@ rule select_complex_traits:
                 "GPN-MSA_absLLR.plus.score",
             ],
         ),
-        expand(
-            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.subset_from_all.csv",
-            dataset=["complex_traits_matched_9"],
-            subset=(
-                select_gwas_traits +
-                ["disease", "non_disease"] +
-                config["maf_subsets"]
-            ),
-            feature_set=[
-                "CADD",
-                "Borzoi",
-                "GPN-MSA",
-                "CADD+GPN-MSA+Borzoi",
-            ],
-            classifier=[
-                "LogisticRegression",
-            ]
-        ),
+        #expand(
+        #    "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.subset_from_all.csv",
+        #    dataset=["complex_traits_matched_9"],
+        #    subset=(
+        #        select_gwas_traits +
+        #        ["disease", "non_disease"] +
+        #        config["maf_subsets"]
+        #    ),
+        #    feature_set=[
+        #        "CADD",
+        #        "Borzoi",
+        #        "GPN-MSA",
+        #        "CADD+GPN-MSA+Borzoi",
+        #    ],
+        #    classifier=[
+        #        "LogisticRegression",
+        #    ]
+        #),
         #expand(
         #    "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{feature_set}.{classifier}.chrom.csv",
         #    dataset=["complex_traits_matched_9"],

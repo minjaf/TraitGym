@@ -908,7 +908,12 @@ rule dataset_subset_proximal:
         "results/dataset/{dataset}/subset/proximal.parquet",
     run:
         V = pd.read_parquet(input[0])
-        V = V[V.tss_dist <= 1_000]
+        target_size = len(V[V.match_group==V.match_group.iloc[0]])
+        V = V[(~V.label) | (V.tss_dist <= 1_000)]
+        match_group_size = V.match_group.value_counts() 
+        match_groups = match_group_size[match_group_size == target_size].index
+        V = V[V.match_group.isin(match_groups)]
+        print(V.label.value_counts())
         V[COORDINATES].to_parquet(output[0], index=False)
     
 
@@ -919,7 +924,12 @@ rule dataset_subset_distal:
         "results/dataset/{dataset}/subset/distal.parquet",
     run:
         V = pd.read_parquet(input[0])
-        V = V[V.tss_dist > 1_000]
+        target_size = len(V[V.match_group==V.match_group.iloc[0]])
+        V = V[(~V.label) | (V.tss_dist > 1_000)]
+        match_group_size = V.match_group.value_counts() 
+        match_groups = match_group_size[match_group_size == target_size].index
+        V = V[V.match_group.isin(match_groups)]
+        print(V.label.value_counts())
         V[COORDINATES].to_parquet(output[0], index=False)
 
 
