@@ -367,3 +367,60 @@ rule gwas_match_v2:
         V = sort_variants(V)
         print(V)
         V.to_parquet(output[0], index=False)
+
+
+rule gwas_match_v2_nonexonic:
+    input:
+        "results/gwas/processed.parquet",
+        "results/ldscore/UKBB.EUR.ldscore.annot_with_cre.parquet",
+        "results/tss.parquet",
+    output:
+        "results/dataset/complex_traits_v2_nonexonic_matched_{k,\d+}/test.parquet",
+    run:
+        k = int(wildcards.k)
+        V = (
+            pl.read_parquet(input[0])
+            .with_columns(
+                pl.when(pl.col("pip") > 0.9).then(True)
+                .when(pl.col("pip") < 0.01).then(False)
+                .otherwise(None)
+                .alias("label")
+            )
+            .drop_nulls()
+            .to_pandas()
+        )
+
+        annot = pd.read_parquet(input[1])
+        V = V.merge(annot, on=COORDINATES, how="inner")
+
+        V = V[V.consequence.isin(NON_EXONIC_FULL)]
+
+        V["start"] = V.pos - 1
+        V["end"] = V.pos
+
+        tss = pd.read_parquet(input[2])
+
+        V = bf.closest(V, tss).rename(columns={
+            "distance": "tss_dist", "gene_id_": "gene",
+        }).drop(columns=["start", "end", "chrom_", "start_", "end_"])
+
+        match_features = ["maf", "ld_score", "tss_dist"]
+
+        consequences = V[V.label].consequence.unique()
+        V_cs = []
+        for c in consequences:
+            print(c)
+            V_c = V[V.consequence == c].copy()
+            for f in match_features:
+                V_c[f"{f}_scaled"] = RobustScaler().fit_transform(V_c[f].values.reshape(-1, 1))
+            print(V_c.label.value_counts())
+            V_c = match_columns_k_gene(V_c, "label", [f"{f}_scaled" for f in match_features], k)
+            V_c["match_group"] = c + "_" + V_c.match_group.astype(str)
+            print(V_c.label.value_counts())
+            print(V_c.groupby("label")[match_features].median())
+            V_c.drop(columns=[f"{f}_scaled" for f in match_features], inplace=True)
+            V_cs.append(V_c)
+        V = pd.concat(V_cs, ignore_index=True)
+        V = sort_variants(V)
+        print(V)
+        V.to_parquet(output[0], index=False)

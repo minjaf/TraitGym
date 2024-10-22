@@ -41,6 +41,7 @@ NON_EXONIC = [
 
 cre_classes = ["PLS", "pELS", "dELS", "DNase-H3K4me3", "CTCF-only"]
 cre_flank_classes = [f"{c}_flank" for c in cre_classes]
+NON_EXONIC_FULL = NON_EXONIC + cre_classes + cre_flank_classes
 other_consequences = [
     "missense_variant",
     "non_coding_transcript_exon_variant",
@@ -49,9 +50,7 @@ other_consequences = [
 ]
 
 TARGET_CONSEQUENCES = (
-    NON_EXONIC +
-    cre_classes +
-    cre_flank_classes +
+    NON_EXONIC_FULL +
     ["5_prime_UTR_variant", "3_prime_UTR_variant", "non_coding_transcript_exon_variant"]
 )
 
@@ -723,33 +722,21 @@ rule tss_s_het:
 
 rule s_het_features: 
     input:
+        "results/dataset/{dataset}/test.parquet",
         "results/tss_s_het.parquet",
     output:
-        "results/features/{dataset}/s_het.parquet",
+        "results/dataset/{dataset}/features/s_het.parquet",
     run:
-        V = load_dataset(wildcards.dataset, split="test").to_pandas()
-        tss = pd.read_parquet(input[0])
+        V = pd.read_parquet(input[0])
+        original_order = V.pos.values
+        tss = pd.read_parquet(input[1])
         V["start"] = V.pos-1
         V["end"] = V.pos
         V = bf.closest(V, tss).rename(columns={"s_het_": "s_het"})
-        V = sort_chrom_pos(V)
+        V = sort_variants(V)
+        new_order = V.pos.values
+        assert np.all(original_order == new_order)
         V[["s_het"]].to_parquet(output[0], index=False)
-
-
-rule delta_times_s_het:
-    input:
-        "results/features/{dataset}/Enformer_absDelta.parquet",
-        "results/features/{dataset}/s_het.parquet",
-    output:
-        "results/features/{dataset}/Enformer_absDelta_s_het.parquet",
-    run:
-        delta = np.linalg.norm(pd.read_parquet(input[0]), axis=1)
-        print(delta)
-        s_het = pd.read_parquet(input[1])
-        print(s_het)
-        s_het.s_het *= delta
-        print(s_het)
-        s_het.to_parquet(output[0], index=False)
 
 
 rule download_cre:

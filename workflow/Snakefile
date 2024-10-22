@@ -37,7 +37,7 @@ rule all:
             "results/dataset/{dataset}/features/{features}.parquet",
             dataset=config["datasets"],
             features=[
-                "Enformer_L2",
+                #"Enformer_L2",
                 #"Borzoi_L2",
                 #"CADD",
                 "GPN-MSA_LLR",
@@ -70,7 +70,7 @@ rule general_supervised:
             feature_set=[
                 "CADD",
                 "Enformer",
-                #"Borzoi",
+                "Borzoi",
                 "GPN-MSA",
                 #"GPN",
                 #"NucleotideTransformer",
@@ -81,7 +81,7 @@ rule general_supervised:
                 #"CADD+GPN-MSA",
                 #"CADD+Borzoi",
                 #"GPN-MSA+Borzoi",
-                #"CADD+GPN-MSA+Borzoi",
+                "CADD+GPN-MSA+Borzoi",
             ],
             classifier=[
                 "LogisticRegression",
@@ -109,14 +109,22 @@ rule mendelian_traits_unsupervised:
         expand(
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
             #dataset=["mendelian_traits_matched_9"],
-            dataset=["mendelian_traits_v2_matched_1"],
+            #dataset=["mendelian_traits_v2_matched_1"],
+            #dataset=["mendelian_traits_v3_matched_9"],
+            dataset=[
+                "mendelian_traits_v2_nonexonic_matched_1",
+                #"mendelian_traits_v3_matched_1",
+                #"mendelian_traits_v4_matched_1",
+                #"mendelian_traits_v6_matched_1",
+            ],
             subset=["all"],
             model=[
                 "CADD.plus.RawScore",
-                "Enformer_L2_L2.plus.all",
+                #"Enformer_L2_L2.plus.all",
                 #"Borzoi_L2_L2.plus.all",
                 "GPN-MSA_LLR.minus.score",
-                #"GPN_LLR.minus.score",
+                "GPN_LLR.minus.score",
+                #"GPN_EuclideanDistance.plus.score",
                 #"NucleotideTransformer_LLR.minus.score",
                 #"HyenaDNA_LLR.minus.score",
                 #"Caduceus_LLR.minus.score",
@@ -134,12 +142,13 @@ rule complex_traits_unsupervised:
         expand(
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
             #dataset=["complex_traits_matched_9"],
-            dataset=["complex_traits_v2_matched_1"],
+            #dataset=["complex_traits_v2_matched_1"],
+            dataset=["complex_traits_v2_nonexonic_matched_1"],
             subset=["all"],
             model=[
                 "CADD.plus.RawScore",
                 "Enformer_L2_L2.plus.all",
-                #"Borzoi_L2_L2.plus.all",
+                "Borzoi_L2_L2.plus.all",
                 "GPN-MSA_absLLR.plus.score",
                 #"GPN_absLLR.plus.score",
                 #"NucleotideTransformer_absLLR.plus.score",
