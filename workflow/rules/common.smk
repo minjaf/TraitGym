@@ -201,6 +201,41 @@ def match_columns_k(df, target, covariates, k):
     return res
 
 
+def match_columns_k_gene(df, target, covariates, k):
+    all_pos = []
+    all_neg_matched = []
+    for gene in tqdm(df[df[target]].gene.unique()):
+        df_c = df[df.gene == gene]
+        pos = df_c[df_c[target]]
+        neg = df_c[~df_c[target]]
+        
+        if len(pos) * k > len(neg):
+            print("WARNING: subsampling positive set to size of negative set")
+            pos = pos.sample(len(neg) // k, random_state=42)
+
+        if len(covariates) > 0:
+            D = cdist(pos[covariates], neg[covariates])
+            closest = []
+            for i in range(len(pos)):
+                js = np.argsort(D[i])[:k].tolist()
+                closest += js
+                D[:, js] = np.inf  # ensure they cannot be picked up again
+            neg = neg.iloc[closest]
+        else:
+            neg = neg.sample(len(pos) * k, random_state=42)
+
+        all_pos.append(pos)
+        all_neg_matched.append(neg)
+    
+    pos = pd.concat(all_pos, ignore_index=True)
+    pos["match_group"] = np.arange(len(pos))
+    neg_matched = pd.concat(all_neg_matched, ignore_index=True)
+    neg_matched["match_group"] = np.repeat(pos.match_group.values, k)
+    res = pd.concat([pos, neg_matched], ignore_index=True)
+    res = sort_variants(res)
+    return res
+
+
 rule download_genome:
     output:
         "results/genome.fa.gz",
