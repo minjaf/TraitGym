@@ -263,6 +263,10 @@ feature_sets:
     - GPN_v4_v6_512_64_1024_checkpoint_250000_LLR
     - GPN_v4_v6_512_64_1024_checkpoint_250000_absLLR
     - GPN_v4_v6_512_64_1024_checkpoint_250000_InnerProducts
+  GPN_v4_v6_512_64_1024_checkpoint_370000:
+    - GPN_v4_v6_512_64_1024_checkpoint_370000_LLR
+    - GPN_v4_v6_512_64_1024_checkpoint_370000_absLLR
+    - GPN_v4_v6_512_64_1024_checkpoint_370000_InnerProducts
 
 gpn_msa:
   model_path: "songlab/gpn-msa-sapiens"
@@ -358,6 +362,8 @@ gpn:
     model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v4_v6/512_64_1024/checkpoint-200000
   v4_v6_512_64_1024_checkpoint_250000:
     model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v4_v6/512_64_1024/checkpoint-250000
+  v4_v6_512_64_1024_checkpoint_370000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v4_v6/512_64_1024/checkpoint-370000
 
 cadd:
   url: https://krishna.gs.washington.edu/download/CADD/v1.7/GRCh38/whole_genome_SNVs_inclAnno.tsv.gz

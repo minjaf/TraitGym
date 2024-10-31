@@ -144,7 +144,8 @@ rule complex_traits_unsupervised:
             #dataset=["complex_traits_matched_9"],
             #dataset=["complex_traits_v2_matched_1"],
             dataset=["complex_traits_v2_nonexonic_matched_1"],
-            subset=["all"],
+            #subset=["all"],
+            subset=["all", "disease", "non_disease"],
             model=[
                 "CADD.plus.RawScore",
                 "Enformer_L2_L2.plus.all",
@@ -365,40 +366,30 @@ gpn_models = [
 ]
 
 gpn_checkpoints = [
-    10000,
+    #10000,
     #20000,
     #30000,
-    50000,
-    100000,
-    150000,
-    200000,
-    250000,
+    #50000,
+    #100000,
+    #150000,
+    #200000,
+    #250000,
+    370000,
 ]
 
 rule gpn_experiments:
     input:
         expand(
-            "results/dataset/{dataset}/features/GPN_{model}_checkpoint_{checkpoint}_{feature}.parquet",
-            dataset=config["datasets"],
-            #dataset=["mendelian_traits_matched_9"],
-            model=gpn_models,
-            checkpoint=gpn_checkpoints,
-            feature=[ 
-                "LLR",
-                "InnerProducts",
-                "EuclideanDistance",
-                #"MeanEuclideanDistance",
-            ],
-        ),
-        expand(
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/GPN_{model}_checkpoint_{checkpoint}_{score}.csv",
-            dataset=["mendelian_traits_matched_9"],
-            subset=["all"] + config["consequence_subsets"],
+            #dataset=["mendelian_traits_matched_9"],
+            dataset=["mendelian_traits_v2_nonexonic_matched_1"],
+            #subset=["all"] + config["consequence_subsets"],
+            subset=["all", "proximal", "distal"],
             model=gpn_models,
             checkpoint=gpn_checkpoints,
             score=[
                 "LLR.minus.score",
-                "InnerProduct.minus.score",
+                #"InnerProduct.minus.score",
                 "EuclideanDistance.plus.score",
                 #"CosineSimilarity.minus.score",
                 #"MeanEuclideanDistance.plus.score",
@@ -408,13 +399,15 @@ rule gpn_experiments:
         ),
         expand(
             "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/GPN_{model}_checkpoint_{checkpoint}_{score}.csv",
-            dataset=["complex_traits_matched_9"],
-            subset=["all"] + config["consequence_subsets"],
+            #dataset=["complex_traits_matched_9"],
+            dataset=["complex_traits_v2_nonexonic_matched_1"],
+            #subset=["all"] + config["consequence_subsets"],
+            subset=["all", "proximal", "distal"],
             model=gpn_models,
             checkpoint=gpn_checkpoints,
             score=[
                 "absLLR.plus.score",
-                "InnerProduct.minus.score",
+                #"InnerProduct.minus.score",
                 "EuclideanDistance.plus.score",
                 #"CosineSimilarity.minus.score",
                 #"MeanEuclideanDistance.plus.score",
@@ -422,6 +415,19 @@ rule gpn_experiments:
                 "Influence.plus.score",
             ],
         ),
+        #expand(
+        #    "results/dataset/{dataset}/features/GPN_{model}_checkpoint_{checkpoint}_{feature}.parquet",
+        #    dataset=config["datasets"],
+        #    #dataset=["mendelian_traits_matched_9"],
+        #    model=gpn_models,
+        #    checkpoint=gpn_checkpoints,
+        #    feature=[ 
+        #        #"LLR",
+        #        #"InnerProducts",
+        #        "EuclideanDistance",
+        #        #"MeanEuclideanDistance",
+        #    ],
+        #),
         #expand(
         #    "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/GPN_{model}_checkpoint_{checkpoint}.LogisticRegression.chrom.csv",
         #    dataset=config["datasets"],
