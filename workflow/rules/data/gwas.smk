@@ -172,6 +172,8 @@ rule gwas_match:
 
         V = V[V.consequence.isin(TARGET_CONSEQUENCES)]
 
+        V[V.label].ld_score.hist(bins=100)
+
         V["start"] = V.pos - 1
         V["end"] = V.pos
         tss = pd.read_parquet(input[2])
@@ -184,33 +186,25 @@ rule gwas_match:
         }).drop(columns=["chrom_", "start_", "end_"])
         V = V.drop(columns=["start", "end"])
 
-        match_features = ["maf", "ld_score"]
-
-        consequences = V[V.label].consequence.unique()
-        V_cs = []
-        for c in consequences:
-            print(c)
-            V_c = V[V.consequence == c].copy()
-            if c in NON_EXONIC_FULL:
-                match_features += ["tss_dist"]
-                V_c["gene"] = V_c.closest_tss_gene
-            else:
-                V_c["gene"] = V_c.closest_exon_gene
-            for f in match_features:
-                V_c[f"{f}_scaled"] = RobustScaler().fit_transform(V_c[f].values.reshape(-1, 1))
-            print(V_c.label.value_counts())
-            if wildcards.negative_set == "chrom":
-                match_f = match_columns_k
-            elif wildcards.negative_set == "gene":
-                match_f = match_columns_k_gene
-            V_c = match_f(V_c, "label", [f"{f}_scaled" for f in match_features], k)
-            V_c["match_group"] = c + "_" + V_c.match_group.astype(str)
-            print(V_c.label.value_counts())
-            print(V_c.groupby("label")[match_features].median())
-            V_c.drop(columns=[f"{f}_scaled" for f in match_features], inplace=True)
-            V_cs.append(V_c)
-        V = pd.concat(V_cs, ignore_index=True)
-        V = sort_variants(V)
+        max_tss_dist = V.tss_dist.max()
+        V["tss_dist_bin"] = pd.cut(
+            V.tss_dist,
+            bins=[0, 100, 1000] + list(range(2000, max_tss_dist + 2000, 2000)),
+            labels=False, include_lowest=True,
+        )
+        # just a hack to ignore tss dist for non-exonic variants
+        V.loc[~V.consequence.isin(NON_EXONIC_FULL), "tss_dist_bin"] = 0
+        V["maf_bin"] = pd.cut(V.maf, bins=np.arange(0, 0.51, 0.01))
+        V["ld_score_bin"] = pd.cut(V.ld_score, bins=50)
+        V["gene"] = V.closest_tss_gene.where(
+            V.consequence.isin(NON_EXONIC_FULL), V.closest_exon_gene,
+        )
+        cols = [
+            wildcards.negative_set, "consequence", "tss_dist_bin", "maf_bin",
+            "ld_score_bin"
+        ]
+        V = match_cols(V[V.label], V[~V.label], cols, k=k)
+        V = V.drop(columns=["tss_dist_bin", "maf_bin", "ld_score_bin"])
         print(V)
         V.to_parquet(output[0], index=False)
 
