@@ -136,6 +136,36 @@ def check_ref_alt(V, genome):
     return V
 
 
+def match_cols(pos, neg, cols, k=1, prioritize_col=None):
+    pos = pos.set_index(cols)
+    neg = neg.set_index(cols)
+    res_pos = []
+    res_neg = []
+    for x in tqdm(pos.index.drop_duplicates()):
+        pos_x = pos.loc[x].reset_index()
+        try:
+            neg_x = neg.loc[x].reset_index()
+        except KeyError:
+            print(f"WARNING: no match for {x}")
+            continue
+        if len(pos_x) * k > len(neg_x):
+            print("WARNING: subsampling positive set")
+            pos_x = pos_x.sample(len(neg_x) // k, random_state=42)
+        if prioritize_col is None:
+            neg_x = neg_x.sample(len(pos_x) * k, random_state=42)
+        else:
+            neg_x = neg_x.sort_values(prioritize_col).head(len(pos_x) * k)
+        res_pos.append(pos_x)
+        res_neg.append(neg_x)
+    res_pos = pd.concat(res_pos, ignore_index=True)
+    res_pos["match_group"] = np.arange(len(res_pos))
+    res_neg = pd.concat(res_neg, ignore_index=True)
+    res_neg["match_group"] = np.repeat(res_pos.match_group.values, k)
+    res = pd.concat([res_pos, res_neg], ignore_index=True)
+    res = sort_variants(res)
+    return res
+
+
 def match_columns(df, target, covariates):
     all_pos = []
     all_neg_matched = []
@@ -279,9 +309,9 @@ rule get_exon:
         annotation = load_table(input[0])
         exon = annotation.query('feature=="exon"').copy()
         exon["gene_id"] = exon.attribute.str.extract(r'gene_id "([^;]*)";')
-        exon["transcript_biotype"] = exon.attribute.str.extract(r'transcript_biotype "([^;]*)";')
-        exon = exon[exon.transcript_biotype=="protein_coding"]
-        exon = exon[["chrom", "start", "end", "gene_id"]]
+        exon = exon[["chrom", "start", "end", "gene_id"]].drop_duplicates()
+        exon = exon[exon.chrom.isin(CHROMS)]
+        exon = exon.sort_values(["chrom", "start", "end"])
         print(exon)
         exon.to_parquet(output[0], index=False)
 
