@@ -70,7 +70,7 @@ rule general_supervised:
             feature_set=[
                 "CADD",
                 #"Enformer",
-                #"Borzoi",
+                "Borzoi",
                 "GPN-MSA",
                 #"GPN",
                 #"NucleotideTransformer",
@@ -81,7 +81,7 @@ rule general_supervised:
                 #"CADD+GPN-MSA",
                 #"CADD+Borzoi",
                 #"GPN-MSA+Borzoi",
-                #"CADD+GPN-MSA+Borzoi",
+                "CADD+GPN-MSA+Borzoi",
             ],
             classifier=[
                 "LogisticRegression",
@@ -115,14 +115,13 @@ rule mendelian_traits_unsupervised:
                 "mendelian_traits_5_matched_1_chrom",
                 "mendelian_traits_5_matched_1_gene",
                 "mendelian_traits_1_matched_1_gene",
-                "mendelian_traits_0.5_matched_1_gene",
                 "mendelian_traits_0.1_matched_1_gene",
             ],
             subset=["all"],
             model=[
                 "CADD.plus.RawScore",
                 #"Enformer_L2_L2.plus.all",
-                #"Borzoi_L2_L2.plus.all",
+                "Borzoi_L2_L2.plus.all",
                 "GPN-MSA_LLR.minus.score",
                 #"GPN_LLR.minus.score",
                 #"GPN_EuclideanDistance.plus.score",
@@ -153,7 +152,7 @@ rule complex_traits_unsupervised:
             model=[
                 "CADD.plus.RawScore",
                 #"Enformer_L2_L2.plus.all",
-                #"Borzoi_L2_L2.plus.all",
+                "Borzoi_L2_L2.plus.all",
                 "GPN-MSA_absLLR.plus.score",
                 #"GPN_absLLR.plus.score",
                 #"NucleotideTransformer_absLLR.plus.score",

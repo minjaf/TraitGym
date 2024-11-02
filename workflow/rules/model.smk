@@ -8,6 +8,7 @@ rule run_classifier:
     threads:
         lambda wildcards: 1 if wildcards.classifier == "BestFeature" else workflow.cores
     run:
+        2 + 2
         V = pd.read_parquet(input[0])
         subset = pd.read_parquet(input[1])
         all_features = []

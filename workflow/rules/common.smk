@@ -533,7 +533,8 @@ def train_logistic_regression(X, y, groups):
             random_state=42,
         ))
     ])
-    Cs = np.logspace(-8, 0, 10)
+    #Cs = np.logspace(-8, 0, 10)
+    Cs = np.logspace(-16, 0, 20)
     param_grid = {
         'linear__C': Cs,
     }
