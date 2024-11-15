@@ -205,14 +205,20 @@ def accuracy_score(y_true, y_pred):
     return float(y_true[np.argmax(y_pred)])
 
 
+def spearman_score(y_true, y_pred):
+    return spearmanr(y_true, y_pred)[0]
+
+
 metric_mapping = {
     "AUROC": roc_auc_score,
     "AUPRC": average_precision_score,
     "Accuracy": accuracy_score,
+    "Spearman": spearman_score,
 }
 BLOCKS = [
     "gene",
     "match_group",
+    "element",
 ]
 
 

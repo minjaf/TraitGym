@@ -156,7 +156,33 @@ rule complex_traits_unsupervised:
             ],
             subset=["all"],
             model=[
-                #"CADD.plus.RawScore",
+                "CADD.plus.RawScore",
+                "Enformer_L2_L2.plus.all",
+                #"Borzoi_L2_L2.plus.all",
+                "GPN-MSA_absLLR.plus.score",
+                #"GPN_absLLR.plus.score",
+                #"NucleotideTransformer_absLLR.plus.score",
+                #"HyenaDNA_absLLR.plus.score",
+                #"Caduceus_absLLR.plus.score",
+                #"Sei.plus.seqclass_max_absdiff",
+            ],
+        ),
+
+
+rule sat_mut_mpra_unsupervised:
+    input:
+        expand(
+            "results/dataset/{dataset}/{metric}/{subset}/{model}.csv",
+            dataset=[
+                "sat_mut_mpra_proximal",
+                "sat_mut_mpra_distal",
+            ],
+            metric=[
+                "Spearman_by_element_weighted_average",
+            ],
+            subset=["all"],
+            model=[
+                "CADD.plus.RawScore",
                 "Enformer_L2_L2.plus.all",
                 #"Borzoi_L2_L2.plus.all",
                 "GPN-MSA_absLLR.plus.score",

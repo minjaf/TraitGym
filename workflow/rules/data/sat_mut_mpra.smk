@@ -1,21 +1,31 @@
-sat_mut_mpra_elements = [
+sat_mut_mpra_promoters = [
     "F9",
     "GP1BA",
     "HBB",
     "HBG1",
     "HNF4A",
-    "IRF4",
-    "IRF6",
     "LDLR",
     "MSMB",
-    "MYCrs6983267",
     "PKLR",
+    "TERT",
+]
+
+sat_mut_mpra_enhancers = [
+    "IRF4",
+    "IRF6",
+    "MYCrs6983267",
     "SORT1",
     "TCF7L2",
-    "TERT",
     "ZFAND3",
     "ZRSh13"
 ]
+
+sat_mut_mpra_proximity_mapping = {
+    "proximal": sat_mut_mpra_promoters,
+    "distal": sat_mut_mpra_enhancers,
+}
+
+sat_mut_mpra_elements = sat_mut_mpra_promoters + sat_mut_mpra_enhancers
 
 
 rule sat_mut_mpra_download:
@@ -50,25 +60,26 @@ rule sat_mut_mpra_process:
 
 rule sat_mut_mpra_merge:
     input:
-        expand("results/sat_mut_mpra/{element}.parquet", element=sat_mut_mpra_elements),
+        lambda wildcards: expand("results/sat_mut_mpra/{element}.parquet", element=sat_mut_mpra_proximity_mapping[wildcards.proximity]),
     output:
-        "results/dataset/sat_mut_mpra/test.parquet",
+        "results/dataset/sat_mut_mpra_{proximity}/test.parquet",
     run:
         V = pd.concat([pd.read_parquet(i) for i in input], ignore_index=True)
         V["effect_size"] = V.label
         V.label = V.label.abs()
         V = sort_chrom_pos(V)
+        print(V)
         V.to_parquet(output[0], index=False)
 
 
-rule sat_mut_mpra_subset_element:
-    input:
-        "results/dataset/sat_mut_mpra/test.parquet",
-    output:
-        "results/dataset/sat_mut_mpra/subset/{e}.parquet",
-    wildcard_constraints:
-        e="|".join(sat_mut_mpra_elements),
-    run:
-        V = pd.read_parquet(input[0])
-        V = V[V.element == wildcards.e]
-        V[COORDINATES].to_parquet(output[0], index=False)
+#rule sat_mut_mpra_subset_element:
+#    input:
+#        "results/dataset/sat_mut_mpra/test.parquet",
+#    output:
+#        "results/dataset/sat_mut_mpra/subset/{e}.parquet",
+#    wildcard_constraints:
+#        e="|".join(sat_mut_mpra_elements),
+#    run:
+#        V = pd.read_parquet(input[0])
+#        V = V[V.element == wildcards.e]
+#        V[COORDINATES].to_parquet(output[0], index=False)
