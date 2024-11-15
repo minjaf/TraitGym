@@ -111,12 +111,12 @@ rule mendelian_traits_unsupervised:
             dataset=[
                 "mendelian_traits_proximal_matched_1",
                 "mendelian_traits_distal_matched_1",
-                "mendelian_traits_distal_matched_9",
+                #"mendelian_traits_distal_matched_9",
             ],
             metric=[
                 "AUROC_by_gene_weighted_average",
                 "AUPRC_by_gene_weighted_average",
-                "Accuracy_by_match_group_weighted_average",
+                #"Accuracy_by_match_group_weighted_average",
             ],
             subset=["all"],
             model=[
@@ -145,16 +145,18 @@ rule complex_traits_unsupervised:
             dataset=[
                 "complex_traits_proximal_matched_1",
                 "complex_traits_distal_matched_1",
-                "complex_traits_distal_matched_9",
+                #"complex_traits_distal_matched_9",
+                "eqtl_proximal_matched_1",
+                "eqtl_distal_matched_1",
             ],
             metric=[
                 "AUROC_by_gene_weighted_average",
                 "AUPRC_by_gene_weighted_average",
-                "Accuracy_by_match_group_weighted_average",
+                #"Accuracy_by_match_group_weighted_average",
             ],
             subset=["all"],
             model=[
-                "CADD.plus.RawScore",
+                #"CADD.plus.RawScore",
                 "Enformer_L2_L2.plus.all",
                 #"Borzoi_L2_L2.plus.all",
                 "GPN-MSA_absLLR.plus.score",

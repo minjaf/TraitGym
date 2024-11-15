@@ -97,14 +97,14 @@ rule eqtl_process:
         V.to_parquet(output[0], index=False) 
 
 
-rule eqtl_match:
+rule eqtl_dataset_intermediate:
     input:
         "results/eqtl/processed.annot_with_cre.parquet",
         "results/tss.parquet",
     output:
-        "results/dataset/eqtl_matched_{k,\d+}/test.parquet",
+        "results/intermediate_dataset/eqtl_proximal.parquet",
+        "results/intermediate_dataset/eqtl_distal.parquet",
     run:
-        k = int(wildcards.k)
         V = (
             pl.read_parquet(input[0])
             .with_columns(
@@ -116,33 +116,45 @@ rule eqtl_match:
             .drop_nulls()
             .to_pandas()
         )
-
+        V = V.drop_duplicates(COORDINATES)
+        V = V[V.consequence.isin(NON_EXONIC_FULL)]
+        assert len(V) == len(V.drop_duplicates(COORDINATES))
         V["start"] = V.pos - 1
         V["end"] = V.pos
-
-        tss = pd.read_parquet(input[1], columns=["chrom", "start", "end"])
-
+        tss = pd.read_parquet(input[1])
         V = bf.closest(V, tss).rename(columns={
-            "distance": "tss_dist"
+            "distance": "tss_dist", "gene_id_": "gene",
         }).drop(columns=["start", "end", "chrom_", "start_", "end_"])
+        print(V.tss_dist.dtype)
+        assert V.tss_dist.notna().all()
+        V.tss_dist = V.tss_dist.astype(int)
+        print(V.tss_dist.dtype)
+        V["proximal"] = V.tss_dist < 1000
+        V[V.proximal].drop(columns="proximal").to_parquet(output[0], index=False)
+        V[~V.proximal].drop(columns="proximal").to_parquet(output[1], index=False)
 
-        match_features = ["maf", "tss_dist"]
 
-        consequences = V[V.label].consequence.unique()
-        V_cs = []
-        for c in consequences:
-            print(c)
-            V_c = V[V.consequence == c].copy()
-            for f in match_features:
-                V_c[f"{f}_scaled"] = RobustScaler().fit_transform(V_c[f].values.reshape(-1, 1))
-            print(V_c.label.value_counts())
-            V_c = match_columns_k(V_c, "label", [f"{f}_scaled" for f in match_features], k)
-            V_c["match_group"] = c + "_" + V_c.match_group.astype(str)
-            print(V_c.label.value_counts())
-            print(V_c.groupby("label")[match_features].median())
-            V_c.drop(columns=[f"{f}_scaled" for f in match_features], inplace=True)
-            V_cs.append(V_c)
-        V = pd.concat(V_cs, ignore_index=True)
-        V = sort_variants(V)
+rule eqtl_dataset:
+    input:
+        "results/intermediate_dataset/eqtl_{proximity}.parquet",
+    output:
+        "results/dataset/eqtl_{proximity}_matched_{k,\d+}/test.parquet",
+    run:
+        k = int(wildcards.k)
+        V = pd.read_parquet(input[0])
+        V["super_proximal"] = V.tss_dist < 100
+        V["maf_bin"] = pd.cut(V.maf, bins=np.arange(0, 0.51, 0.05))
+        cols = [
+            "gene", "super_proximal", "maf_bin",
+        ]
         print(V)
+        V = match_cols(V[V.label], V[~V.label], cols, k=k, minimize_dist_col="tss_dist")
+        V = V.drop(columns=["super_proximal", "maf_bin"])
+        print(V)
+        print(V.label.sum())
+        print(
+            V.label.mean(),
+            average_precision_score(V.label, -V.tss_dist),
+            average_precision_score(V.label, V.maf),
+        )
         V.to_parquet(output[0], index=False)
