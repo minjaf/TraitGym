@@ -136,25 +136,31 @@ def check_ref_alt(V, genome):
     return V
 
 
-def match_cols(pos, neg, cols, k=1, prioritize_col=None):
+def match_cols(pos, neg, cols, k=1, prioritize_col=None, minimize_dist_col=None):
     pos = pos.set_index(cols)
     neg = neg.set_index(cols)
     res_pos = []
     res_neg = []
     for x in tqdm(pos.index.drop_duplicates()):
-        pos_x = pos.loc[x].reset_index()
+        pos_x = pos.loc[[x]].reset_index()
         try:
-            neg_x = neg.loc[x].reset_index()
+            neg_x = neg.loc[[x]].reset_index()
         except KeyError:
             print(f"WARNING: no match for {x}")
             continue
         if len(pos_x) * k > len(neg_x):
             print("WARNING: subsampling positive set")
             pos_x = pos_x.sample(len(neg_x) // k, random_state=42)
-        if prioritize_col is None:
+        if prioritize_col is None and minimize_dist_col is None:
             neg_x = neg_x.sample(len(pos_x) * k, random_state=42)
-        else:
+        elif minimize_dist_col is not None:
+            assert prioritize_col is None
+            neg_x = find_closest(pos_x, neg_x, minimize_dist_col, k)
+        elif prioritize_col is not None:
+            assert minimize_dist_col is None
             neg_x = neg_x.sort_values(prioritize_col).head(len(pos_x) * k)
+        else:
+            raise ValueError("Shouldn't be here")
         res_pos.append(pos_x)
         res_neg.append(neg_x)
     res_pos = pd.concat(res_pos, ignore_index=True)
@@ -164,6 +170,16 @@ def match_cols(pos, neg, cols, k=1, prioritize_col=None):
     res = pd.concat([res_pos, res_neg], ignore_index=True)
     res = sort_variants(res)
     return res
+
+
+def find_closest(pos, neg, col, k):
+    D = cdist(pos[[col]], neg[[col]])
+    closest = []
+    for i in range(len(pos)):
+        js = np.argsort(D[i])[:k].tolist()
+        closest += js
+        D[:, js] = np.inf  # ensure they cannot be picked up again
+    return neg.iloc[closest]
 
 
 def match_columns(df, target, covariates):
@@ -490,28 +506,6 @@ rule upload_features_to_hf:
         )
 
 
-def train_predict_best_feature(V_train, V_test, features):
-    balanced = V_train.label.sum() == len(V_train) // 2
-    metric = roc_auc_score if balanced else average_precision_score
-    if V_train[features].isna().any().any():
-        print("WARNING: NaNs in features, filling with mean")
-        train_mean = V_train[features].mean()
-        train_mean = train_mean.fillna(0)
-        V_train = V_train.copy()
-        V_test = V_test.copy()
-        V_train[features] = V_train[features].fillna(train_mean)
-        V_test[features] = V_test[features].fillna(train_mean)
-    scores = [
-        max(metric(V_train.label, V_train[f]), metric(V_train.label, -V_train[f]))
-        for f in features
-    ]
-    chosen = features[np.argmax(scores)]
-    res = V_test[chosen].values
-    if metric(V_train.label, V_train[chosen]) < metric(V_train.label, -V_train[chosen]):
-        res = -res
-    return res
-
-
 def predict(clf, X):
     return clf.predict_proba(X)[:, 1]
 
@@ -522,7 +516,6 @@ def train_predict(V_train, V_test, features, train_f):
 
 
 def train_logistic_regression(X, y, groups):
-    balanced = y.sum() == len(y) // 2
     pipeline = Pipeline([
         ('imputer', SimpleImputer(
             missing_values=np.nan, strategy='mean', keep_empty_features=True,
@@ -533,15 +526,14 @@ def train_logistic_regression(X, y, groups):
             random_state=42,
         ))
     ])
-    #Cs = np.logspace(-8, 0, 10)
-    Cs = np.logspace(-16, 0, 20)
+    Cs = np.logspace(-8, 0, 10)
     param_grid = {
         'linear__C': Cs,
     }
     clf = GridSearchCV(
         pipeline,
         param_grid,
-        scoring="roc_auc" if balanced else "average_precision",
+        scoring="average_precision",
         cv=GroupKFold(),
         n_jobs=-1,
     )
@@ -554,140 +546,6 @@ def train_logistic_regression(X, y, groups):
     }).sort_values("coef", ascending=False, key=abs)
     print(coef.head(10))
     return clf
-
-
-def train_lasso_logistic_regression(X, y, groups):
-    balanced = y.sum() == len(y) // 2
-    pipeline = Pipeline([
-        ('imputer', SimpleImputer(
-            missing_values=np.nan, strategy='mean', keep_empty_features=True,
-        )),
-        ('scaler', StandardScaler()),
-        ('linear', LogisticRegression(
-            class_weight="balanced",
-            random_state=42,
-            penalty="l1",
-            solver="saga",
-            max_iter=1000,
-        ))
-    ])
-    Cs = np.logspace(-4, 4, 20)
-    param_grid = {
-        'linear__C': Cs,
-    }
-    clf = GridSearchCV(
-        pipeline,
-        param_grid,
-        scoring="roc_auc" if balanced else "average_precision",
-        cv=GroupKFold(),
-        n_jobs=-1,
-    )
-    clf.fit(X, y, groups=groups)
-    print(f"{clf.best_params_=}")
-    linear = clf.best_estimator_.named_steps["linear"]
-    coef = pd.DataFrame({
-        "feature": X.columns,
-        "coef": linear.coef_[0],
-    }).sort_values("coef", ascending=False, key=abs)
-    print(coef.head(10))
-    return clf
-
-
-def train_predict_ridge_regression(V_train, V_test, features):
-    pipeline = Pipeline([
-        ('imputer', SimpleImputer(missing_values=np.nan, strategy='mean')),
-        ('scaler', StandardScaler()),
-        ('linear', Ridge(
-            random_state=42,
-        ))
-    ])
-    C = np.logspace(-10, 0, 11)
-    alpha = 1 / (2 * C)
-    param_grid = {
-        'linear__alpha': alpha,
-    }
-    clf = GridSearchCV(
-        pipeline,
-        param_grid,
-        scoring="r2",
-        cv=2,
-        n_jobs=-1,
-    )
-    clf.fit(V_train[features], V_train.label)
-    print(f"{clf.best_params_=}")
-    return clf.predict(V_test[features])
-
-
-def train_predict_feature_selection_logistic_regression(V_train, V_test, features):
-    balanced = V_train.label.sum() == len(V_train) // 2
-    clf = Pipeline([
-        ('imputer', SimpleImputer(missing_values=np.nan, strategy='mean')),
-        ('scaler', RobustScaler()),
-        ('feature_selection', SelectKBest(score_func=f_classif, k=10)),
-        ('linear', LogisticRegressionCV(
-            class_weight="balanced",
-            scoring="roc_auc" if balanced else "average_precision",
-            Cs=np.logspace(-10, 10, 11),
-            cv=3,
-            random_state=42,
-            n_jobs=-1,
-        ))
-    ])
-    clf.fit(V_train[features], V_train.label)
-    return clf.predict_proba(V_test[features])[:, 1]
-
-
-def train_predict_pca_logistic_regression(V_train, V_test, features):
-    balanced = V_train.label.sum() == len(V_train) // 2
-    clf = Pipeline([
-        ('imputer', SimpleImputer(missing_values=np.nan, strategy='mean')),
-        ('scaler', RobustScaler()),
-        # ('feature_selection', SelectKBest(score_func=f_classif, k=10)),
-        ('pca', PCA(n_components=20, random_state=42)),
-        ('linear', LogisticRegressionCV(
-            class_weight="balanced",
-            scoring="roc_auc" if balanced else "average_precision",
-            Cs=np.logspace(-10, 10, 11),
-            cv=3,
-            random_state=42,
-            n_jobs=-1,
-        ))
-    ])
-    clf.fit(V_train[features], V_train.label)
-    return clf.predict_proba(V_test[features])[:, 1]
-
-
-def train_predict_random_forest(V_train, V_test, features):
-    clf = Pipeline([
-        ('imputer', SimpleImputer(missing_values=np.nan, strategy='mean')),
-        (
-            'random_forest',
-            RandomForestClassifier(
-                class_weight="balanced",
-                n_estimators=1000,
-                random_state=42,
-                n_jobs=-1,
-            )
-        )
-    ])
-    clf.fit(V_train[features], V_train.label)
-    return clf.predict_proba(V_test[features])[:, 1]
-
-
-def train_predict_xgboost(V_train, V_test, features):
-    import xgboost as xgb
-    clf = Pipeline([
-        ('imputer', SimpleImputer(missing_values=np.nan, strategy='mean')),
-        (
-            'xgb',
-            xgb.XGBClassifier(
-                random_state=42,
-                n_jobs=-1,
-            )
-        )
-    ])
-    clf.fit(V_train[features], V_train.label)
-    return clf.predict_proba(V_test[features])[:, 1]
 
 
 classifier_map = {

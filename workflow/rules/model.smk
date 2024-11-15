@@ -99,9 +99,8 @@ rule eval_unsupervised_features:
         df = df.fillna(df.mean())
         V = pd.concat([V, df], axis=1)
         V = subset.merge(V, on=COORDINATES, how="left")
-        balanced = V.label.sum() == len(V) // 2
-        metric = roc_auc_score if balanced else average_precision_score
-        metric_name = "AUROC" if balanced else "AUPRC"
+        metric = average_precision_score
+        metric_name = "AUPRC"
         res = []
         for f in tqdm(features):
             score_plus = metric(V.label, V[f])
@@ -140,31 +139,6 @@ rule classifier_coefficients:
             "feature": all_features,
             "coef": linear.coef_[0],
         }).sort_values("coef", ascending=False, key=abs)
-        res.to_csv(output[0], index=False)
-
-
-rule get_metrics:
-    input:
-        "results/dataset/{dataset}/test.parquet",
-        "results/dataset/{dataset}/subset/{subset}.parquet",
-        "results/dataset/{dataset}/preds/{subset}/{model}.parquet",
-    output:
-        "results/dataset/{dataset}/metrics/{subset}/{model}.csv",
-    run:
-        V = pd.read_parquet(input[0])
-        subset = pd.read_parquet(input[1])
-        V = subset.merge(V, on=COORDINATES, how="left")
-        V["score"] = pd.read_parquet(input[2])["score"]
-        balanced = V.label.sum() == len(V) // 2
-        metric = roc_auc_score if balanced else average_precision_score
-        metric_name = "AUROC" if balanced else "AUPRC"
-        block = "chrom" if len(V.chrom.unique()) > 1 else "match_group"
-        res = pd.DataFrame({
-            "model": [wildcards.model],
-            "metric": [metric_name],
-            "score": [metric(V.label, V.score)],
-            "se": [block_bootstrap_se(metric, V, "label", "score", block)],
-        })
         res.to_csv(output[0], index=False)
 
 
@@ -223,34 +197,59 @@ rule get_metrics:
 #        plt.savefig(output[0], bbox_inches="tight")
 
 
-rule get_metrics_by_chrom:
+def accuracy_score(y_true, y_pred):
+    """Check if the highest score corresponds to the true label."""
+    y_true = y_true.values
+    y_pred = y_pred.values
+    assert sum(y_true) == 1
+    return float(y_true[np.argmax(y_pred)])
+
+
+metric_mapping = {
+    "AUROC": roc_auc_score,
+    "AUPRC": average_precision_score,
+    "Accuracy": accuracy_score,
+}
+BLOCKS = [
+    "gene",
+    "match_group",
+]
+
+
+rule get_metric_by_block:
     input:
         "results/dataset/{dataset}/test.parquet",
         "results/dataset/{dataset}/subset/{subset}.parquet",
         "results/dataset/{dataset}/preds/{subset}/{model}.parquet",
     output:
-        "results/dataset/{dataset}/metrics_by_chrom/{subset}/{model}.csv",
+        "results/dataset/{dataset}/{metric}_by_{block}/{subset}/{model}.csv",
+    wildcard_constraints:
+        metric="|".join(metric_mapping.keys()),
+        block="|".join(BLOCKS),
     run:
+        metric_name = wildcards.metric
+        metric = metric_mapping[metric_name]
+        block = wildcards.block
         V = pd.read_parquet(input[0])
         subset = pd.read_parquet(input[1])
         V = subset.merge(V, on=COORDINATES, how="left")
         V["score"] = pd.read_parquet(input[2])["score"]
-        balanced = V.label.sum() == len(V) // 2
-        metric = roc_auc_score if balanced else average_precision_score
-        metric_name = "AUROC" if balanced else "AUPRC"
         res = []
-        for chrom in V.chrom.unique():
-            V_chrom = V[V.chrom == chrom]
-            res.append([chrom, len(V_chrom), wildcards.model, metric(V_chrom.label, V_chrom.score)])
-        res = pd.DataFrame(res, columns=["chrom", "n", "Model", metric_name])
+        for b in V[block].unique():
+            V_b = V[V[block] == b]
+            res.append([b, len(V_b), wildcards.model, metric(V_b.label, V_b.score)])
+        res = pd.DataFrame(res, columns=[block, "n", "Model", metric_name])
         res.to_csv(output[0], index=False)
 
 
-rule get_metrics_by_chrom_weighted_average:
+rule get_metric_by_block_weighted_average:
     input:
-        "results/dataset/{dataset}/metrics_by_chrom/{subset}/{model}.csv",
+        "results/dataset/{dataset}/{metric}_by_{block}/{subset}/{model}.csv",
     output:
-        "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
+        "results/dataset/{dataset}/{metric}_by_{block}_weighted_average/{subset}/{model}.csv",
+    wildcard_constraints:
+        metric="|".join(metric_mapping.keys()),
+        block="|".join(BLOCKS),
     run:
         res = pl.read_csv(input[0])
         metric = res.columns[-1]
@@ -317,107 +316,3 @@ rule get_metrics_by_chrom_weighted_average:
 #        plt.title(title)
 #        plt.savefig(output[0], bbox_inches="tight")
 #
-
-
-rule get_metrics_by_odd_even:
-    input:
-        "results/dataset/{dataset}/test.parquet",
-        "results/dataset/{dataset}/subset/{subset}.parquet",
-        "results/dataset/{dataset}/preds/{subset}/{model}.parquet",
-    output:
-        "results/dataset/{dataset}/metrics_by_odd_even/{subset}/{model}.csv",
-    run:
-        V = pd.read_parquet(input[0])
-        subset = pd.read_parquet(input[1])
-        V = subset.merge(V, on=COORDINATES, how="left")
-        V["score"] = pd.read_parquet(input[2])["score"]
-        balanced = V.label.sum() == len(V) // 2
-        metric = roc_auc_score if balanced else average_precision_score
-        metric_name = "AUROC" if balanced else "AUPRC"
-        res = []
-        for name, chroms in zip(["odd", "even"], ODD_EVEN_CHROMS):
-            V_chroms = V[V.chrom.isin(chroms)]
-            res.append([name, len(V_chroms), wildcards.model, metric(V_chroms.label, V_chroms.score)])
-        res = pd.DataFrame(res, columns=["chroms", "n", "Model", metric_name])
-        res.to_csv(output[0], index=False)
-
-
-rule get_metrics_by_odd_even_weighted_average:
-    input:
-        "results/dataset/{dataset}/metrics_by_odd_even/{subset}/{model}.csv",
-    output:
-        "results/dataset/{dataset}/metrics_by_odd_even_weighted_average/{subset}/{model}.csv",
-    run:
-        res = pd.read_csv(input[0])
-        metric = res.columns[-1]
-        res["weight"] = res.n / res.n.sum()
-        res = pd.DataFrame({
-            "Model": [wildcards.model],
-            metric: [(res[metric] * res.weight).sum()]
-        })
-        res.to_csv(output[0], index=False)
-
-
-rule get_metrics_by_pos_quarter:
-    input:
-        "results/dataset/{dataset}/test.parquet",
-        "results/dataset/{dataset}/subset/{subset}.parquet",
-        "results/dataset/{dataset}/preds/{subset}/{model}.parquet",
-    output:
-        "results/dataset/{dataset}/metrics_by_pos_quarter/{subset}/{model}.csv",
-    run:
-        V = pd.read_parquet(input[0])
-        subset = pd.read_parquet(input[1])
-        V = subset.merge(V, on=COORDINATES, how="left")
-        V["score"] = pd.read_parquet(input[2])["score"]
-        metric = lambda y_true, y_pred: pearsonr(y_true, y_pred)[0]
-        metric_name = "Pearson"
-        pos_subsets = np.array_split(np.unique(V.pos), 4)
-        res = []
-        for name, pos_subset in zip(range(len(pos_subsets)), pos_subsets):
-            V_pos = V[V.pos.isin(pos_subset)]
-            res.append([name, len(V_pos), wildcards.model, metric(V_pos.label, V_pos.score)])
-        res = pd.DataFrame(res, columns=["pos_quarter", "n", "Model", metric_name])
-        res.to_csv(output[0], index=False)
-
-
-rule get_metrics_by_pos_quarter_weighted_average:
-    input:
-        "results/dataset/{dataset}/metrics_by_pos_quarter/{subset}/{model}.csv",
-    output:
-        "results/dataset/{dataset}/metrics_by_pos_quarter_weighted_average/{subset}/{model}.csv",
-    run:
-        res = pd.read_csv(input[0])
-        metric = res.columns[-1]
-        res["weight"] = res.n / res.n.sum()
-        res = pd.DataFrame({
-            "Model": [wildcards.model],
-            metric: [(res[metric] * res.weight).sum()]
-        })
-        res.to_csv(output[0], index=False)
-
-
-rule get_mean_accuracy:
-    input:
-        "results/dataset/{dataset}/test.parquet",
-        "results/dataset/{dataset}/subset/{subset}.parquet",
-        "results/dataset/{dataset}/preds/{subset}/{model}.parquet",
-    output:
-        "results/dataset/{dataset}/mean_accuracy/{subset}/{model}.csv",
-    run:
-        V = pd.read_parquet(input[0])
-        subset = pd.read_parquet(input[1])
-        V = subset.merge(V, on=COORDINATES, how="left")
-        V["score"] = pd.read_parquet(input[2])["score"]
-        balanced = V.label.sum() == len(V) // 2
-        assert balanced
-        metric_name = "Mean accuracy"
-        res = V.groupby("match_group").apply(lambda df: df.sort_values("score", ascending=False).label.iloc[0]).mean()
-        print(res)
-        raise Exception("debug")
-        res = []
-        for chrom in V.chrom.unique():
-            V_chrom = V[V.chrom == chrom]
-            res.append([chrom, len(V_chrom), wildcards.model, metric(V_chrom.label, V_chrom.score)])
-        res = pd.DataFrame(res, columns=["chrom", "n", "Model", metric_name])
-        res.to_csv(output[0], index=False)

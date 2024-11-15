@@ -145,16 +145,15 @@ rule gwas_process:
         V.to_parquet(output[0], index=False) 
 
 
-rule gwas_match:
+rule complex_traits_dataset_intermediate:
     input:
         "results/gwas/processed.parquet",
         "results/ldscore/UKBB.EUR.ldscore.annot_with_cre.parquet",
         "results/tss.parquet",
-        "results/exon.parquet",
     output:
-        "results/dataset/complex_traits_matched_{k,\d+}_{negative_set,chrom|gene}/test.parquet",
+        "results/intermediate_dataset/complex_traits_proximal.parquet",
+        "results/intermediate_dataset/complex_traits_distal.parquet",
     run:
-        k = int(wildcards.k)
         V = (
             pl.read_parquet(input[0])
             .with_columns(
@@ -166,268 +165,127 @@ rule gwas_match:
             .drop_nulls()
             .to_pandas()
         )
-
-        annot = pd.read_parquet(input[1])
+        V = V.drop_duplicates(COORDINATES)
+        annot = pd.read_parquet(input[1]).drop_duplicates(COORDINATES)
         V = V.merge(annot, on=COORDINATES, how="inner")
-
-        V = V[V.consequence.isin(TARGET_CONSEQUENCES)]
-
-        V[V.label].ld_score.hist(bins=100)
-
+        V = V[V.consequence.isin(NON_EXONIC_FULL)]
+        assert len(V) == len(V.drop_duplicates(COORDINATES))
         V["start"] = V.pos - 1
         V["end"] = V.pos
         tss = pd.read_parquet(input[2])
-        exon = pd.read_parquet(input[3])
         V = bf.closest(V, tss).rename(columns={
-            "distance": "tss_dist", "gene_id_": "closest_tss_gene",
-        }).drop(columns=["chrom_", "start_", "end_"])
-        V = bf.closest(V, exon).rename(columns={
-            "distance": "exon_dist", "gene_id_": "closest_exon_gene",
-        }).drop(columns=["chrom_", "start_", "end_"])
-        V = V.drop(columns=["start", "end"])
+            "distance": "tss_dist", "gene_id_": "gene",
+        }).drop(columns=["start", "end", "chrom_", "start_", "end_"])
+        print(V.tss_dist.dtype)
+        assert V.tss_dist.notna().all()
+        V.tss_dist = V.tss_dist.astype(int)
+        print(V.tss_dist.dtype)
+        V["proximal"] = V.tss_dist < 1000
+        V[V.proximal].drop(columns="proximal").to_parquet(output[0], index=False)
+        V[~V.proximal].drop(columns="proximal").to_parquet(output[1], index=False)
 
-        max_tss_dist = V.tss_dist.max()
-        V["tss_dist_bin"] = pd.cut(
-            V.tss_dist,
-            bins=[0, 100, 1000] + list(range(2000, max_tss_dist + 2000, 2000)),
-            labels=False, include_lowest=True,
-        )
-        # just a hack to ignore tss dist for non-exonic variants
-        V.loc[~V.consequence.isin(NON_EXONIC_FULL), "tss_dist_bin"] = 0
-        V["maf_bin"] = pd.cut(V.maf, bins=np.arange(0, 0.51, 0.01))
-        V["ld_score_bin"] = pd.cut(V.ld_score, bins=50)
-        V["gene"] = V.closest_tss_gene.where(
-            V.consequence.isin(NON_EXONIC_FULL), V.closest_exon_gene,
-        )
+
+rule complex_traits_dataset:
+    input:
+        "results/intermediate_dataset/complex_traits_{proximity}.parquet",
+    output:
+        "results/dataset/complex_traits_{proximity}_matched_{k,\d+}/test.parquet",
+    run:
+        k = int(wildcards.k)
+        V = pd.read_parquet(input[0])
+        V["super_proximal"] = V.tss_dist < 100
+        V["maf_bin"] = pd.cut(V.maf, bins=np.arange(0, 0.51, 0.05))
         cols = [
-            wildcards.negative_set, "consequence", "tss_dist_bin", "maf_bin",
-            "ld_score_bin"
+            "gene", "super_proximal", "maf_bin",
         ]
-        V = match_cols(V[V.label], V[~V.label], cols, k=k)
-        V = V.drop(columns=["tss_dist_bin", "maf_bin", "ld_score_bin"])
         print(V)
+        V = match_cols(V[V.label], V[~V.label], cols, k=k, minimize_dist_col="tss_dist")
+        V = V.drop(columns=["super_proximal", "maf_bin"])
+        print(V)
+        print(V.label.sum())
+        print(
+            V.label.mean(),
+            average_precision_score(V.label, -V.tss_dist),
+            average_precision_score(V.label, V.maf),
+        )
         V.to_parquet(output[0], index=False)
 
 
-rule dataset_subset_trait:
-    input:
-        "results/dataset/{dataset}/test.parquet",
-    output:
-        "results/dataset/{dataset}/subset/{trait}.parquet",
-    wildcard_constraints:
-        trait="|".join(select_gwas_traits),
-    run:
-        V = pd.read_parquet(input[0])
-        V.trait = V.trait.str.split(",")
-        target_size = len(V[V.match_group==V.match_group.iloc[0]])
-        V = V[(~V.label) | (V.trait.apply(lambda x: wildcards.trait in x))]
-        match_group_size = V.match_group.value_counts() 
-        match_groups = match_group_size[match_group_size == target_size].index
-        V = V[V.match_group.isin(match_groups)]
-        V[COORDINATES].to_parquet(output[0], index=False)
-
-
-rule dataset_subset_disease:
-    input:
-        "results/dataset/{dataset}/test.parquet",
-    output:
-        "results/dataset/{dataset}/subset/disease.parquet",
-    run:
-        V = pd.read_parquet(input[0])
-        V.trait = V.trait.str.split(",").apply(set)
-        target_size = len(V[V.match_group==V.match_group.iloc[0]])
-
-        y = set(config["complex_traits_disease"])
-
-        V = V[(~V.label) | (V.trait.apply(lambda x: len(x & y) > 0))]
-        match_group_size = V.match_group.value_counts() 
-        match_groups = match_group_size[match_group_size == target_size].index
-        V = V[V.match_group.isin(match_groups)]
-        print(V)
-        V[COORDINATES].to_parquet(output[0], index=False)
-
-
-rule dataset_subset_non_disease:
-    input:
-        "results/dataset/{dataset}/test.parquet",
-    output:
-        "results/dataset/{dataset}/subset/non_disease.parquet",
-    run:
-        V = pd.read_parquet(input[0])
-        V.trait = V.trait.str.split(",").apply(set)
-        target_size = len(V[V.match_group==V.match_group.iloc[0]])
-
-        y = set(config["complex_traits_disease"])
-
-        V = V[(~V.label) | (V.trait.apply(lambda x: len(x & y) == 0))]
-        match_group_size = V.match_group.value_counts() 
-        match_groups = match_group_size[match_group_size == target_size].index
-        V = V[V.match_group.isin(match_groups)]
-        print(V)
-        V[COORDINATES].to_parquet(output[0], index=False)
-
-
-ruleorder: dataset_subset_maf > complex_traits_matched_subset_maf
-
-
-rule complex_traits_matched_subset_maf:
-    input:
-        "results/dataset/complex_traits_match_{k}/test.parquet",
-    output:
-        "results/dataset/complex_traits_match_{k}/subset/maf_{a}_{b}.parquet",
-    run:
-        V = pd.read_parquet(input[0])
-        target_size = 1 + int(wildcards.k)
-        a = float(wildcards.a)
-        b = float(wildcards.b)
-        V = V[(~V.label) | (V.maf.between(a, b, inclusive="left"))]
-        match_group_size = V.match_group.value_counts() 
-        match_groups = match_group_size[match_group_size == target_size].index
-        V = V[V.match_group.isin(match_groups)]
-        print(V)
-        V[COORDINATES].to_parquet(output[0], index=False)
-
-
-#rule complex_traits_all_dataset:
+#rule dataset_subset_trait:
 #    input:
-#        "results/gwas/processed.parquet",
-#        "results/ldscore/UKBB.EUR.ldscore.annot_with_cre.parquet",
+#        "results/dataset/{dataset}/test.parquet",
 #    output:
-#        "results/dataset/complex_traits_all/test.parquet",
+#        "results/dataset/{dataset}/subset/{trait}.parquet",
+#    wildcard_constraints:
+#        trait="|".join(select_gwas_traits),
 #    run:
-#        V = (
-#            pl.read_parquet(input[0])
-#            .with_columns(
-#                pl.when(pl.col("pip") > 0.9).then(True)
-#                .when(pl.col("pip") < 0.01).then(False)
-#                .otherwise(None)
-#                .alias("label")
-#            )
-#            .drop_nulls()
-#            .to_pandas()
-#        )
-#
-#        annot = pd.read_parquet(input[1])
-#        V = V.merge(annot, on=COORDINATES, how="inner")
-#
-#        V = V[V.consequence.isin(TARGET_CONSEQUENCES)]
-#        V_pos = V[V.label]
-#        V = V[V.consequence.isin(V_pos.consequence.unique())]
-#        V = V[V.chrom.isin(V_pos.chrom.unique())]
-#        V = sort_variants(V)
-#        print(V)
-#        V.to_parquet(output[0], index=False)
+#        V = pd.read_parquet(input[0])
+#        V.trait = V.trait.str.split(",")
+#        target_size = len(V[V.match_group==V.match_group.iloc[0]])
+#        V = V[(~V.label) | (V.trait.apply(lambda x: wildcards.trait in x))]
+#        match_group_size = V.match_group.value_counts() 
+#        match_groups = match_group_size[match_group_size == target_size].index
+#        V = V[V.match_group.isin(match_groups)]
+#        V[COORDINATES].to_parquet(output[0], index=False)
 #
 #
-#rule gwas_match_v2:
+#rule dataset_subset_disease:
 #    input:
-#        "results/gwas/processed.parquet",
-#        "results/ldscore/UKBB.EUR.ldscore.annot_with_cre.parquet",
-#        "results/tss.parquet",
+#        "results/dataset/{dataset}/test.parquet",
 #    output:
-#        "results/dataset/complex_traits_v2_matched_{k,\d+}/test.parquet",
+#        "results/dataset/{dataset}/subset/disease.parquet",
 #    run:
-#        k = int(wildcards.k)
-#        V = (
-#            pl.read_parquet(input[0])
-#            .with_columns(
-#                pl.when(pl.col("pip") > 0.9).then(True)
-#                .when(pl.col("pip") < 0.01).then(False)
-#                .otherwise(None)
-#                .alias("label")
-#            )
-#            .drop_nulls()
-#            .to_pandas()
-#        )
+#        V = pd.read_parquet(input[0])
+#        V.trait = V.trait.str.split(",").apply(set)
+#        target_size = len(V[V.match_group==V.match_group.iloc[0]])
 #
-#        annot = pd.read_parquet(input[1])
-#        V = V.merge(annot, on=COORDINATES, how="inner")
+#        y = set(config["complex_traits_disease"])
 #
-#        V = V[V.consequence.isin(TARGET_CONSEQUENCES)]
-#
-#        V["start"] = V.pos - 1
-#        V["end"] = V.pos
-#
-#        tss = pd.read_parquet(input[2])
-#
-#        V = bf.closest(V, tss).rename(columns={
-#            "distance": "tss_dist", "gene_id_": "gene",
-#        }).drop(columns=["start", "end", "chrom_", "start_", "end_"])
-#
-#        match_features = ["maf", "ld_score", "tss_dist"]
-#
-#        consequences = V[V.label].consequence.unique()
-#        V_cs = []
-#        for c in consequences:
-#            print(c)
-#            V_c = V[V.consequence == c].copy()
-#            for f in match_features:
-#                V_c[f"{f}_scaled"] = RobustScaler().fit_transform(V_c[f].values.reshape(-1, 1))
-#            print(V_c.label.value_counts())
-#            V_c = match_columns_k_gene(V_c, "label", [f"{f}_scaled" for f in match_features], k)
-#            V_c["match_group"] = c + "_" + V_c.match_group.astype(str)
-#            print(V_c.label.value_counts())
-#            print(V_c.groupby("label")[match_features].median())
-#            V_c.drop(columns=[f"{f}_scaled" for f in match_features], inplace=True)
-#            V_cs.append(V_c)
-#        V = pd.concat(V_cs, ignore_index=True)
-#        V = sort_variants(V)
+#        V = V[(~V.label) | (V.trait.apply(lambda x: len(x & y) > 0))]
+#        match_group_size = V.match_group.value_counts() 
+#        match_groups = match_group_size[match_group_size == target_size].index
+#        V = V[V.match_group.isin(match_groups)]
 #        print(V)
-#        V.to_parquet(output[0], index=False)
+#        V[COORDINATES].to_parquet(output[0], index=False)
 #
 #
-#rule gwas_match_v2_nonexonic:
+#rule dataset_subset_non_disease:
 #    input:
-#        "results/gwas/processed.parquet",
-#        "results/ldscore/UKBB.EUR.ldscore.annot_with_cre.parquet",
-#        "results/tss.parquet",
+#        "results/dataset/{dataset}/test.parquet",
 #    output:
-#        "results/dataset/complex_traits_v2_nonexonic_matched_{k,\d+}/test.parquet",
+#        "results/dataset/{dataset}/subset/non_disease.parquet",
 #    run:
-#        k = int(wildcards.k)
-#        V = (
-#            pl.read_parquet(input[0])
-#            .with_columns(
-#                pl.when(pl.col("pip") > 0.9).then(True)
-#                .when(pl.col("pip") < 0.01).then(False)
-#                .otherwise(None)
-#                .alias("label")
-#            )
-#            .drop_nulls()
-#            .to_pandas()
-#        )
+#        V = pd.read_parquet(input[0])
+#        V.trait = V.trait.str.split(",").apply(set)
+#        target_size = len(V[V.match_group==V.match_group.iloc[0]])
 #
-#        annot = pd.read_parquet(input[1])
-#        V = V.merge(annot, on=COORDINATES, how="inner")
+#        y = set(config["complex_traits_disease"])
 #
-#        V = V[V.consequence.isin(NON_EXONIC_FULL)]
-#
-#        V["start"] = V.pos - 1
-#        V["end"] = V.pos
-#
-#        tss = pd.read_parquet(input[2])
-#
-#        V = bf.closest(V, tss).rename(columns={
-#            "distance": "tss_dist", "gene_id_": "gene",
-#        }).drop(columns=["start", "end", "chrom_", "start_", "end_"])
-#
-#        match_features = ["maf", "ld_score", "tss_dist"]
-#
-#        consequences = V[V.label].consequence.unique()
-#        V_cs = []
-#        for c in consequences:
-#            print(c)
-#            V_c = V[V.consequence == c].copy()
-#            for f in match_features:
-#                V_c[f"{f}_scaled"] = RobustScaler().fit_transform(V_c[f].values.reshape(-1, 1))
-#            print(V_c.label.value_counts())
-#            V_c = match_columns_k_gene(V_c, "label", [f"{f}_scaled" for f in match_features], k)
-#            V_c["match_group"] = c + "_" + V_c.match_group.astype(str)
-#            print(V_c.label.value_counts())
-#            print(V_c.groupby("label")[match_features].median())
-#            V_c.drop(columns=[f"{f}_scaled" for f in match_features], inplace=True)
-#            V_cs.append(V_c)
-#        V = pd.concat(V_cs, ignore_index=True)
-#        V = sort_variants(V)
+#        V = V[(~V.label) | (V.trait.apply(lambda x: len(x & y) == 0))]
+#        match_group_size = V.match_group.value_counts() 
+#        match_groups = match_group_size[match_group_size == target_size].index
+#        V = V[V.match_group.isin(match_groups)]
 #        print(V)
-#        V.to_parquet(output[0], index=False)
+#        V[COORDINATES].to_parquet(output[0], index=False)
+#
+#
+#ruleorder: dataset_subset_maf > complex_traits_matched_subset_maf
+#
+#
+#rule complex_traits_matched_subset_maf:
+#    input:
+#        "results/dataset/complex_traits_match_{k}/test.parquet",
+#    output:
+#        "results/dataset/complex_traits_match_{k}/subset/maf_{a}_{b}.parquet",
+#    run:
+#        V = pd.read_parquet(input[0])
+#        target_size = 1 + int(wildcards.k)
+#        a = float(wildcards.a)
+#        b = float(wildcards.b)
+#        V = V[(~V.label) | (V.maf.between(a, b, inclusive="left"))]
+#        match_group_size = V.match_group.value_counts() 
+#        match_groups = match_group_size[match_group_size == target_size].index
+#        V = V[V.match_group.isin(match_groups)]
+#        print(V)
+#        V[COORDINATES].to_parquet(output[0], index=False)
+

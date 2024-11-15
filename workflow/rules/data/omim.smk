@@ -36,74 +36,74 @@ rule omim_process:
         V.to_parquet(output[0], index=False)
 
 
-rule mendelian_dataset:
+rule mendelian_traits_dataset_intermediate:
     input:
         "results/omim/variants.annot_with_cre.annot_MAF.parquet",
         "results/gnomad/MAF_above_0.1.annot_with_cre.parquet",
         "results/tss.parquet",
-        "results/exon.parquet",
     output:
-        "results/dataset/mendelian_traits_{MAF_pct}_matched_{k,\d+}_{negative_set,chrom|gene}/test.parquet",
+        "results/intermediate_dataset/mendelian_traits_proximal.parquet",
+        "results/intermediate_dataset/mendelian_traits_distal.parquet",
     run:
-        k = int(wildcards.k)
         pos = pd.read_parquet(input[0])
         pos.maf = pos.maf.fillna(0)
-        pos = pos[pos.maf < 0.1 / 100]
+        pos = pos[pos.maf < 1 / 100]
         pos["label"] = True
         neg = pd.read_parquet(input[1], columns=COORDINATES + ["consequence", "MAF"])
         neg = neg.rename(columns={"MAF": "maf"})
-        neg = neg[neg.maf > float(wildcards.MAF_pct) / 100]
+        neg = neg[neg.maf > 1 / 100]
         neg["label"] = False
-        neg["minus_maf"] = -neg.maf
         V = pd.concat([pos, neg], ignore_index=True)
-        V = V[V.consequence.isin(TARGET_CONSEQUENCES)]
+        V = V[V.consequence.isin(NON_EXONIC_FULL)]
         assert len(V) == len(V.drop_duplicates(COORDINATES))
-
         V["start"] = V.pos - 1
         V["end"] = V.pos
         tss = pd.read_parquet(input[2])
-        exon = pd.read_parquet(input[3])
         V = bf.closest(V, tss).rename(columns={
-            "distance": "tss_dist", "gene_id_": "closest_tss_gene",
-        }).drop(columns=["chrom_", "start_", "end_"])
-        V = bf.closest(V, exon).rename(columns={
-            "distance": "exon_dist", "gene_id_": "closest_exon_gene",
-        }).drop(columns=["chrom_", "start_", "end_"])
-        V = V.drop(columns=["start", "end"])
+            "distance": "tss_dist", "gene_id_": "gene",
+        }).drop(columns=["start", "end", "chrom_", "start_", "end_"])
+        print(V.tss_dist.dtype)
+        assert V.tss_dist.notna().all()
+        V.tss_dist = V.tss_dist.astype(int)
+        print(V.tss_dist.dtype)
+        V["proximal"] = V.tss_dist < 1000
+        V[V.proximal].drop(columns="proximal").to_parquet(output[0], index=False)
+        V[~V.proximal].drop(columns="proximal").to_parquet(output[1], index=False)
 
-        max_tss_dist = V.tss_dist.max()
-        V["tss_dist_bin"] = pd.cut(
-            V.tss_dist,
-            bins=[0, 100, 1000] + list(range(2000, max_tss_dist + 2000, 2000)),
-            labels=False, include_lowest=True,
-        )
-        # just a hack to ignore tss dist for non-exonic variants
-        V.loc[~V.consequence.isin(NON_EXONIC_FULL), "tss_dist_bin"] = 0
-        V["gene"] = V.closest_tss_gene.where(
-            V.consequence.isin(NON_EXONIC_FULL), V.closest_exon_gene,
-        )
-        cols = [wildcards.negative_set, "consequence", "tss_dist_bin"]
-        V = match_cols(V[V.label], V[~V.label], cols, k=k, prioritize_col="minus_maf")
-        V = V.drop(columns=["tss_dist_bin", "minus_maf"])
+
+rule mendelian_traits_dataset:
+    input:
+        "results/intermediate_dataset/mendelian_traits_{proximity}.parquet",
+    output:
+        "results/dataset/mendelian_traits_{proximity}_matched_{k,\d+}/test.parquet",
+    run:
+        k = int(wildcards.k)
+        V = pd.read_parquet(input[0])
+        V["super_proximal"] = V.tss_dist < 100
+        cols = ["gene", "super_proximal"]
+        V = match_cols(V[V.label], V[~V.label], cols, k=k, minimize_dist_col="tss_dist")
+        V = V.drop(columns=["super_proximal"])
         print(V)
+        print(V.label.sum())
+        print(V.label.mean(), average_precision_score(V.label, -V.tss_dist))
         V.to_parquet(output[0], index=False)
 
 
-rule mendelian_traits_subset_trait:
-    input:
-        "results/dataset/mendelian_traits_matched_{k}/test.parquet",
-    output:
-        "results/dataset/mendelian_traits_matched_{k}/subset/{t}.parquet",
-    wildcard_constraints:
-        t="|".join(select_omim_traits),
-    run:
-        V = pd.read_parquet(input[0])
-        target_size = 1 + int(wildcards.k)
-        V = V[(~V.label) | (V.OMIM == f"MIM {wildcards.t}")]
-        match_group_size = V.match_group.value_counts() 
-        match_groups = match_group_size[match_group_size == target_size].index
-        V = V[V.match_group.isin(match_groups)]
-        V[COORDINATES].to_parquet(output[0], index=False)
+#rule mendelian_traits_subset_trait:
+#    input:
+#        "results/dataset/mendelian_traits_matched_{k}/test.parquet",
+#    output:
+#        "results/dataset/mendelian_traits_matched_{k}/subset/{t}.parquet",
+#    wildcard_constraints:
+#        t="|".join(select_omim_traits),
+#    run:
+#        V = pd.read_parquet(input[0])
+#        target_size = 1 + int(wildcards.k)
+#        V = V[(~V.label) | (V.OMIM == f"MIM {wildcards.t}")]
+#        match_group_size = V.match_group.value_counts() 
+#        match_groups = match_group_size[match_group_size == target_size].index
+#        V = V[V.match_group.isin(match_groups)]
+#        V[COORDINATES].to_parquet(output[0], index=False)
 
 
 #rule mendelian_all_dataset:

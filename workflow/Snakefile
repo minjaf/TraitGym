@@ -107,21 +107,22 @@ rule general_supervised:
 rule mendelian_traits_unsupervised:
     input:
         expand(
-            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
-            #dataset=["mendelian_traits_matched_9"],
-            #dataset=["mendelian_traits_v2_matched_1"],
-            #dataset=["mendelian_traits_v3_matched_9"],
+            "results/dataset/{dataset}/{metric}/{subset}/{model}.csv",
             dataset=[
-                "mendelian_traits_5_matched_1_chrom",
-                "mendelian_traits_5_matched_1_gene",
-                "mendelian_traits_1_matched_1_gene",
-                "mendelian_traits_0.1_matched_1_gene",
+                "mendelian_traits_proximal_matched_1",
+                "mendelian_traits_distal_matched_1",
+                "mendelian_traits_distal_matched_9",
+            ],
+            metric=[
+                "AUROC_by_gene_weighted_average",
+                "AUPRC_by_gene_weighted_average",
+                "Accuracy_by_match_group_weighted_average",
             ],
             subset=["all"],
             model=[
                 "CADD.plus.RawScore",
-                #"Enformer_L2_L2.plus.all",
-                "Borzoi_L2_L2.plus.all",
+                "Enformer_L2_L2.plus.all",
+                #"Borzoi_L2_L2.plus.all",
                 "GPN-MSA_LLR.minus.score",
                 #"GPN_LLR.minus.score",
                 #"GPN_EuclideanDistance.plus.score",
@@ -140,19 +141,22 @@ rule mendelian_traits_unsupervised:
 rule complex_traits_unsupervised:
     input:
         expand(
-            "results/dataset/{dataset}/metrics_by_chrom_weighted_average/{subset}/{model}.csv",
-            #dataset=["complex_traits_matched_9"],
-            #dataset=["complex_traits_v2_matched_1"],
+            "results/dataset/{dataset}/{metric}/{subset}/{model}.csv",
             dataset=[
-                "complex_traits_matched_1_gene",
-                "complex_traits_matched_1_chrom",
+                "complex_traits_proximal_matched_1",
+                "complex_traits_distal_matched_1",
+                "complex_traits_distal_matched_9",
+            ],
+            metric=[
+                "AUROC_by_gene_weighted_average",
+                "AUPRC_by_gene_weighted_average",
+                "Accuracy_by_match_group_weighted_average",
             ],
             subset=["all"],
-            #subset=["all", "disease", "non_disease"],
             model=[
                 "CADD.plus.RawScore",
-                #"Enformer_L2_L2.plus.all",
-                "Borzoi_L2_L2.plus.all",
+                "Enformer_L2_L2.plus.all",
+                #"Borzoi_L2_L2.plus.all",
                 "GPN-MSA_absLLR.plus.score",
                 #"GPN_absLLR.plus.score",
                 #"NucleotideTransformer_absLLR.plus.score",
