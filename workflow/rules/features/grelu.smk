@@ -33,7 +33,7 @@ rule run_vep_enformer:
         """
         python \
         workflow/scripts/vep_enformer_borzoi.py {input} enformer human {output} \
-        --per_device_batch_size 16 --dataloader_num_workers {threads} --is_file
+        --per_device_batch_size {config[enformer][batch_size]} --dataloader_num_workers {threads} --is_file
         """
 #torchrun --nproc_per_node $(echo $CUDA_VISIBLE_DEVICES | awk -F',' '{{print NF}}') \
 
@@ -51,7 +51,7 @@ rule run_vep_borzoi:
         """
         python \
         workflow/scripts/vep_enformer_borzoi.py {input} borzoi human_fold0 {output} \
-        --per_device_batch_size 8 --dataloader_num_workers {threads} --is_file
+        --per_device_batch_size {config[borzoi][batch_size]} --dataloader_num_workers {threads} --is_file
         """
 
 

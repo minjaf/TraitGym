@@ -267,6 +267,12 @@ feature_sets:
     - GPN_v4_v6_512_64_1024_checkpoint_370000_absLLR
     - GPN_v4_v6_512_64_1024_checkpoint_370000_InnerProducts
 
+enformer:
+  batch_size: 16
+
+borzoi:
+  batch_size: 8
+
 gpn_msa:
   model_path: "songlab/gpn-msa-sapiens"
   msa_path: "/accounts/projects/yss/gbenegas/projects/gpn/analysis/human/results/msa/multiz100way/89/all.zarr"
@@ -362,6 +368,9 @@ gpn:
   v4_v6_512_64_1024_checkpoint_250000:
     model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v4_v6/512_64_1024/checkpoint-250000
   v4_v6_512_64_1024_checkpoint_370000:
+    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v4_v6/512_64_1024/checkpoint-370000
+
+  final:
     model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v4_v6/512_64_1024/checkpoint-370000
 
 cadd:
