@@ -75,7 +75,7 @@ rule mendelian_traits_dataset:
     input:
         "results/intermediate_dataset/mendelian_traits_{proximity}.parquet",
     output:
-        "results/dataset/mendelian_traits_{proximity}_matched_{k,\d+}/test.parquet",
+        "results/dataset/mendelian_traits_{proximity,proximal|distal}_matched_{k,\d+}/test.parquet",
     run:
         k = int(wildcards.k)
         V = pd.read_parquet(input[0])
@@ -106,26 +106,58 @@ rule mendelian_traits_dataset:
 #        V[COORDINATES].to_parquet(output[0], index=False)
 
 
-#rule mendelian_all_dataset:
-#    input:
-#        "results/omim/variants.annot_with_cre.annot_MAF.parquet",
-#        "results/gnomad/common.parquet",
-#    output:
-#        "results/dataset/mendelian_traits_all/test.parquet",
-#    run:
-#        pos = pd.read_parquet(input[0])
-#        pos.maf = pos.maf.fillna(0)
-#        pos = pos[pos.maf < 0.1 / 100]
-#        pos = pos.drop(columns=["maf"])
-#        pos = pos[pos.consequence.isin(TARGET_CONSEQUENCES)]
-#        pos["label"] = True
-#        neg = pd.read_parquet(input[1])
-#        neg = neg[neg.chrom.isin(pos.chrom.unique())]
-#        neg = neg[neg.consequence.isin(pos.consequence.unique())]
-#        neg["label"] = False
-#        V = pd.concat([pos, neg], ignore_index=True)
-#        assert len(V) == len(V.drop_duplicates(COORDINATES))
-#        V = sort_variants(V)
-#        print(V)
-#        V.to_parquet(output[0], index=False)
+rule mendelian_traits_all_intermediate_dataset:
+    input:
+        "results/omim/variants.annot_with_cre.annot_MAF.parquet",
+        "results/gnomad/MAF_above_0.1.annot_with_cre.parquet",
+        "results/tss.parquet",
+    output:
+        "results/intermediate_dataset/mendelian_traits_proximal_all.parquet",
+        "results/intermediate_dataset/mendelian_traits_distal_all.parquet",
+    run:
+        pos = pd.read_parquet(input[0])
+        pos.maf = pos.maf.fillna(0)
+        pos = pos[pos.maf < 1 / 100]
+        pos = pos[pos.consequence.isin(NON_EXONIC_FULL)]
+        pos["label"] = True
+        neg = pd.read_parquet(input[1], columns=COORDINATES + ["consequence", "MAF"])
+        neg = neg.rename(columns={"MAF": "maf"})
+        neg = neg[neg.maf > 5 / 100]
+        neg = neg[neg.chrom.isin(pos.chrom.unique())]
+        neg = neg[neg.consequence.isin(NON_EXONIC_FULL)]
+        neg["label"] = False
+        V = pd.concat([pos, neg], ignore_index=True)
+        assert len(V) == len(V.drop_duplicates(COORDINATES))
+        V["start"] = V.pos - 1
+        V["end"] = V.pos
+        tss = pd.read_parquet(input[2])
+        V = bf.closest(V, tss).rename(columns={
+            "distance": "tss_dist", "gene_id_": "gene",
+        }).drop(columns=["start", "end", "chrom_", "start_", "end_"])
+        print(V.tss_dist.dtype)
+        assert V.tss_dist.notna().all()
+        V.tss_dist = V.tss_dist.astype(int)
+        print(V.tss_dist.dtype)
+        V = sort_variants(V)
+        V["proximal"] = V.tss_dist < 1000
+        V[V.proximal].drop(columns="proximal").to_parquet(output[0], index=False)
+        V[~V.proximal].drop(columns="proximal").to_parquet(output[1], index=False)
 
+
+rule mendelian_traits_all_dataset:
+    input:
+        "results/intermediate_dataset/mendelian_traits_{proximity}_all.parquet",
+    output:
+        "results/dataset/mendelian_traits_{proximity,proximal|distal}_all_matched_{k,\d+}/test.parquet",
+    run:
+        k = int(wildcards.k)
+        V = pd.read_parquet(input[0])
+        # converted to string to avoid error while matching
+        V["super_proximal"] = (V.tss_dist < 100).astype(str)
+        cols = ["super_proximal"]
+        V = match_cols(V[V.label], V[~V.label], cols, k=k, minimize_dist_col="tss_dist")
+        V = V.drop(columns=["super_proximal"])
+        print(V)
+        print(V.label.sum())
+        print(V.label.mean(), average_precision_score(V.label, -V.tss_dist))
+        V.to_parquet(output[0], index=False)

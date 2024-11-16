@@ -222,6 +222,29 @@ BLOCKS = [
 ]
 
 
+rule get_metric:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+        "results/dataset/{dataset}/subset/{subset}.parquet",
+        "results/dataset/{dataset}/preds/{subset}/{model}.parquet",
+    output:
+        "results/dataset/{dataset}/{metric}/{subset}/{model}.csv",
+    wildcard_constraints:
+        metric="|".join(metric_mapping.keys()),
+    run:
+        metric_name = wildcards.metric
+        metric = metric_mapping[metric_name]
+        V = pd.read_parquet(input[0])
+        subset = pd.read_parquet(input[1])
+        V = subset.merge(V, on=COORDINATES, how="left")
+        V["score"] = pd.read_parquet(input[2])["score"]
+        res = pd.DataFrame({
+            "Model": [wildcards.model],
+            metric_name: [metric(V.label, V.score)],
+        })
+        res.to_csv(output[0], index=False)
+
+
 rule get_metric_by_block:
     input:
         "results/dataset/{dataset}/test.parquet",

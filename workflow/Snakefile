@@ -104,6 +104,38 @@ rule general_supervised:
         #),
 
 
+rule mendelian_traits_unsupervised_global:
+    input:
+        expand(
+            "results/dataset/{dataset}/{metric}/{subset}/{model}.csv",
+            dataset=[
+                "mendelian_traits_proximal_all_matched_99",
+                "mendelian_traits_distal_all_matched_99",
+            ],
+            metric=[
+                "AUPRC",
+            ],
+            subset=["all"],
+            model=[
+                #"CADD.plus.RawScore",
+                "Enformer_L2_L2.plus.all",
+                #"Borzoi_L2_L2.plus.all",
+                "GPN-MSA_LLR.minus.score",
+                #"GPN_final_EuclideanDistance.plus.score",
+                #"GPN_LLR.minus.score",
+                #"GPN_EuclideanDistance.plus.score",
+                #"NucleotideTransformer_LLR.minus.score",
+                #"HyenaDNA_LLR.minus.score",
+                #"Caduceus_LLR.minus.score",
+
+                #"GPN_v2_all_256_256_512_17_512_checkpoint_10000_LLR.minus.score",
+                #"GPN_v2_v3_512_17_512_checkpoint_10000_LLR.minus.score",
+
+                #"Sei.plus.seqclass_max_absdiff",
+            ],
+        ),
+
+
 rule mendelian_traits_unsupervised:
     input:
         expand(
@@ -120,7 +152,7 @@ rule mendelian_traits_unsupervised:
             model=[
                 "CADD.plus.RawScore",
                 "Enformer_L2_L2.plus.all",
-                #"Borzoi_L2_L2.plus.all",
+                "Borzoi_L2_L2.plus.all",
                 "GPN-MSA_LLR.minus.score",
                 "GPN_final_EuclideanDistance.plus.score",
                 #"GPN_LLR.minus.score",
@@ -156,7 +188,7 @@ rule complex_traits_unsupervised:
             model=[
                 "CADD.plus.RawScore",
                 "Enformer_L2_L2.plus.all",
-                #"Borzoi_L2_L2.plus.all",
+                "Borzoi_L2_L2.plus.all",
                 "GPN-MSA_absLLR.plus.score",
                 "GPN_final_EuclideanDistance.plus.score",
                 #"GPN_absLLR.plus.score",
