@@ -117,7 +117,7 @@ rule mendelian_traits_unsupervised_global:
             ],
             subset=["all"],
             model=[
-                #"CADD.plus.RawScore",
+                "CADD.plus.RawScore",
                 "Enformer_L2_L2.plus.all",
                 #"Borzoi_L2_L2.plus.all",
                 "GPN-MSA_LLR.minus.score",
