@@ -42,6 +42,7 @@ rule all:
                 "CADD",
                 "GPN-MSA_LLR",
                 "GPN-MSA_InnerProducts",
+                "GPN-MSA_Embeddings",
 
                 #"NucleotideTransformer_LLR",
                 #"NucleotideTransformer_InnerProducts",
@@ -140,6 +141,9 @@ rule mendelian_traits_unsupervised:
 
                 "Caduceus_InnerProduct.minus.score",
                 "Caduceus_Embeddings.minus.inner_product",
+
+                "GPN-MSA_InnerProduct.minus.score",
+                "GPN-MSA_Embeddings.minus.inner_product",
 
                 #"GPN_LLR.minus.score",
                 #"GPN_EuclideanDistance.plus.score",
