@@ -65,6 +65,50 @@ rule all:
         )
 
 
+rule glm_unsupervised:
+    input:
+        expand(
+            "results/dataset/{dataset}/{metric}/{subset}/{model}_{score}.csv",
+            dataset=config["datasets"],
+            metric=[
+                "AUPRC_by_chrom_weighted_average",
+            ],
+            subset=["all"],
+            model=[
+                "GPN_final",
+                "NucleotideTransformer",
+                "HyenaDNA",
+                "Caduceus",
+                "GPN-MSA",
+            ],
+            score=[
+                "LLR.minus.score",
+                "absLLR.plus.score",
+                "Embeddings.plus.euclidean_distance",
+                "Embeddings.plus.cosine_distance",
+                "Embeddings.minus.inner_product",
+            ],
+        ),
+
+
+rule other_unsupervised:
+    input:
+        expand(
+            "results/dataset/{dataset}/{metric}/{subset}/{model}.csv",
+            dataset=config["datasets"],
+            metric=[
+                "AUPRC_by_chrom_weighted_average",
+            ],
+            subset=["all"],
+            model=[
+                "CADD.plus.RawScore",
+                "Enformer_L2_L2.plus.all",
+                "Borzoi_L2_L2.plus.all",
+                "Sei.plus.seqclass_max_absdiff",
+            ],
+        ),
+
+
 rule general_supervised:
     input:
         expand(
@@ -108,86 +152,6 @@ rule general_supervised:
         #),
 
 
-rule mendelian_traits_unsupervised:
-    input:
-        expand(
-            "results/dataset/{dataset}/{metric}/{subset}/{model}.csv",
-            dataset=[
-                "mendelian_traits_matched_9",
-            ],
-            metric=[
-                "AUPRC_by_chrom_weighted_average",
-            ],
-            subset=["all"],
-            model=[
-                "CADD.plus.RawScore",
-                "Enformer_L2_L2.plus.all",
-                "Borzoi_L2_L2.plus.all",
-                "GPN-MSA_LLR.minus.score",
-
-                "GPN_final_LLR.minus.score",
-                "GPN_final_EuclideanDistance.plus.score",
-                "GPN_final_InnerProduct.minus.score",
-
-                "GPN_final_Embeddings.plus.euclidean_distance",
-                "GPN_final_Embeddings.plus.cosine_distance",
-                "GPN_final_Embeddings.minus.inner_product",
-
-                "NucleotideTransformer_InnerProduct.minus.score",
-                "NucleotideTransformer_Embeddings.minus.inner_product",
-
-                "HyenaDNA_InnerProduct.minus.score",
-                "HyenaDNA_Embeddings.minus.inner_product",
-
-                "Caduceus_InnerProduct.minus.score",
-                "Caduceus_Embeddings.minus.inner_product",
-
-                "GPN-MSA_InnerProduct.minus.score",
-                "GPN-MSA_Embeddings.minus.inner_product",
-
-                #"GPN_LLR.minus.score",
-                #"GPN_EuclideanDistance.plus.score",
-                #"NucleotideTransformer_LLR.minus.score",
-                #"HyenaDNA_LLR.minus.score",
-                #"Caduceus_LLR.minus.score",
-
-                #"GPN_v2_all_256_256_512_17_512_checkpoint_10000_LLR.minus.score",
-                #"GPN_v2_v3_512_17_512_checkpoint_10000_LLR.minus.score",
-
-                #"Sei.plus.seqclass_max_absdiff",
-            ],
-        ),
-
-
-rule complex_traits_unsupervised:
-    input:
-        expand(
-            "results/dataset/{dataset}/{metric}/{subset}/{model}.csv",
-            dataset=[
-                "complex_traits_proximal_matched_1",
-                "complex_traits_distal_matched_1",
-                "eqtl_proximal_matched_1",
-                "eqtl_distal_matched_1",
-                "dsqtl_distal_matched_1",
-            ],
-            metric=[
-                "AUROC_by_gene_weighted_average",
-                "AUPRC_by_gene_weighted_average",
-            ],
-            subset=["all"],
-            model=[
-                "CADD.plus.RawScore",
-                "Enformer_L2_L2.plus.all",
-                "Borzoi_L2_L2.plus.all",
-                "GPN-MSA_absLLR.plus.score",
-                "GPN_final_EuclideanDistance.plus.score",
-                #"GPN_absLLR.plus.score",
-                #"NucleotideTransformer_absLLR.plus.score",
-                #"HyenaDNA_absLLR.plus.score",
-                #"Caduceus_absLLR.plus.score",
-                #"Sei.plus.seqclass_max_absdiff",
-            ],
-        ),
 
 
 rule select_mendelian_traits:
