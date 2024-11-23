@@ -49,14 +49,14 @@ rule all:
                 #"GPN_LLR",
                 #"GPN_InnerProducts",
                 "GPN_final_LLR",
-                "GPN_final_InnerProducts",
-                "GPN_final_EuclideanDistances",
+                "GPN_final_Embeddings",
 
                 #"HyenaDNA_LLR",
                 #"HyenaDNA_InnerProducts",
 
                 #"Caduceus_LLR",
                 #"Caduceus_InnerProducts",
+                "Caduceus_Embeddings",
 
                 #"GPN_v2_all_256_256_512_17_512_checkpoint_10000_LLR",
                 #"GPN_v2_v3_512_17_512_checkpoint_10000_LLR",
@@ -127,6 +127,11 @@ rule mendelian_traits_unsupervised:
                 "GPN_final_LLR.minus.score",
                 "GPN_final_EuclideanDistance.plus.score",
                 "GPN_final_InnerProduct.minus.score",
+
+                "GPN_final_Embeddings.plus.euclidean_distance",
+                "GPN_final_Embeddings.plus.cosine_distance",
+                "GPN_final_Embeddings.minus.inner_product",
+
                 #"GPN_LLR.minus.score",
                 #"GPN_EuclideanDistance.plus.score",
                 #"NucleotideTransformer_LLR.minus.score",
@@ -478,40 +483,3 @@ rule gpn_experiments:
         #        "GPN-MSA_Influence.plus.score",
         #    ],
         #),
-
-
-radii = [
-    256,
-    512,
-    1024,
-    2048,
-]
-
-gpn_radius_checkpoints = [
-    10000,
-    50000,
-    100000,
-]
-
-rule gpn_radius_experiments:
-    input:
-        expand(
-            "results/dataset/mendelian_traits_matched_9/metrics_by_chrom_weighted_average/{subset}/GPN_v2_all_{radius}_{radius}_512_17_512_checkpoint_{checkpoint}_{score}.csv",
-            subset=["all", "nonexonic_AND_proximal"],
-            radius=radii,
-            checkpoint=gpn_radius_checkpoints,
-            score=[
-                "LLR.minus.score",
-                "EuclideanDistance.plus.score",
-            ],
-        ),
-        expand(
-            "results/dataset/complex_traits_matched_9/metrics_by_chrom_weighted_average/{subset}/GPN_v2_all_{radius}_{radius}_512_17_512_checkpoint_{checkpoint}_{score}.csv",
-            subset=["all", "nonexonic_AND_proximal"],
-            radius=radii,
-            checkpoint=gpn_radius_checkpoints,
-            score=[
-                "absLLR.plus.score",
-                "EuclideanDistance.plus.score",
-            ],
-        ),
