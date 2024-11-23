@@ -132,6 +132,15 @@ rule mendelian_traits_unsupervised:
                 "GPN_final_Embeddings.plus.cosine_distance",
                 "GPN_final_Embeddings.minus.inner_product",
 
+                "NucleotideTransformer_InnerProduct.minus.score",
+                "NucleotideTransformer_Embeddings.minus.inner_product",
+
+                "HyenaDNA_InnerProduct.minus.score",
+                "HyenaDNA_Embeddings.minus.inner_product",
+
+                "Caduceus_InnerProduct.minus.score",
+                "Caduceus_Embeddings.minus.inner_product",
+
                 #"GPN_LLR.minus.score",
                 #"GPN_EuclideanDistance.plus.score",
                 #"NucleotideTransformer_LLR.minus.score",

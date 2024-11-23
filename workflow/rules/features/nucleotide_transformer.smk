@@ -34,3 +34,20 @@ rule nucleotide_transformer_run_vep_inner_products:
         {input} {config[nucleotide_transformer][model_path]} {output} \
         --is_file --dataloader_num_workers 8 --per_device_batch_size 32
         """
+
+
+rule nucleotide_transformer_run_vep_embeddings:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+        "results/genome.fa.gz",
+    output:
+        "results/dataset/{dataset}/features/NucleotideTransformer_Embeddings.parquet",
+    threads:
+        workflow.cores
+    priority: 20
+    shell:
+        """
+        python workflow/scripts/run_vep_embeddings_nucleotide_transformer.py \
+        {input} {config[nucleotide_transformer][model_path]} {output} \
+        --is_file --dataloader_num_workers 8 --per_device_batch_size 32
+        """
