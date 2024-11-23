@@ -77,10 +77,10 @@ feature_sets:
     - NucleotideTransformer_LLR
     - NucleotideTransformer_absLLR
     - NucleotideTransformer_InnerProducts
-  GPN:
-    - GPN_LLR
-    - GPN_absLLR
-    - GPN_InnerProducts
+  GPN_final:
+    - GPN_final_LLR
+    - GPN_final_absLLR
+    - GPN_final_InnerProducts
   HyenaDNA:
     - HyenaDNA_LLR
     - HyenaDNA_absLLR
