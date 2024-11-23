@@ -37,7 +37,7 @@ rule all:
             "results/dataset/{dataset}/features/{features}.parquet",
             dataset=config["datasets"],
             features=[
-                #"Enformer_L2",
+                "Enformer_L2",
                 "Borzoi_L2",
                 "CADD",
                 "GPN-MSA_LLR",
@@ -48,6 +48,9 @@ rule all:
 
                 #"GPN_LLR",
                 #"GPN_InnerProducts",
+                "GPN_final_LLR",
+                "GPN_final_InnerProducts",
+                "GPN_final_EuclideanDistances",
 
                 #"HyenaDNA_LLR",
                 #"HyenaDNA_InnerProducts",
@@ -104,49 +107,15 @@ rule general_supervised:
         #),
 
 
-rule mendelian_traits_unsupervised_global:
-    input:
-        expand(
-            "results/dataset/{dataset}/{metric}/{subset}/{model}.csv",
-            dataset=[
-                "mendelian_traits_proximal_all_matched_99",
-                "mendelian_traits_distal_all_matched_99",
-            ],
-            metric=[
-                "AUPRC",
-            ],
-            subset=["all"],
-            model=[
-                "CADD.plus.RawScore",
-                "Enformer_L2_L2.plus.all",
-                #"Borzoi_L2_L2.plus.all",
-                "GPN-MSA_LLR.minus.score",
-                #"GPN_final_EuclideanDistance.plus.score",
-                #"GPN_LLR.minus.score",
-                #"GPN_EuclideanDistance.plus.score",
-                #"NucleotideTransformer_LLR.minus.score",
-                #"HyenaDNA_LLR.minus.score",
-                #"Caduceus_LLR.minus.score",
-
-                #"GPN_v2_all_256_256_512_17_512_checkpoint_10000_LLR.minus.score",
-                #"GPN_v2_v3_512_17_512_checkpoint_10000_LLR.minus.score",
-
-                #"Sei.plus.seqclass_max_absdiff",
-            ],
-        ),
-
-
 rule mendelian_traits_unsupervised:
     input:
         expand(
             "results/dataset/{dataset}/{metric}/{subset}/{model}.csv",
             dataset=[
-                "mendelian_traits_proximal_matched_1",
-                "mendelian_traits_distal_matched_1",
+                "mendelian_traits_matched_9",
             ],
             metric=[
-                "AUROC_by_gene_weighted_average",
-                "AUPRC_by_gene_weighted_average",
+                "AUPRC_by_chrom_weighted_average",
             ],
             subset=["all"],
             model=[
@@ -154,7 +123,10 @@ rule mendelian_traits_unsupervised:
                 "Enformer_L2_L2.plus.all",
                 "Borzoi_L2_L2.plus.all",
                 "GPN-MSA_LLR.minus.score",
+
+                "GPN_final_LLR.minus.score",
                 "GPN_final_EuclideanDistance.plus.score",
+                "GPN_final_InnerProduct.minus.score",
                 #"GPN_LLR.minus.score",
                 #"GPN_EuclideanDistance.plus.score",
                 #"NucleotideTransformer_LLR.minus.score",
@@ -189,33 +161,6 @@ rule complex_traits_unsupervised:
                 "CADD.plus.RawScore",
                 "Enformer_L2_L2.plus.all",
                 "Borzoi_L2_L2.plus.all",
-                "GPN-MSA_absLLR.plus.score",
-                "GPN_final_EuclideanDistance.plus.score",
-                #"GPN_absLLR.plus.score",
-                #"NucleotideTransformer_absLLR.plus.score",
-                #"HyenaDNA_absLLR.plus.score",
-                #"Caduceus_absLLR.plus.score",
-                #"Sei.plus.seqclass_max_absdiff",
-            ],
-        ),
-
-
-rule sat_mut_mpra_unsupervised:
-    input:
-        expand(
-            "results/dataset/{dataset}/{metric}/{subset}/{model}.csv",
-            dataset=[
-                "sat_mut_mpra_proximal",
-                "sat_mut_mpra_distal",
-            ],
-            metric=[
-                "Spearman_by_element_weighted_average",
-            ],
-            subset=["all"],
-            model=[
-                "CADD.plus.RawScore",
-                "Enformer_L2_L2.plus.all",
-                #"Borzoi_L2_L2.plus.all",
                 "GPN-MSA_absLLR.plus.score",
                 "GPN_final_EuclideanDistance.plus.score",
                 #"GPN_absLLR.plus.score",

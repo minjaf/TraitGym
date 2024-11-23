@@ -690,6 +690,17 @@ rule inner_product:
         df.to_parquet(output[0], index=False)
 
 
+rule euclidean_distance:
+    input:
+        "results/dataset/{dataset}/features/{model}_EuclideanDistances.parquet",
+    output:
+        "results/dataset/{dataset}/features/{model}_EuclideanDistance.parquet",
+    run:
+        df = pd.read_parquet(input[0])
+        df = pd.DataFrame({"score": np.linalg.norm(df.values, axis=1)})
+        df.to_parquet(output[0], index=False)
+
+
 rule dataset_subset_defined_alphamissense:
     input:
         "results/dataset/{dataset}/test.parquet",

@@ -216,6 +216,7 @@ metric_mapping = {
     "Spearman": spearman_score,
 }
 BLOCKS = [
+    "chrom",
     "gene",
     "match_group",
     "element",
