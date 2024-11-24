@@ -185,30 +185,30 @@ rule complex_traits_dataset_intermediate:
         V[~V.proximal].drop(columns="proximal").to_parquet(output[1], index=False)
 
 
-rule complex_traits_dataset:
-    input:
-        "results/intermediate_dataset/complex_traits_{proximity}.parquet",
-    output:
-        "results/dataset/complex_traits_{proximity}_matched_{k,\d+}/test.parquet",
-    run:
-        k = int(wildcards.k)
-        V = pd.read_parquet(input[0])
-        V["super_proximal"] = V.tss_dist < 100
-        V["maf_bin"] = pd.cut(V.maf, bins=np.arange(0, 0.51, 0.05))
-        cols = [
-            "gene", "super_proximal", "maf_bin",
-        ]
-        print(V)
-        V = match_cols(V[V.label], V[~V.label], cols, k=k, minimize_dist_col="tss_dist")
-        V = V.drop(columns=["super_proximal", "maf_bin"])
-        print(V)
-        print(V.label.sum())
-        print(
-            V.label.mean(),
-            average_precision_score(V.label, -V.tss_dist),
-            average_precision_score(V.label, V.maf),
-        )
-        V.to_parquet(output[0], index=False)
+#rule complex_traits_dataset:
+#    input:
+#        "results/intermediate_dataset/complex_traits_{proximity}.parquet",
+#    output:
+#        "results/dataset/complex_traits_{proximity}_matched_{k,\d+}/test.parquet",
+#    run:
+#        k = int(wildcards.k)
+#        V = pd.read_parquet(input[0])
+#        V["super_proximal"] = V.tss_dist < 100
+#        V["maf_bin"] = pd.cut(V.maf, bins=np.arange(0, 0.51, 0.05))
+#        cols = [
+#            "gene", "super_proximal", "maf_bin",
+#        ]
+#        print(V)
+#        V = match_cols(V[V.label], V[~V.label], cols, k=k, minimize_dist_col="tss_dist")
+#        V = V.drop(columns=["super_proximal", "maf_bin"])
+#        print(V)
+#        print(V.label.sum())
+#        print(
+#            V.label.mean(),
+#            average_precision_score(V.label, -V.tss_dist),
+#            average_precision_score(V.label, V.maf),
+#        )
+#        V.to_parquet(output[0], index=False)
 
 
 #rule dataset_subset_trait:
@@ -289,3 +289,35 @@ rule complex_traits_dataset:
 #        print(V)
 #        V[COORDINATES].to_parquet(output[0], index=False)
 
+
+rule complex_traits_all_subset_maf_match:
+    input:
+        "results/dataset/complex_traits_all/test.parquet",
+    output:
+        "results/dataset/complex_traits_all/subset/maf_match.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        print(V)
+        n_bins = 100
+        bins = np.linspace(0, 0.5, n_bins + 1)
+        V["maf_bin"] = pd.cut(V.maf, bins=bins, labels=False)
+        V_pos = V.query("label")
+        V_neg = V.query("not label")
+        pos_hist = V_pos.maf_bin.value_counts().sort_index().values
+        neg_hist = V_neg.maf_bin.value_counts().sort_index().values
+        pos_dist = pos_hist / len(V_pos)
+        pos_dist_ratio_to_max = pos_dist / pos_dist.max()
+        neg_hist_max = neg_hist[pos_hist.argmax()]
+        upper_bound = np.floor(neg_hist_max * pos_dist_ratio_to_max)
+        downsample = (neg_hist / upper_bound).min()
+        target_n_samples = np.floor(upper_bound * downsample).astype(int)
+        V_neg_matched = pd.concat([
+            V_neg[V_neg.maf_bin == i].sample(
+                target_n_samples[i], replace=False, random_state=42
+            )
+            for i in range(n_bins)
+        ])
+        V = pd.concat([V_pos, V_neg_matched])
+        V = sort_variants(V)
+        print(V)
+        V[COORDINATES].to_parquet(output[0], index=False)

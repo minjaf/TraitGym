@@ -71,22 +71,22 @@ rule mendelian_traits_dataset_intermediate:
         V[~V.proximal].drop(columns="proximal").to_parquet(output[1], index=False)
 
 
-rule mendelian_traits_dataset:
-    input:
-        "results/intermediate_dataset/mendelian_traits_{proximity}.parquet",
-    output:
-        "results/dataset/mendelian_traits_{proximity,proximal|distal}_matched_{k,\d+}/test.parquet",
-    run:
-        k = int(wildcards.k)
-        V = pd.read_parquet(input[0])
-        V["super_proximal"] = V.tss_dist < 100
-        cols = ["gene", "super_proximal"]
-        V = match_cols(V[V.label], V[~V.label], cols, k=k, minimize_dist_col="tss_dist")
-        V = V.drop(columns=["super_proximal"])
-        print(V)
-        print(V.label.sum())
-        print(V.label.mean(), average_precision_score(V.label, -V.tss_dist))
-        V.to_parquet(output[0], index=False)
+#rule mendelian_traits_dataset:
+#    input:
+#        "results/intermediate_dataset/mendelian_traits_{proximity}.parquet",
+#    output:
+#        "results/dataset/mendelian_traits_{proximity,proximal|distal}_matched_{k,\d+}/test.parquet",
+#    run:
+#        k = int(wildcards.k)
+#        V = pd.read_parquet(input[0])
+#        V["super_proximal"] = V.tss_dist < 100
+#        cols = ["gene", "super_proximal"]
+#        V = match_cols(V[V.label], V[~V.label], cols, k=k, minimize_dist_col="tss_dist")
+#        V = V.drop(columns=["super_proximal"])
+#        print(V)
+#        print(V.label.sum())
+#        print(V.label.mean(), average_precision_score(V.label, -V.tss_dist))
+#        V.to_parquet(output[0], index=False)
 
 
 #rule mendelian_traits_subset_trait:
@@ -144,20 +144,21 @@ rule mendelian_traits_all_intermediate_dataset:
         V[~V.proximal].drop(columns="proximal").to_parquet(output[1], index=False)
 
 
-rule mendelian_traits_all_dataset:
-    input:
-        "results/intermediate_dataset/mendelian_traits_{proximity}_all.parquet",
-    output:
-        "results/dataset/mendelian_traits_{proximity,proximal|distal}_all_matched_{k,\d+}/test.parquet",
-    run:
-        k = int(wildcards.k)
-        V = pd.read_parquet(input[0])
-        # converted to string to avoid error while matching
-        V["super_proximal"] = (V.tss_dist < 100).astype(str)
-        cols = ["super_proximal"]
-        V = match_cols(V[V.label], V[~V.label], cols, k=k, minimize_dist_col="tss_dist")
-        V = V.drop(columns=["super_proximal"])
-        print(V)
-        print(V.label.sum())
-        print(V.label.mean(), average_precision_score(V.label, -V.tss_dist))
-        V.to_parquet(output[0], index=False)
+#rule mendelian_traits_all_dataset:
+#    input:
+#        "results/intermediate_dataset/mendelian_traits_{proximity}_all.parquet",
+#    output:
+#        "results/dataset/mendelian_traits_{proximity,proximal|distal}_all_matched_{k,\d+}/test.parquet",
+#    run:
+#        k = int(wildcards.k)
+#        V = pd.read_parquet(input[0])
+#        # converted to string to avoid error while matching
+#        V["super_proximal"] = (V.tss_dist < 100).astype(str)
+#        cols = ["super_proximal"]
+#        V = match_cols(V[V.label], V[~V.label], cols, k=k, minimize_dist_col="tss_dist")
+#        V = V.drop(columns=["super_proximal"])
+#        print(V)
+#        print(V.label.sum())
+#        print(V.label.mean(), average_precision_score(V.label, -V.tss_dist))
+#        V.to_parquet(output[0], index=False)
+#
