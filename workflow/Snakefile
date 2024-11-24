@@ -318,6 +318,58 @@ rule extra_unsupervised:
             model=[
                 "CADD.plus.RawScore",
                 "GPN-MSA_absLLR.plus.score",
-                #"GPN_final_EuclideanDistance2.plus.score",
+                "GPN_final_EuclideanDistance2.plus.score",
+            ],
+        ),
+
+
+rule no_cadd_overlap:
+    input:
+        expand(
+            "results/dataset/{dataset}/{metric}/{subset}/{model}.csv",
+            dataset=config["datasets"],
+            metric=["AUPRC_by_chrom_weighted_average"],
+            subset=["no_cadd_overlap"],
+            model=[
+                "CADD.plus.RawScore",
+                "Borzoi_L2_L2.plus.all",
+                "Enformer_L2_L2.plus.all",
+                "GPN-MSA_LLR.minus.score",
+                "GPN-MSA_absLLR.plus.score",
+                "GPN_final_LLR.minus.score",
+                "GPN_final_absLLR.plus.score",
+                "GPN_final_Embeddings.plus.euclidean_distance",
+            ],
+        ),
+        expand(
+            "results/dataset/{dataset}/{metric}/{subset}/{feature_set}.{classifier}.chrom.subset_from_all.csv",
+            dataset=config["datasets"],
+            metric=["AUPRC_by_chrom_weighted_average"],
+            subset=["no_cadd_overlap"],
+            feature_set=[
+                "CADD",
+                "Borzoi",
+                "Enformer",
+                "GPN-MSA",
+                "GPN_final",
+            ],
+            classifier=[
+                "LogisticRegression",
+            ]
+        ),
+        expand(
+            "results/dataset/mendelian_traits_all/AUPRC/no_cadd_overlap/{model}.csv",
+            model=[
+                "CADD.plus.RawScore",
+                "GPN-MSA_LLR.minus.score",
+                "GPN_final_LLR.minus.score",
+            ],
+        ),
+        expand(
+            "results/dataset/complex_traits_all/AUPRC/maf_match_AND_no_cadd_overlap/{model}.csv",
+            model=[
+                "CADD.plus.RawScore",
+                "GPN-MSA_absLLR.plus.score",
+                "GPN_final_EuclideanDistance2.plus.score",
             ],
         ),

@@ -855,16 +855,26 @@ rule dataset_subset_distal:
         V[COORDINATES].to_parquet(output[0], index=False)
 
 
-rule dataset_subset_maf:
+rule dataset_subset_no_cadd_overlap:
     input:
         "results/dataset/{dataset}/test.parquet",
+        "results/cadd/train.parquet",
     output:
-        "results/dataset/{dataset}/subset/maf_{a}_{b}.parquet",
+        "results/dataset/{dataset}/subset/no_cadd_overlap.parquet",
     run:
         V = pd.read_parquet(input[0])
-        a = float(wildcards.a)
-        b = float(wildcards.b)
-        V = V[V.maf.between(a, b, inclusive="left")]
+        print(V)
+        if "match_group" in V.columns:
+            target_size = len(V[V.match_group==V.match_group.iloc[0]])
+        cadd = pd.read_parquet(input[1])
+        V = V.merge(cadd, on=COORDINATES, how="left")
+        V = V[V.cadd_label.isna()]
+        if "match_group" in V.columns:
+            match_group_size = V.match_group.value_counts() 
+            match_groups = match_group_size[match_group_size == target_size].index
+            V = V[V.match_group.isin(match_groups)]
+        print(V)
+        print(V.label.value_counts())
         V[COORDINATES].to_parquet(output[0], index=False)
 
 

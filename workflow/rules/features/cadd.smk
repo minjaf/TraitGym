@@ -1,3 +1,45 @@
+rule cadd_download_train_pos:
+    output:
+        "results/cadd/train_pos.vcf.gz",
+    shell:
+        "wget -O {output} https://krishna.gs.washington.edu/download/CADD-development/v1.7/training_data/GRCh38/simulation_SNVs.vcf.gz"
+
+
+
+rule cadd_download_train_neg:
+    output:
+        "results/cadd/train_neg.vcf.gz",
+    shell:
+        "wget -O {output} https://krishna.gs.washington.edu/download/CADD-development/v1.7/training_data/GRCh38/humanDerived_SNVs.vcf.gz"
+
+
+rule cadd_train_process:
+    input:
+        "results/cadd/train_pos.vcf.gz",
+        "results/cadd/train_neg.vcf.gz",
+    output:
+        "results/cadd/train.parquet",
+    run:
+        def load_vcf(path):
+            return (
+                pl.read_csv(
+                    path,
+                    has_header=False,
+                    separator="\t",
+                    new_columns=["chrom", "pos", "id", "ref", "alt"],
+                    schema_overrides=dict(chrom=str),
+                )
+                .drop("id")
+            )
+
+        cadd = pl.concat([
+            load_vcf(input[0]).with_columns(cadd_label=pl.lit(True)),
+            load_vcf(input[1]).with_columns(cadd_label=pl.lit(False)),
+        ])
+        print(cadd)
+        cadd.write_parquet(output[0])
+
+
 #rule dataset_to_vcf:
 #    output:
 #        "results/data/{dataset}.vcf.gz",
