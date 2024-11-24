@@ -239,10 +239,27 @@ rule get_metric:
         subset = pd.read_parquet(input[1])
         V = subset.merge(V, on=COORDINATES, how="left")
         V["score"] = pd.read_parquet(input[2])["score"]
+
+        # let's resample within each class
+        V = pl.DataFrame(V)
+        n_bootstraps = 100
+        V = V.select(["label", "score"])
+
+        def resample(V, seed):
+            V_pos = V.filter(pl.col("label"))
+            V_pos = V_pos.sample(len(V_pos), with_replacement=True, seed=seed)
+            V_neg = V.filter(~pl.col("label"))
+            V_neg = V_neg.sample(len(V_neg), with_replacement=True, seed=seed)
+            return pl.concat([V_pos, V_neg])
+
+        V_bs = [resample(V, i) for i in tqdm(range(n_bootstraps))]
+        se = pl.Series([metric(V_b["label"], V_b["score"]) for V_b in tqdm(V_bs)]).std()
         res = pd.DataFrame({
             "Model": [wildcards.model],
-            metric_name: [metric(V.label, V.score)],
+            metric_name: [metric(V["label"], V["score"])],
+            "se": [se],
         })
+        print(res)
         res.to_csv(output[0], index=False)
 
 
@@ -297,52 +314,3 @@ rule get_metric_by_block_weighted_average:
         })
         res.write_csv(output[0])
 
-
-#rule merge_metrics_by_chrom:
-#    input:
-#        lambda wildcards: expand(
-#            "results/dataset/{{dataset}}/metrics_by_chrom/{model}.csv",
-#            model=config["dataset_eval_models"][wildcards.dataset]
-#        )
-#    output:
-#        "results/dataset/{dataset}/merged_metrics_by_chrom.csv",
-#    run:
-#        dfs = [pd.read_csv(f) for f in input]
-#        df = pd.concat(dfs, axis=0)
-#        print(df)
-#        df.to_csv(output[0], index=False)
-#
-#
-#rule plot_metrics_by_chrom:
-#    input:
-#        "results/dataset/{dataset}/test.parquet",
-#        "results/dataset/{dataset}/merged_metrics_by_chrom.csv",
-#    output:
-#        "results/dataset/{dataset}/plot_by_chrom.pdf",
-#    run:
-#        V = pd.read_parquet(input[0])
-#        n_pos, n_neg = V.label.sum(), len(V) - V.label.sum()
-#        res = pd.read_csv(input[1])
-#        metric = res.columns[-1]
-#        if metric == "AUROC":
-#            baseline = 0.5
-#        elif metric == "AUPRC":
-#            baseline = n_pos / (n_pos + n_neg)
-#        plt.figure(figsize=(2,2))
-#        g = sns.boxplot(
-#            data=res,
-#            y="Model",
-#            x=metric,
-#            color="C0",
-#            order=res.groupby("Model")[metric].median().sort_values(ascending=False).index,
-#        )
-#        sns.despine()
-#        sample_size = f"n={format_number(n_pos)} vs. {format_number(n_neg)}"
-#        g.set(
-#            #xlim=baseline,
-#            ylabel=""
-#        )
-#        title = f"{wildcards.dataset.split('/')[-1]}\n{sample_size}"
-#        plt.title(title)
-#        plt.savefig(output[0], bbox_inches="tight")
-#

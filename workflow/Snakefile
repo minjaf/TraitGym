@@ -306,37 +306,18 @@ rule ensemble_light:
 rule extra_unsupervised:
     input:
         expand(
-            "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
-            dataset=[
-                "complex_traits_all",
-            ],
-            subset=[
-                "all",
-                "maf_0.00_0.05",
-                "maf_0.05_0.50",
-
-                "maf_0.0_0.01",
-                "maf_0.0_0.1",
-                "maf_0.1_0.2",
-                "maf_0.2_0.3",
-                "maf_0.3_0.4",
-                "maf_0.4_0.5",
-            ],
-            features=[
-                "CADD",
-                "GPN-MSA_absLLR",
-                "GPN_absLLR",
+            "results/dataset/mendelian_traits_all/AUPRC/all/{model}.csv",
+            model=[
+                "CADD.plus.RawScore",
+                "GPN-MSA_LLR.minus.score",
+                "GPN_final_LLR.minus.score",
             ],
         ),
         expand(
-            "results/dataset/{dataset}/unsupervised_metrics/{subset}/{features}.csv",
-            dataset=[
-                "mendelian_traits_all",
-            ],
-            subset=["all"],
-            features=[
-                "CADD",
-                "GPN-MSA_LLR",
-                "GPN_LLR",
+            "results/dataset/complex_traits_all/AUPRC/maf_match/{model}.csv",
+            model=[
+                "CADD.plus.RawScore",
+                "GPN-MSA_absLLR.plus.score",
+                #"GPN_final_EuclideanDistance2.plus.score",
             ],
         ),
