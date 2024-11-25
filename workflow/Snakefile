@@ -73,6 +73,7 @@ rule glm_unsupervised:
             dataset=config["datasets"],
             metric=[
                 "AUPRC_by_chrom_weighted_average",
+                "AUROC_by_chrom_weighted_average",
             ],
             subset=["all"],
             model=[
@@ -99,6 +100,7 @@ rule other_unsupervised:
             dataset=config["datasets"],
             metric=[
                 "AUPRC_by_chrom_weighted_average",
+                "AUROC_by_chrom_weighted_average",
             ],
             subset=["all"],
             model=[
@@ -117,6 +119,7 @@ rule general_supervised:
             dataset=config["datasets"],
             metric=[
                 "AUPRC_by_chrom_weighted_average",
+                "AUROC_by_chrom_weighted_average",
             ],
             subset=["all"],
             feature_set=[
@@ -153,8 +156,6 @@ rule general_supervised:
         #        "LogisticRegression",
         #    ]
         #),
-
-
 
 
 rule select_mendelian_traits:
@@ -337,8 +338,13 @@ rule no_cadd_overlap:
                 "GPN-MSA_LLR.minus.score",
                 "GPN-MSA_absLLR.plus.score",
                 "GPN_final_LLR.minus.score",
-                "GPN_final_absLLR.plus.score",
                 "GPN_final_Embeddings.plus.euclidean_distance",
+                "Sei.plus.seqclass_max_absdiff",
+                "NucleotideTransformer_Embeddings.plus.euclidean_distance",
+                "NucleotideTransformer_Embeddings.minus.inner_product",
+                "HyenaDNA_Embeddings.minus.inner_product",
+                "Caduceus_Embeddings.plus.euclidean_distance",
+                "Caduceus_Embeddings.minus.inner_product",
             ],
         ),
         expand(
@@ -352,26 +358,14 @@ rule no_cadd_overlap:
                 "Enformer",
                 "GPN-MSA",
                 "GPN_final",
+                "Sei",
+                "NucleotideTransformer",
+                "HyenaDNA",
+                "Caduceus",
             ],
             classifier=[
                 "LogisticRegression",
             ]
-        ),
-        expand(
-            "results/dataset/mendelian_traits_all/AUPRC/no_cadd_overlap/{model}.csv",
-            model=[
-                "CADD.plus.RawScore",
-                "GPN-MSA_LLR.minus.score",
-                "GPN_final_LLR.minus.score",
-            ],
-        ),
-        expand(
-            "results/dataset/complex_traits_all/AUPRC/maf_match_AND_no_cadd_overlap/{model}.csv",
-            model=[
-                "CADD.plus.RawScore",
-                "GPN-MSA_absLLR.plus.score",
-                "GPN_final_EuclideanDistance2.plus.score",
-            ],
         ),
 
 
