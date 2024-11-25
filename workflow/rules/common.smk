@@ -878,6 +878,33 @@ rule dataset_subset_no_cadd_overlap:
         V[COORDINATES].to_parquet(output[0], index=False)
 
 
+rule dataset_subset_eqtl_overlap:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+        "results/eqtl/pos.parquet",
+    output:
+        "results/dataset/{dataset}/subset/{do,yes|no}_eqtl_overlap.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        print(V)
+        if "match_group" in V.columns:
+            target_size = len(V[V.match_group==V.match_group.iloc[0]])
+        eqtl = pd.read_parquet(input[1])
+        eqtl["eqtl"] = True
+        V = V.merge(eqtl, on=COORDINATES, how="left")
+        if wildcards.do == "yes":
+            V = V[(~V.label) | (~V.eqtl.isna())]
+        elif wildcards.do == "no":
+            V = V[(~V.label) | (V.eqtl.isna())]
+        if "match_group" in V.columns:
+            match_group_size = V.match_group.value_counts() 
+            match_groups = match_group_size[match_group_size == target_size].index
+            V = V[V.match_group.isin(match_groups)]
+        print(V)
+        print(V.label.value_counts())
+        V[COORDINATES].to_parquet(output[0], index=False)
+
+
 rule dataset_subset_intersect:
     input:
         "results/dataset/{dataset}/subset/{s1}.parquet",

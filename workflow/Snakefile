@@ -373,3 +373,33 @@ rule no_cadd_overlap:
                 "GPN_final_EuclideanDistance2.plus.score",
             ],
         ),
+
+
+rule eqtl_overlap:
+    input:
+        expand(
+            "results/dataset/{dataset}/{metric}/{subset}/{model}.csv",
+            dataset=["complex_traits_matched_9"],
+            metric=["AUPRC_by_chrom_weighted_average"],
+            subset=["yes_eqtl_overlap", "no_eqtl_overlap"],
+            model=[
+                "CADD.plus.RawScore",
+                "Borzoi_L2_L2.plus.all",
+                "GPN-MSA_absLLR.plus.score",
+            ],
+        ),
+        expand(
+            "results/dataset/{dataset}/{metric}/{subset}/{feature_set}.{classifier}.chrom.subset_from_all.csv",
+            dataset=["complex_traits_matched_9"],
+            metric=["AUPRC_by_chrom_weighted_average"],
+            subset=["yes_eqtl_overlap", "no_eqtl_overlap"],
+            feature_set=[
+                "CADD",
+                "Borzoi",
+                "GPN-MSA",
+                "CADD+GPN-MSA+Borzoi",
+            ],
+            classifier=[
+                "LogisticRegression",
+            ]
+        ),
