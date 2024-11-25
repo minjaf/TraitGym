@@ -158,3 +158,21 @@ rule eqtl_dataset:
             average_precision_score(V.label, V.maf),
         )
         V.to_parquet(output[0], index=False)
+
+
+rule eqtl_positive:
+    input:
+        "results/eqtl/processed.annot_with_cre.parquet",
+    output:
+        "results/eqtl/pos.parquet",
+    run:
+        V = (
+            pl.read_parquet(input[0])
+            .filter(pl.col("pip") > 0.9)
+            .to_pandas()
+        )
+        V = V.drop_duplicates(COORDINATES)
+        V = V[V.consequence.isin(TARGET_CONSEQUENCES)]
+        assert len(V) == len(V.drop_duplicates(COORDINATES))
+        print(V)
+        V[COORDINATES].to_parquet(output[0], index=False)
