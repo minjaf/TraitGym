@@ -397,3 +397,23 @@ rule eqtl_overlap:
                 "LogisticRegression",
             ]
         ),
+
+
+rule glm_promoter_consequence:
+    input:
+        expand(
+            "results/dataset/mendelian_traits_matched_9/AUPRC_by_chrom_weighted_average/{subset}/{model}.csv",
+            subset=config["consequence_subsets"],
+            model=[
+                "GPN_final_LLR.minus.score",
+                "GPN_final.LogisticRegression.chrom.subset_from_all",
+            ],
+        ),
+        expand(
+            "results/dataset/complex_traits_matched_9/AUPRC_by_chrom_weighted_average/{subset}/{model}.csv",
+            subset=config["consequence_subsets"],
+            model=[
+                "GPN_final_Embeddings.plus.euclidean_distance",
+                "GPN_final.LogisticRegression.chrom.subset_from_all",
+            ],
+        ),
