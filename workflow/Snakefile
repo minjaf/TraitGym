@@ -427,9 +427,9 @@ rule mendelian_maf_ablation:
             model=[
                 "GPN-MSA_LLR.minus.score",
                 "CADD.plus.RawScore",
-                #"Borzoi_L2_L2.plus.all",
+                "Borzoi_L2_L2.plus.all",
                 "GPN-MSA.LogisticRegression.chrom",
                 "CADD.LogisticRegression.chrom",
-                #"Borzoi.LogisticRegression.chrom",
+                "Borzoi.LogisticRegression.chrom",
             ],
         ),
