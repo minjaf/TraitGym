@@ -417,3 +417,19 @@ rule glm_promoter_consequence:
                 "GPN_final.LogisticRegression.chrom.subset_from_all",
             ],
         ),
+
+
+rule mendelian_maf_ablation:
+    input:
+        expand(
+            "results/dataset/mendelian_traits_v21_matched_9/AUPRC_by_chrom_weighted_average/all/{model}.csv",
+            subset=config["consequence_subsets"],
+            model=[
+                "GPN-MSA_LLR.minus.score",
+                "CADD.plus.RawScore",
+                #"Borzoi_L2_L2.plus.all",
+                "GPN-MSA.LogisticRegression.chrom",
+                "CADD.LogisticRegression.chrom",
+                #"Borzoi.LogisticRegression.chrom",
+            ],
+        ),

@@ -162,3 +162,102 @@ rule mendelian_traits_all_intermediate_dataset:
 #        print(V.label.mean(), average_precision_score(V.label, -V.tss_dist))
 #        V.to_parquet(output[0], index=False)
 #
+
+rule mendelian_dataset_v20:
+    input:
+        "results/omim/variants.annot_with_cre.annot_MAF.parquet",
+        "results/gnomad/common.parquet",
+        "results/tss.parquet",
+    output:
+        "results/dataset/mendelian_traits_v20_matched_{k,\d+}/test.parquet",
+    run:
+        k = int(wildcards.k)
+        pos = pd.read_parquet(input[0])
+        pos.maf = pos.maf.fillna(0)
+        pos = pos[pos.maf < 0.1 / 100]
+        pos = pos.drop(columns=["maf"])
+        pos["label"] = True
+        neg = pd.read_parquet(input[1])
+        neg["label"] = False
+        V = pd.concat([pos, neg], ignore_index=True)
+        V = V[V.consequence.isin(TARGET_CONSEQUENCES)]
+        assert len(V) == len(V.drop_duplicates(COORDINATES))
+
+        V["start"] = V.pos - 1
+        V["end"] = V.pos
+        tss = pd.read_parquet(input[2], columns=["chrom", "start", "end"])
+        V = bf.closest(V, tss).rename(columns={
+            "distance": "tss_dist"
+        }).drop(columns=["start", "end", "chrom_", "start_", "end_"])
+
+        match_features = ["tss_dist"]
+
+        consequences = V[V.label].consequence.unique()
+        V_cs = []
+        for c in consequences:
+            print(c)
+            V_c = V[V.consequence == c].copy()
+            for f in match_features:
+                V_c[f"{f}_scaled"] = RobustScaler().fit_transform(V_c[f].values.reshape(-1, 1))
+            print(V_c.label.value_counts())
+            V_c = match_columns_k(V_c, "label", [f"{f}_scaled" for f in match_features], k)
+            V_c["match_group"] = c + "_" + V_c.match_group.astype(str)
+            print(V_c.label.value_counts())
+            print(V_c.groupby("label")[match_features].median())
+            V_c.drop(columns=[f"{f}_scaled" for f in match_features], inplace=True)
+            V_cs.append(V_c)
+        V = pd.concat(V_cs, ignore_index=True)
+
+        V = sort_variants(V)
+        print(V)
+        V.to_parquet(output[0], index=False)
+    
+
+rule mendelian_dataset_v21:
+    input:
+        "results/omim/variants.annot_with_cre.annot_MAF.parquet",
+        "results/gnomad/common.parquet",
+        "results/tss.parquet",
+    output:
+        "results/dataset/mendelian_traits_v21_matched_{k,\d+}/test.parquet",
+    run:
+        k = int(wildcards.k)
+        pos = pd.read_parquet(input[0])
+        pos.maf = pos.maf.fillna(0)
+        pos = pos[pos.maf < 1 / 100]
+        pos = pos.drop(columns=["maf"])
+        pos["label"] = True
+        neg = pd.read_parquet(input[1])
+        neg["label"] = False
+        V = pd.concat([pos, neg], ignore_index=True)
+        V = V[V.consequence.isin(TARGET_CONSEQUENCES)]
+        assert len(V) == len(V.drop_duplicates(COORDINATES))
+
+        V["start"] = V.pos - 1
+        V["end"] = V.pos
+        tss = pd.read_parquet(input[2], columns=["chrom", "start", "end"])
+        V = bf.closest(V, tss).rename(columns={
+            "distance": "tss_dist"
+        }).drop(columns=["start", "end", "chrom_", "start_", "end_"])
+
+        match_features = ["tss_dist"]
+
+        consequences = V[V.label].consequence.unique()
+        V_cs = []
+        for c in consequences:
+            print(c)
+            V_c = V[V.consequence == c].copy()
+            for f in match_features:
+                V_c[f"{f}_scaled"] = RobustScaler().fit_transform(V_c[f].values.reshape(-1, 1))
+            print(V_c.label.value_counts())
+            V_c = match_columns_k(V_c, "label", [f"{f}_scaled" for f in match_features], k)
+            V_c["match_group"] = c + "_" + V_c.match_group.astype(str)
+            print(V_c.label.value_counts())
+            print(V_c.groupby("label")[match_features].median())
+            V_c.drop(columns=[f"{f}_scaled" for f in match_features], inplace=True)
+            V_cs.append(V_c)
+        V = pd.concat(V_cs, ignore_index=True)
+
+        V = sort_variants(V)
+        print(V)
+        V.to_parquet(output[0], index=False)
