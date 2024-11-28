@@ -495,3 +495,39 @@ rule complex_dataset_v23:
         V = sort_variants(V)
         print(V)
         V.to_parquet(output[0], index=False)
+
+
+rule dataset_subset_pip:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+    output:
+        "results/dataset/{dataset}/subset/pip_{pip}.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        target_size = len(V[V.match_group==V.match_group.iloc[0]])
+        V = V[(~V.label) | (V.pip > float(wildcards.pip))]
+        match_group_size = V.match_group.value_counts() 
+        match_groups = match_group_size[match_group_size == target_size].index
+        V = V[V.match_group.isin(match_groups)]
+        print(V.label.value_counts())
+        V[COORDINATES].to_parquet(output[0], index=False)
+
+
+rule dataset_subset_pleiotropy:
+    input:
+        "results/dataset/{dataset}/test.parquet",
+    output:
+        "results/dataset/{dataset}/subset/pleiotropy_{pleiotropy,yes|no}.parquet",
+    run:
+        V = pd.read_parquet(input[0])
+        V["n_traits"] = V.trait.str.split(",").apply(len)
+        target_size = len(V[V.match_group==V.match_group.iloc[0]])
+        if wildcards.pleiotropy == "yes":
+            V = V[(~V.label) | (V.n_traits > 1)]
+        else:
+            V = V[(~V.label) | (V.n_traits == 1)]
+        match_group_size = V.match_group.value_counts() 
+        match_groups = match_group_size[match_group_size == target_size].index
+        V = V[V.match_group.isin(match_groups)]
+        print(V.label.value_counts())
+        V[COORDINATES].to_parquet(output[0], index=False)

@@ -433,3 +433,55 @@ rule mendelian_maf_ablation:
                 "Borzoi.LogisticRegression.chrom",
             ],
         ),
+
+
+rule additional_complex_traits_experiments:
+    input:
+        expand(
+            "results/dataset/complex_traits_matched_9/AUPRC_by_chrom_weighted_average/{subset}/{model}.csv",
+            subset=[
+                "pip_0.99",
+                "pip_0.999",
+                "pleiotropy_yes",
+                "pleiotropy_no",
+            ],
+            model=[
+                "GPN-MSA_absLLR.plus.score",
+                "CADD.plus.RawScore",
+                "Borzoi_L2_L2.plus.all",
+                "GPN-MSA.LogisticRegression.chrom.subset_from_all",
+                "CADD.LogisticRegression.chrom.subset_from_all",
+                "Borzoi.LogisticRegression.chrom.subset_from_all",
+                "CADD+GPN-MSA+Borzoi.LogisticRegression.chrom.subset_from_all",
+            ],
+        ),
+
+
+rule complex_traits_by_gene:
+    input:
+        expand(
+            "results/dataset/complex_traits_v22_matched_9/AUPRC_by_chrom_weighted_average/all/{model}.csv",
+            model=[
+                "GPN-MSA_absLLR.plus.score",
+                "CADD.plus.RawScore",
+                "Borzoi_L2_L2.plus.all",
+                "GPN-MSA.LogisticRegression.chrom",
+                "CADD.LogisticRegression.chrom",
+                "Borzoi.LogisticRegression.chrom",
+            ],
+        ),
+
+
+rule mendelian_traits_by_gene:
+    input:
+        expand(
+            "results/dataset/mendelian_traits_v22_matched_9/AUPRC_by_chrom_weighted_average/all/{model}.csv",
+            model=[
+                "GPN-MSA_LLR.minus.score",
+                "CADD.plus.RawScore",
+                "Borzoi_L2_L2.plus.all",
+                "GPN-MSA.LogisticRegression.chrom",
+                "CADD.LogisticRegression.chrom",
+                "Borzoi.LogisticRegression.chrom",
+            ],
+        ),
