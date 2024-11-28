@@ -26,7 +26,8 @@ rule clinvar_process:
             cln_sig = variant.INFO.get("CLNSIG")
             if cln_sig != "Pathogenic": continue
             review_status = variant.INFO.get("CLNREVSTAT")
-            if review_status != "reviewed_by_expert_panel": continue
+            if review_status not in ["reviewed_by_expert_panel", "practice_guideline"]:
+                continue
             rows.append([variant.CHROM, variant.POS, variant.REF, variant.ALT[0]])
 
         V = pd.DataFrame(rows, columns=COORDINATES)
