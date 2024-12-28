@@ -267,6 +267,12 @@ enformer:
 borzoi:
   batch_size: 8
 
+enformer_conv_tower:
+  batch_size: 2048
+
+borzoi_conv_tower:
+  batch_size: 2048
+
 gpn_msa:
   model_path: "songlab/gpn-msa-sapiens"
   msa_path: "/accounts/projects/yss/gbenegas/projects/gpn/analysis/human/results/msa/multiz100way/89/all.zarr"
