@@ -3,10 +3,9 @@ CADD,CADD,C0
 GPN-MSA,GPN-MSA,C1
 Borzoi,Borzoi,C2
 Enformer,Enformer,C3
-GPN,gLM-Promoter,C4
+GPN_final,GPN-Promoter,C4
 NucleotideTransformer,NT,C5
 HyenaDNA,HyenaDNA,C6
 Caduceus,Caduceus,C7
 CADD+GPN-MSA+Borzoi,Ensemble,C8
 Sei,Sei,C9
-GPN_final,GPN-Promoter,C4

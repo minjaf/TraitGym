@@ -38,8 +38,6 @@ rule all:
                 #"NucleotideTransformer_LLR",
                 #"NucleotideTransformer_InnerProducts",
 
-                #"GPN_LLR",
-                #"GPN_InnerProducts",
                 "GPN_final_LLR",
                 "GPN_final_Embeddings",
                 "GPN_final_InnerProducts",
@@ -50,9 +48,6 @@ rule all:
                 #"Caduceus_LLR",
                 #"Caduceus_InnerProducts",
                 "Caduceus_Embeddings",
-
-                #"GPN_v2_all_256_256_512_17_512_checkpoint_10000_LLR",
-                #"GPN_v2_v3_512_17_512_checkpoint_10000_LLR",
             ],
         )
 
