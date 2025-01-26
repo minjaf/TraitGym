@@ -302,7 +302,6 @@ rule extra_unsupervised:
             model=[
                 "CADD.plus.RawScore",
                 "GPN-MSA_LLR.minus.score",
-                "GPN_final_LLR.minus.score",
             ],
         ),
         expand(
@@ -310,7 +309,6 @@ rule extra_unsupervised:
             model=[
                 "CADD.plus.RawScore",
                 "GPN-MSA_absLLR.plus.score",
-                "GPN_final_EuclideanDistance2.plus.score",
             ],
         ),
 
