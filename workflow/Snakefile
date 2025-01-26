@@ -186,8 +186,7 @@ rule select_complex_traits:
             subset=(
                 select_gwas_traits +
                 config["consequence_subsets"] +
-                ["disease", "non_disease"]# +
-                #config["maf_subsets"]
+                ["disease", "non_disease"]
             ),
             model=[
                 "CADD.plus.RawScore",
@@ -200,8 +199,7 @@ rule select_complex_traits:
         #    dataset=["complex_traits_matched_9"],
         #    subset=(
         #        select_gwas_traits +
-        #        ["disease", "non_disease"] +
-        #        config["maf_subsets"]
+        #        ["disease", "non_disease"]
         #    ),
         #    feature_set=[
         #        "CADD",
