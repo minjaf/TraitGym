@@ -149,39 +149,3 @@ rule grelu_aggregate_assay:
 #        columns = model.data_params['tasks']["name"]
 #        V.loc[V.within_bounds, columns] = l2_score
 #        V[columns].to_parquet(output[0], index=False)
-
-
-rule run_vep_enformer_conv_tower:
-    input:
-        "results/dataset/{dataset}/test.parquet",
-        "results/genome.fa.gz",
-    output:
-        "results/dataset/{dataset}/features/EnformerConvTower.parquet",
-    priority: 101
-    threads:
-        workflow.cores
-    shell:
-        """
-        python \
-        workflow/scripts/vep_enformer_borzoi_conv_tower.py {input} enformer human {output} \
-        --per_device_batch_size {config[enformer_conv_tower][batch_size]} \
-        --dataloader_num_workers {threads} --is_file \
-        """
-
-
-rule run_vep_borzoi_conv_tower:
-    input:
-        "results/dataset/{dataset}/test.parquet",
-        "results/genome.fa.gz",
-    output:
-        "results/dataset/{dataset}/features/BorzoiConvTower.parquet",
-    priority: 101
-    threads:
-        workflow.cores
-    shell:
-        """
-        python \
-        workflow/scripts/vep_enformer_borzoi_conv_tower.py {input} borzoi human_fold0 {output} \
-        --per_device_batch_size {config[borzoi_conv_tower][batch_size]} \
-        --dataloader_num_workers {threads} --is_file \
-        """

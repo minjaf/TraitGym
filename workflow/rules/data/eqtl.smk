@@ -97,69 +97,6 @@ rule eqtl_process:
         V.to_parquet(output[0], index=False) 
 
 
-rule eqtl_dataset_intermediate:
-    input:
-        "results/eqtl/processed.annot_with_cre.parquet",
-        "results/tss.parquet",
-    output:
-        "results/intermediate_dataset/eqtl_proximal.parquet",
-        "results/intermediate_dataset/eqtl_distal.parquet",
-    run:
-        V = (
-            pl.read_parquet(input[0])
-            .with_columns(
-                pl.when(pl.col("pip") > 0.9).then(True)
-                .when(pl.col("pip") < 0.01).then(False)
-                .otherwise(None)
-                .alias("label")
-            )
-            .drop_nulls()
-            .to_pandas()
-        )
-        V = V.drop_duplicates(COORDINATES)
-        V = V[V.consequence.isin(NON_EXONIC_FULL)]
-        assert len(V) == len(V.drop_duplicates(COORDINATES))
-        V["start"] = V.pos - 1
-        V["end"] = V.pos
-        tss = pd.read_parquet(input[1])
-        V = bf.closest(V, tss).rename(columns={
-            "distance": "tss_dist", "gene_id_": "gene",
-        }).drop(columns=["start", "end", "chrom_", "start_", "end_"])
-        print(V.tss_dist.dtype)
-        assert V.tss_dist.notna().all()
-        V.tss_dist = V.tss_dist.astype(int)
-        print(V.tss_dist.dtype)
-        V["proximal"] = V.tss_dist < 1000
-        V[V.proximal].drop(columns="proximal").to_parquet(output[0], index=False)
-        V[~V.proximal].drop(columns="proximal").to_parquet(output[1], index=False)
-
-
-rule eqtl_dataset:
-    input:
-        "results/intermediate_dataset/eqtl_{proximity}.parquet",
-    output:
-        "results/dataset/eqtl_{proximity}_matched_{k,\d+}/test.parquet",
-    run:
-        k = int(wildcards.k)
-        V = pd.read_parquet(input[0])
-        V["super_proximal"] = V.tss_dist < 100
-        V["maf_bin"] = pd.cut(V.maf, bins=np.arange(0, 0.51, 0.05))
-        cols = [
-            "gene", "super_proximal", "maf_bin",
-        ]
-        print(V)
-        V = match_cols(V[V.label], V[~V.label], cols, k=k, minimize_dist_col="tss_dist")
-        V = V.drop(columns=["super_proximal", "maf_bin"])
-        print(V)
-        print(V.label.sum())
-        print(
-            V.label.mean(),
-            average_precision_score(V.label, -V.tss_dist),
-            average_precision_score(V.label, V.maf),
-        )
-        V.to_parquet(output[0], index=False)
-
-
 rule eqtl_positive:
     input:
         "results/eqtl/processed.annot_with_cre.parquet",
