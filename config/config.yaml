@@ -137,7 +137,7 @@ gpn:
   window_size: 512
   per_device_batch_size: 2048
   final:
-    model_path: /scratch/users/gbenegas/projects/gpn-animal-promoter/results/checkpoints/mlm/v4_v6/512_64_1024/checkpoint-370000
+    model_path: songlab/gpn-animal-promoter
 
 cadd:
   url: https://krishna.gs.washington.edu/download/CADD/v1.7/GRCh38/whole_genome_SNVs_inclAnno.tsv.gz
