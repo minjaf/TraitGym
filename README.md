@@ -45,3 +45,4 @@ Benchmarking DNA Sequence Models for Causal Regulatory Variant Prediction in Hum
 
 ## Code (https://github.com/songlab-cal/TraitGym)
 - Tries to follow [recommended Snakemake structure](https://snakemake.readthedocs.io/en/stable/snakefiles/deployment.html)
+- GPN-Promoter code is in [the main GPN repo](https://github.com/songlab-cal/gpn)
