@@ -23,5 +23,16 @@ Benchmarking DNA Sequence Models for Causal Regulatory Variant Prediction in Hum
 - `mendelian_traits_all` (`mendelian_traits_full`)
 - `complex_traits_all` (`complex_traits_full`)
 
+`subset` examples:
+- `all` (default)
+- `3_prime_UTR_variant`
+- `disease`
+- `BMI`
+
+`features` examples:
+- `GPN-MSA_LLR`
+- `GPN-MSA_InnerProducts`
+- `Borzoi_L2`
+
 ## Code (https://github.com/songlab-cal/TraitGym)
 - Tries to follow [recommended Snakemake structure](https://snakemake.readthedocs.io/en/stable/snakefiles/deployment.html)
