@@ -17,5 +17,11 @@ Benchmarking DNA Sequence Models for Causal Regulatory Variant Prediction in Hum
 - Predictions: `{dataset}/preds/{subset}/{model}.parquet`
 - Metrics: `{dataset}/{metric}/{subset}/{model}.csv`
 
+`{dataset}` examples (`load_dataset` config name):
+- `mendelian_traits_matched_9` (`mendelian_traits`)
+- `complex_traits_matched_9` (`complex_traits`)
+- `mendelian_traits_all` (`mendelian_traits_full`)
+- `complex_traits_all` (`complex_traits_full`)
+
 ## Code (https://github.com/songlab-cal/TraitGym)
 - Tries to follow [recommended Snakemake structure](https://snakemake.readthedocs.io/en/stable/snakefiles/deployment.html)
