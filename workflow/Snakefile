@@ -19,6 +19,7 @@ include: "rules/features/hyenadna.smk"
 include: "rules/features/maf.smk"
 include: "rules/features/nucleotide_transformer.smk"
 include: "rules/features/sei.smk"
+include: "rules/features/specieslm.smk"
 include: "rules/model.smk"
 
 
@@ -68,6 +69,7 @@ rule glm_unsupervised:
                 "HyenaDNA",
                 "Caduceus",
                 "GPN-MSA",
+                "SpeciesLM",
             ],
             score=[
                 "LLR.minus.score",
@@ -109,19 +111,20 @@ rule general_supervised:
             ],
             subset=["all"],
             feature_set=[
-                "CADD",
-                "Enformer",
-                "Borzoi",
-                "GPN-MSA",
-                "GPN_final",
-                "NucleotideTransformer",
-                "HyenaDNA",
-                "Caduceus",
-                "Sei",
-                "CADD+GPN-MSA",
-                "CADD+Borzoi",
-                "GPN-MSA+Borzoi",
-                "CADD+GPN-MSA+Borzoi",
+                #"CADD",
+                #"Enformer",
+                #"Borzoi",
+                #"GPN-MSA",
+                #"GPN_final",
+                #"NucleotideTransformer",
+                #"HyenaDNA",
+                #"Caduceus",
+                #"Sei",
+                "SpeciesLM",
+                #"CADD+GPN-MSA",
+                #"CADD+Borzoi",
+                #"GPN-MSA+Borzoi",
+                #"CADD+GPN-MSA+Borzoi",
             ],
             classifier=[
                 "LogisticRegression",

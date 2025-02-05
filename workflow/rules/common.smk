@@ -7,6 +7,7 @@ import numpy as np
 import os
 import pandas as pd
 import polars as pl
+import polars.selectors as cs
 from scipy.spatial.distance import cdist
 import scipy.stats as stats
 from scipy.stats import pearsonr, spearmanr
@@ -699,6 +700,19 @@ rule euclidean_distance:
         df = pd.read_parquet(input[0])
         df = pd.DataFrame({"score": np.linalg.norm(df.values, axis=1)})
         df.to_parquet(output[0], index=False)
+
+
+rule extract_inner_products:
+    input:
+        "results/dataset/{dataset}/features/{model}_Embeddings.parquet",
+    output:
+        "results/dataset/{dataset}/features/{model}_InnerProducts.parquet",
+    run:
+        (
+            pl.read_parquet(input[0])
+            .select(cs.starts_with("inner_product_"))
+            .write_parquet(output[0])
+        )
 
 
 rule dataset_subset_defined_alphamissense:
