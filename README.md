@@ -1,6 +1,8 @@
 # TraitGym
 Benchmarking DNA Sequence Models for Causal Regulatory Variant Prediction in Human Genetics
 
+🏆 Leaderboard: https://huggingface.co/spaces/songlab/TraitGym-leaderboard
+
 ## Quick start
 - Load a dataset
     ```python
