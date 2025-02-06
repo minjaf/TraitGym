@@ -7,6 +7,7 @@ include: "rules/data/eqtl.smk"
 include: "rules/data/gnomad.smk"
 include: "rules/data/ldscore.smk"
 include: "rules/data/mendelian_traits.smk"
+include: "rules/features/aidodna.smk"
 include: "rules/features/cadd.smk"
 include: "rules/features/caduceus.smk"
 include: "rules/features/conservation.smk"
@@ -64,16 +65,17 @@ rule glm_unsupervised:
             ],
             subset=["all"],
             model=[
-                "GPN_final",
-                "NucleotideTransformer",
-                "HyenaDNA",
-                "Caduceus",
-                "GPN-MSA",
-                "SpeciesLM",
+                #"GPN_final",
+                #"NucleotideTransformer",
+                #"HyenaDNA",
+                #"Caduceus",
+                #"GPN-MSA",
+                #"SpeciesLM",
+                "AIDO.DNA",
             ],
             score=[
-                "LLR.minus.score",
-                "absLLR.plus.score",
+                #"LLR.minus.score",
+                #"absLLR.plus.score",
                 "Embeddings.plus.euclidean_distance",
                 "Embeddings.plus.cosine_distance",
                 "Embeddings.minus.inner_product",
