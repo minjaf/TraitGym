@@ -12,7 +12,8 @@ rule aidodna_run_vep_llr:
         python workflow/scripts/run_vep_llr_aidodna.py {input} \
         {config[aidodna][window_size]} {config[aidodna][model_path]} {output} \
         --is_file --dataloader_num_workers 8 \
-        --per_device_batch_size {config[aidodna][per_device_batch_size]}
+        --per_device_batch_size {config[aidodna][per_device_batch_size]} \
+        --n_prefix 1
         """
 
 
