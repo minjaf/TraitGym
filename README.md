@@ -1,9 +1,9 @@
-# TraitGym
+# 🧬 TraitGym
 Benchmarking DNA Sequence Models for Causal Regulatory Variant Prediction in Human Genetics
 
 🏆 Leaderboard: https://huggingface.co/spaces/songlab/TraitGym-leaderboard
 
-## Quick start
+## ⚡️ Quick start
 - Load a dataset
     ```python
     from datasets import load_dataset
@@ -12,7 +12,7 @@ Benchmarking DNA Sequence Models for Causal Regulatory Variant Prediction in Hum
     ```
 - Example notebook to run variant effect prediction with a gLM, runs in 5 min on Google Colab: `TraitGym.ipynb` [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/songlab-cal/TraitGym/blob/main/TraitGym.ipynb)
 
-## Resources (https://huggingface.co/datasets/songlab/TraitGym)
+## 🤗 Resources (https://huggingface.co/datasets/songlab/TraitGym)
 - Datasets: `{dataset}/test.parquet`
 - Subsets: `{dataset}/subset/{subset}.parquet`
 - Features: `{dataset}/features/{features}.parquet`
@@ -45,6 +45,6 @@ Benchmarking DNA Sequence Models for Causal Regulatory Variant Prediction in Hum
 - `AUPRC_by_chrom_weighted_average` (main metric)
 - `AUPRC`
 
-## Code (https://github.com/songlab-cal/TraitGym)
+## 💻 Code (https://github.com/songlab-cal/TraitGym)
 - Tries to follow [recommended Snakemake structure](https://snakemake.readthedocs.io/en/stable/snakefiles/deployment.html)
 - GPN-Promoter code is in [the main GPN repo](https://github.com/songlab-cal/gpn)
