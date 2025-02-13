@@ -1,5 +1,5 @@
 # 🧬 TraitGym
-Benchmarking DNA Sequence Models for Causal Regulatory Variant Prediction in Human Genetics
+[Benchmarking DNA Sequence Models for Causal Regulatory Variant Prediction in Human Genetics](https://www.biorxiv.org/content/10.1101/2025.02.11.637758v1)
 
 🏆 Leaderboard: https://huggingface.co/spaces/songlab/TraitGym-leaderboard
 
@@ -48,3 +48,19 @@ Benchmarking DNA Sequence Models for Causal Regulatory Variant Prediction in Hum
 ## 💻 Code (https://github.com/songlab-cal/TraitGym)
 - Tries to follow [recommended Snakemake structure](https://snakemake.readthedocs.io/en/stable/snakefiles/deployment.html)
 - GPN-Promoter code is in [the main GPN repo](https://github.com/songlab-cal/gpn)
+
+## Citation
+[Link to paper](https://www.biorxiv.org/content/10.1101/2025.02.11.637758v1)
+```bibtex
+@article{traitgym,
+	author = {Benegas, Gonzalo and Eraslan, Gokcen and Song, Yun S.},
+	title = {Benchmarking DNA Sequence Models for Causal Regulatory Variant Prediction in Human Genetics},
+	elocation-id = {2025.02.11.637758},
+	year = {2025},
+	doi = {10.1101/2025.02.11.637758},
+	publisher = {Cold Spring Harbor Laboratory},
+	URL = {https://www.biorxiv.org/content/early/2025/02/12/2025.02.11.637758},
+	eprint = {https://www.biorxiv.org/content/early/2025/02/12/2025.02.11.637758.full.pdf},
+	journal = {bioRxiv}
+}
+```
