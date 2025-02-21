@@ -312,3 +312,9 @@ aidodna:
   model_path: genbio-ai/AIDO.DNA-7B
   window_size: 4000
   per_device_batch_size: 4
+
+evo2:
+  1b_base:
+    model_path: arcinstitute/evo2_1b_base
+    window_size: 8182
+    per_device_batch_size: 32
