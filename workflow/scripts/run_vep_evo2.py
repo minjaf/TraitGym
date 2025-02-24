@@ -1,44 +1,73 @@
 import argparse
-from Bio import SeqIO, bgzf
 from Bio.Seq import Seq
 from datasets import load_dataset
-import gzip
 import numpy as np
 import os
 import pandas as pd
 import tempfile
 import torch
+import torch.nn.functional as F
 from transformers import Trainer, TrainingArguments
 
 from evo2 import Evo2
+from evo2.scoring import logits_to_logprobs
 from gpn.data import Genome, load_dataset_from_file_or_dir
 
 
-class CLMforVEPModel(torch.nn.Module):
-    def __init__(self, model_path):
+def euclidean_distance(embed_ref, embed_alt):
+    B = len(embed_ref)
+    return F.pairwise_distance(embed_ref.reshape(B, -1), embed_alt.reshape(B, -1))
+
+
+def euclidean_distances(embed_ref, embed_alt):
+    return torch.linalg.norm(embed_ref - embed_alt, dim=1)
+
+
+def inner_product(embed_ref, embed_alt):
+    return (embed_ref * embed_alt).sum(dim=(1, 2))
+
+
+def inner_products(embed_ref, embed_alt):
+    return (embed_ref * embed_alt).sum(dim=1)
+
+
+def cosine_distance(embed_ref, embed_alt):
+    B = len(embed_ref)
+    return 1 - F.cosine_similarity(embed_ref.reshape(B, -1), embed_alt.reshape(B, -1), dim=1)
+
+
+def cosine_distances(embed_ref, embed_alt):
+    return 1 - F.cosine_similarity(embed_ref, embed_alt, dim=1)
+
+
+
+class VEPWrapper(torch.nn.Module):
+    def __init__(self, model):
         super().__init__()
-        self.model = Evo2(model_path)
+        self.model = model
 
-    def log_likelihood(self, input_ids):
-        B = input_ids.shape[0]
-        labels = input_ids#.clone()
-        logits = self.model(input_ids=input_ids).logits
-        logits = logits.float()
-        # Shift so that tokens < n predict n
-        shift_logits = logits[..., :-1, :].contiguous()
-        shift_labels = labels[..., 1:].contiguous()
+    def get_ll_and_embed(self, input_ids):
+        layer_name = "norm"  # last layer
+        (logits, _), embed = self.model(
+            input_ids, return_embeddings=True, layer_names=[layer_name]
+        )
+        ll = logits_to_logprobs(logits, input_ids).mean(dim=-1)
+        embed = embed[layer_name]
+        return ll, embed
 
-        loss_fct = torch.nn.CrossEntropyLoss(reduction="none")
-        shift_logits = shift_logits.view(-1, self.model.vocab_size)
-        shift_labels = shift_labels.view(-1)
-        # Enable model parallelism
-        shift_labels = shift_labels.to(shift_logits.device)
-        loss = loss_fct(shift_logits, shift_labels)
-        res = -loss.reshape(B, -1).sum(dim=-1)
-        return res
-
-    def get_llr(self, input_ids_ref, input_ids_alt):
-        return self.log_likelihood(input_ids_alt) - self.log_likelihood(input_ids_ref)
+    def get_scores(self, input_ids_ref, input_ids_alt):
+        ll_ref, embed_ref = self.get_ll_and_embed(input_ids_ref)
+        ll_alt, embed_alt = self.get_ll_and_embed(input_ids_alt)
+        llr = ll_alt - ll_ref
+        return torch.cat((
+            torch.unsqueeze(llr, 1),
+            torch.unsqueeze(euclidean_distance(embed_ref, embed_alt), 1),
+            torch.unsqueeze(inner_product(embed_ref, embed_alt), 1),
+            torch.unsqueeze(cosine_distance(embed_ref, embed_alt), 1),
+            euclidean_distances(embed_ref, embed_alt),
+            inner_products(embed_ref, embed_alt),
+            cosine_distances(embed_ref, embed_alt),
+        ), dim=1)
 
     def forward(
         self,
@@ -47,10 +76,9 @@ class CLMforVEPModel(torch.nn.Module):
         input_ids_ref_rev=None,
         input_ids_alt_rev=None,
     ):
-        llr_fwd = self.get_llr(input_ids_ref_fwd, input_ids_alt_fwd)
-        llr_rev = self.get_llr(input_ids_ref_rev, input_ids_alt_rev)
-        llr = (llr_fwd+llr_rev)/2
-        return llr
+        fwd = self.get_scores(input_ids_ref_fwd, input_ids_alt_fwd)
+        rev = self.get_scores(input_ids_ref_rev, input_ids_alt_rev)
+        return (fwd + rev) / 2
 
 
 def run_vep(
@@ -58,14 +86,7 @@ def run_vep(
     per_device_batch_size=8, dataloader_num_workers=0,
 ):
     def tokenize(seqs):
-        return tokenizer(
-            seqs,
-            padding=False,
-            truncation=False,
-            return_token_type_ids=False,
-            return_attention_mask=False,
-            return_special_tokens_mask=False,
-        )["input_ids"]
+        return tokenizer.tokenize_batch(seqs)
 
     def get_tokenized_seq(vs):
         # we convert from 1-based coordinate (standard in VCF) to 
@@ -95,8 +116,8 @@ def run_vep(
             seq_alt = seq.copy()
             seq_alt[:, pos] = alt
             return (
-                np.array(tokenize(["".join(x) for x in seq_ref])),
-                np.array(tokenize(["".join(x) for x in seq_alt])),
+                np.array(tokenize(["".join(x) for x in seq_ref]), dtype=np.int64),
+                np.array(tokenize(["".join(x) for x in seq_alt]), dtype=np.int64),
             )
 
         res = {}
@@ -132,6 +153,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "genome_path", type=str, help="Genome path (fasta, potentially compressed)",
     )
+    parser.add_argument("window_size", type=int, help="Genomic window size")
     parser.add_argument(
         "model_path", help="Model path (local or on HF hub)", type=str
     )
@@ -162,17 +184,22 @@ if __name__ == "__main__":
     )
     subset_chroms = np.unique(variants["chrom"])
     genome = Genome(args.genome_path, subset_chroms=subset_chroms)
-    tokenizer = AutoTokenizer.from_pretrained(
-        args.tokenizer_path if args.tokenizer_path else args.model_path,
-        trust_remote_code=True,
-    )
-    model = CLMforVEPModel(args.model_path)
+    evo2 = Evo2(args.model_path)
+    tokenizer = evo2.tokenizer
+    model = VEPWrapper(evo2)
     pred = run_vep(
-        variants, genome, tokenizer, model, max_lengths[args.model_path],
+        variants, genome, tokenizer, model, args.window_size,
         per_device_batch_size=args.per_device_batch_size,
         dataloader_num_workers=args.dataloader_num_workers,
+    )
+    D = (pred.shape[1] - 4) // 3
+    cols = (
+        ["llr", "euclidean_distance", "inner_product", "cosine_distance"]
+        + [f"euclidean_distance_{i}" for i in range(D)]
+        + [f"inner_product_{i}" for i in range(D)]
+        + [f"cosine_distance_{i}" for i in range(D)]
     )
     directory = os.path.dirname(args.output_path)
     if directory != "" and not os.path.exists(directory):
         os.makedirs(directory)
-    pd.DataFrame(pred, columns=["score"]).to_parquet(args.output_path, index=False)
+    pd.DataFrame(pred, columns=cols).to_parquet(args.output_path, index=False)

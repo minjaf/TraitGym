@@ -13,6 +13,7 @@ include: "rules/features/caduceus.smk"
 include: "rules/features/conservation.smk"
 include: "rules/features/dist.smk"
 include: "rules/features/enformer.smk"
+include: "rules/features/evo2.smk"
 include: "rules/features/gpn.smk"
 include: "rules/features/gpn_msa.smk"
 include: "rules/features/grelu.smk"
@@ -30,26 +31,28 @@ rule all:
             "results/dataset/{dataset}/features/{features}.parquet",
             dataset=config["datasets"],
             features=[
-                "Enformer_L2",
-                "Borzoi_L2",
-                "CADD",
-                "GPN-MSA_LLR",
-                "GPN-MSA_InnerProducts",
-                "GPN-MSA_Embeddings",
+                #"Enformer_L2",
+                #"Borzoi_L2",
+                #"CADD",
+                #"GPN-MSA_LLR",
+                #"GPN-MSA_InnerProducts",
+                #"GPN-MSA_Embeddings",
 
                 #"NucleotideTransformer_LLR",
                 #"NucleotideTransformer_InnerProducts",
 
-                "GPN_final_LLR",
-                "GPN_final_Embeddings",
-                "GPN_final_InnerProducts",
+                #"GPN_final_LLR",
+                #"GPN_final_Embeddings",
+                #"GPN_final_InnerProducts",
 
                 #"HyenaDNA_LLR",
                 #"HyenaDNA_InnerProducts",
 
                 #"Caduceus_LLR",
                 #"Caduceus_InnerProducts",
-                "Caduceus_Embeddings",
+                #"Caduceus_Embeddings",
+
+                "evo2_1b_base",
             ],
         )
 
