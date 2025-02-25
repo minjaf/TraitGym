@@ -480,3 +480,28 @@ rule mendelian_traits_by_gene:
                 "Borzoi.LogisticRegression.chrom",
             ],
         ),
+
+
+rule evo2:
+    input:
+        expand(
+            "results/dataset/{dataset}/{metric}/{subset}/{model}.{score}.csv",
+            dataset=config["datasets"],
+            metric=[
+                "AUPRC_by_chrom_weighted_average",
+                #"AUROC_by_chrom_weighted_average",
+            ],
+            #subset=["all"],
+            subset=["all"] + config["consequence_subsets"],
+            model=[
+                "evo2_1b_base",
+            ],
+            score=[
+                "minus.llr",
+                #"LLR.minus.score",
+                #"absLLR.plus.score",
+                "plus.euclidean_distance",
+                "plus.cosine_distance",
+                "minus.inner_product",
+            ],
+        ),
