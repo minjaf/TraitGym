@@ -40,7 +40,6 @@ def cosine_distances(embed_ref, embed_alt):
     return 1 - F.cosine_similarity(embed_ref, embed_alt, dim=1)
 
 
-
 class VEPWrapper(torch.nn.Module):
     def __init__(self, model):
         super().__init__()
@@ -51,7 +50,7 @@ class VEPWrapper(torch.nn.Module):
         (logits, _), embed = self.model(
             input_ids, return_embeddings=True, layer_names=[layer_name]
         )
-        ll = logits_to_logprobs(logits, input_ids).mean(dim=-1)
+        ll = logits_to_logprobs(logits, input_ids).float().mean(dim=-1)
         embed = embed[layer_name]
         return ll, embed
 
@@ -184,6 +183,8 @@ if __name__ == "__main__":
     )
     subset_chroms = np.unique(variants["chrom"])
     genome = Genome(args.genome_path, subset_chroms=subset_chroms)
+    torch.manual_seed(1)
+    torch.cuda.manual_seed(1)
     evo2 = Evo2(args.model_path)
     tokenizer = evo2.tokenizer
     model = VEPWrapper(evo2)
