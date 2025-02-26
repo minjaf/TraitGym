@@ -78,6 +78,10 @@ feature_sets:
     - evo2_7b_LLR
     - evo2_7b_absLLR
     - evo2_7b_InnerProducts
+  evo2_40b:
+    - evo2_40b_LLR
+    - evo2_40b_absLLR
+    - evo2_40b_InnerProducts
   Enformer:
     - Enformer_L2
     - Enformer_L2_L2
