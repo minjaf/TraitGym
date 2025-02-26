@@ -64,7 +64,7 @@ rule glm_unsupervised:
             dataset=config["datasets"],
             metric=[
                 "AUPRC_by_chrom_weighted_average",
-                "AUROC_by_chrom_weighted_average",
+                #"AUROC_by_chrom_weighted_average",
             ],
             subset=["all"],
             model=[
@@ -74,7 +74,9 @@ rule glm_unsupervised:
                 #"Caduceus",
                 #"GPN-MSA",
                 #"SpeciesLM",
-                "AIDO.DNA",
+                #"AIDO.DNA",
+                "evo2_1b_base",
+                "evo2_7b",
             ],
             score=[
                 "LLR.minus.score",
@@ -126,7 +128,9 @@ rule general_supervised:
                 #"Caduceus",
                 #"Sei",
                 #"SpeciesLM",
-                "AIDO.DNA",
+                #"AIDO.DNA",
+                "evo2_1b_base",
+                "evo2_7b",
                 #"CADD+GPN-MSA",
                 #"CADD+Borzoi",
                 #"GPN-MSA+Borzoi",
