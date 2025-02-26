@@ -98,13 +98,17 @@ rule other_unsupervised:
             metric=[
                 "AUPRC_by_chrom_weighted_average",
                 "AUROC_by_chrom_weighted_average",
+                "AUPRC",
             ],
             subset=["all"],
             model=[
-                "CADD.plus.RawScore",
-                "Enformer_L2_L2.plus.all",
-                "Borzoi_L2_L2.plus.all",
-                "Sei.plus.seqclass_max_absdiff",
+                #"CADD.plus.RawScore",
+                #"Enformer_L2_L2.plus.all",
+                #"Borzoi_L2_L2.plus.all",
+                #"Sei.plus.seqclass_max_absdiff",
+                "phyloP-100v.plus.score",
+                "phyloP-241m.plus.score",
+                "phastCons-43p.plus.score",
             ],
         ),
 
@@ -311,6 +315,9 @@ rule extra_unsupervised:
             model=[
                 "CADD.plus.RawScore",
                 "GPN-MSA_LLR.minus.score",
+                "phyloP-100v.plus.score",
+                "phyloP-241m.plus.score",
+                "phastCons-43p.plus.score",
             ],
         ),
         expand(
@@ -318,6 +325,9 @@ rule extra_unsupervised:
             model=[
                 "CADD.plus.RawScore",
                 "GPN-MSA_absLLR.plus.score",
+                "phyloP-100v.plus.score",
+                "phyloP-241m.plus.score",
+                "phastCons-43p.plus.score",
             ],
         ),
 
