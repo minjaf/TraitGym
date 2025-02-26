@@ -6,11 +6,11 @@ Enformer,Enformer,C3
 GPN_final,GPN-Promoter,C4
 NucleotideTransformer,NT,C5
 HyenaDNA,HyenaDNA,C6
-Caduceus,Caduceus,C7
+Caduceus,Caduceus,hotpink
 CADD+GPN-MSA+Borzoi,Ensemble,C8
 Sei,Sei,C9
 SpeciesLM,SpeciesLM,teal
 AIDO.DNA,AIDO.DNA,olive
-evo2_1b_base,evo2_1b_base,black
-evo2_7b,evo2_7b,black
-evo2_40b,evo2_40b,black
+evo2_1b_base,Evo2 1B,C7
+evo2_7b,Evo2 7B,#4A4A4A
+evo2_40b,Evo2 40B,black
