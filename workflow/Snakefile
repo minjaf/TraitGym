@@ -392,7 +392,7 @@ rule no_cadd_overlap:
                 "evo2_40b",
             ],
             classifier=[
-                "LogisticRegression",
+                "LogisticRehttp://morgoth:8888/tree?token=59b292dbd7e0ee00cdff73ec943832358ac1193607055dddession",
             ]
         ),
 
@@ -530,14 +530,20 @@ rule by_consequence:
                 "Borzoi_L2_L2.plus.all",
                 "GPN-MSA_LLR.minus.score",
                 "GPN-MSA_absLLR.plus.score",
+                "GPN_final_LLR.minus.score",
+                "GPN_final_absLLR.plus.score",
+                "GPN_final_Embeddings.plus.euclidean_distance",
 
                 "evo2_1b_base_LLR.minus.score",
                 "evo2_1b_base_absLLR.plus.score",
+                "evo2_1b_base_Embeddings.plus.euclidean_distance",
 
                 "evo2_7b_LLR.minus.score",
                 "evo2_7b_absLLR.plus.score",
+                "evo2_7b_Embeddings.plus.euclidean_distance",
 
                 "evo2_40b_LLR.minus.score",
                 "evo2_40b_absLLR.plus.score",
+                "evo2_40b_Embeddings.plus.euclidean_distance",
             ],
         ),
