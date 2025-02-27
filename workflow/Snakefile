@@ -392,7 +392,7 @@ rule no_cadd_overlap:
                 "evo2_40b",
             ],
             classifier=[
-                "LogisticRehttp://morgoth:8888/tree?token=59b292dbd7e0ee00cdff73ec943832358ac1193607055dddession",
+                "LogisticRegression",
             ]
         ),
 
