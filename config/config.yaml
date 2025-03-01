@@ -329,12 +329,12 @@ evo2:
   1b_base:
     model_path: evo2_1b_base
     window_size: 8192
-    per_device_batch_size: 16  # 1xL40
+    per_device_batch_size: 16  # L40
   7b:
     model_path: evo2_7b
     window_size: 8192
-    per_device_batch_size: 8  # 1xL40
+    per_device_batch_size: 8  # L40
   40b:
     model_path: evo2_40b
     window_size: 8192
-    per_device_batch_size: 4
+    per_device_batch_size: 8  # H200
