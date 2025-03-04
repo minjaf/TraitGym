@@ -154,7 +154,7 @@ import math
 import numpy as np
 import statistics
 
-NUCLEOTIDES = ["A", "C", "G", "T", "N"]
+NUCLEOTIDES_N = ["A", "C", "G", "T", "N"]
 TRANSITIONS = set([('C', 'T'), ('T', 'C'), ('G', 'A'), ('A', 'G')])
 TRANSVERSIONS = set([('A', 'C'), ('C', 'A'), ('T', 'A'), ('A', 'T'), ('C', 'G'), ('G', 'C'), ('G', 'T'), ('T', 'G')])
 
@@ -200,7 +200,7 @@ trackData = {
     'ref': {
         'description': 'Reference allele',
         'type': list,
-        'categories': NUCLEOTIDES,
+        'categories': NUCLEOTIDES_N,
         'dependencies': ['type', 'ref', 'alt'],
         'derive': lambda x: 'N' if x['type'] != 'SNV' else x['ref'],
         'na_value': 'N',
@@ -209,7 +209,7 @@ trackData = {
     'alt': {
         'description': 'Observed allele',
         'type': list,
-        'categories': NUCLEOTIDES,
+        'categories': NUCLEOTIDES_N,
         'dependencies': ['type', 'alt'],
         'derive': lambda x: 'N' if x['type'] != 'SNV' else x['alt'],
         'na_value': 'N',
@@ -1435,7 +1435,7 @@ trackData = {
     'nuccomb': {
         'description': 'combinatorical of Ref and Alt',
         'type': list,
-        'categories': ['%s-%s' % (a, b) for a in NUCLEOTIDES[:-1] for b in NUCLEOTIDES[:-1] if a != b] + ['N-N'],
+        'categories': ['%s-%s' % (a, b) for a in NUCLEOTIDES_N[:-1] for b in NUCLEOTIDES_N[:-1] if a != b] + ['N-N'],
         'dependencies': ['ref', 'alt', 'type'],
         'derive': lambda x: 'N-N' if x['type'] != 'SNV' else '%s-%s' % (x['ref'], x['alt']),
         'na_value': 'N-N',

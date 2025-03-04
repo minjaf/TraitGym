@@ -70,6 +70,18 @@ feature_sets:
     - AIDO.DNA_LLR
     - AIDO.DNA_absLLR
     - AIDO.DNA_InnerProducts
+  evo2_1b_base:
+    - evo2_1b_base_LLR
+    - evo2_1b_base_absLLR
+    - evo2_1b_base_InnerProducts
+  evo2_7b:
+    - evo2_7b_LLR
+    - evo2_7b_absLLR
+    - evo2_7b_InnerProducts
+  evo2_40b:
+    - evo2_40b_LLR
+    - evo2_40b_absLLR
+    - evo2_40b_InnerProducts
   Enformer:
     - Enformer_L2
     - Enformer_L2_L2
@@ -312,3 +324,17 @@ aidodna:
   model_path: genbio-ai/AIDO.DNA-7B
   window_size: 4000
   per_device_batch_size: 4
+
+evo2:
+  1b_base:
+    model_path: evo2_1b_base
+    window_size: 8192
+    per_device_batch_size: 16  # L40
+  7b:
+    model_path: evo2_7b
+    window_size: 8192
+    per_device_batch_size: 8  # L40
+  40b:
+    model_path: evo2_40b
+    window_size: 8192
+    per_device_batch_size: 8  # H200

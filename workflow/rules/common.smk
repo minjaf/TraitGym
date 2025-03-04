@@ -10,7 +10,8 @@ import polars as pl
 import polars.selectors as cs
 from scipy.spatial.distance import cdist
 import scipy.stats as stats
-from scipy.stats import pearsonr, spearmanr
+from scipy.stats import pearsonr, spearmanr, entropy
+from scipy.special import softmax
 import seaborn as sns
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
