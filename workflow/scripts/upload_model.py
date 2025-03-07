@@ -24,6 +24,7 @@ datasets = [
 ]
 
 metrics = [
+    "AUPRC",
     "AUPRC_by_chrom",
     "AUROC_by_chrom",
     "AUPRC_by_chrom_weighted_average",
