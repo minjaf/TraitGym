@@ -32,10 +32,11 @@ metrics = [
 ]
 
 features = [
-    "LLR",
-    "absLLR",
-    "Embeddings",
-    "InnerProducts",
+    "",
+    "_LLR",
+    "_absLLR",
+    "_Embeddings",
+    "_InnerProducts",
 ]
 
 preds = [
@@ -46,6 +47,7 @@ preds = [
     "_Embeddings.plus.euclidean_distance",
     ".LogisticRegression.chrom",
     ".LogisticRegression.chrom.subset_from_all",
+    ".plus.score",
 ]
 
 subsets = [
@@ -55,7 +57,7 @@ subsets = [
 
 for dataset in datasets:
     for feature in features:
-        upload_file(f"{dataset}/features/{model}_{feature}.parquet")
+        upload_file(f"{dataset}/features/{model}{feature}.parquet")
     for subset in subsets:
         for pred in preds:
             upload_file(f"{dataset}/preds/{subset}/{model}{pred}.parquet")
