@@ -94,17 +94,14 @@ snakemake --cores all results/dataset/{dataset}/{metric}/all/{feature_set}.Logis
 where `{feature_set}` should first be defined in `feature_sets` in `config/config.yaml` (this allows combining features defined in different files).
 
 ## Citation
-[Link to paper](https://www.biorxiv.org/content/10.1101/2025.02.11.637758v1)
+[Link to paper](https://www.biorxiv.org/content/10.1101/2025.02.11.637758v2)
 ```bibtex
 @article{traitgym,
-	author = {Benegas, Gonzalo and Eraslan, Gokcen and Song, Yun S.},
-	title = {Benchmarking DNA Sequence Models for Causal Regulatory Variant Prediction in Human Genetics},
-	elocation-id = {2025.02.11.637758},
-	year = {2025},
-	doi = {10.1101/2025.02.11.637758},
-	publisher = {Cold Spring Harbor Laboratory},
-	URL = {https://www.biorxiv.org/content/early/2025/02/12/2025.02.11.637758},
-	eprint = {https://www.biorxiv.org/content/early/2025/02/12/2025.02.11.637758.full.pdf},
-	journal = {bioRxiv}
+  title={Benchmarking DNA Sequence Models for Causal Regulatory Variant Prediction in Human Genetics},
+  author={Benegas, Gonzalo and Eraslan, G{\"o}kcen and Song, Yun S},
+  journal={bioRxiv},
+  pages={2025--02},
+  year={2025},
+  publisher={Cold Spring Harbor Laboratory}
 }
 ```
