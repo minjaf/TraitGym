@@ -83,7 +83,7 @@ rule grelu_aggregate_assay:
         "results/dataset/{dataset}/features/{model}_L2.parquet",
         "results/metadata/{model}.csv",
     output:
-        "results/dataset/{dataset}/features/{model,Enformer|Borzoi}_L2_L{norm_ord}.parquet",
+        "results/dataset/{dataset}/features/{model}_L2_L{norm_ord}.parquet",
     run:
         df = pd.read_parquet(input[0])
         metadata = pd.read_csv(input[1])
